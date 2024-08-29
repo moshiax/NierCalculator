@@ -7,20 +7,12 @@
     <style>
         body {
             background-color: #d1cdb7;
-            background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/9e64454c-2678-4d64-9817-b9d4547eb615/dce2nw9-5d8112a7-1407-4080-8bdf-a4f64e9b2ba8.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzllNjQ0NTRjLTI2NzgtNGQ2NC05ODE3LWI5ZDQ1NDdlYjYxNVwvZGNlMm53OS01ZDgxMTJhNy0xNDA3LTQwODAtOGJkZi1hNGY2NGU5YjJiYTguanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.-fxpa5WYdyZzK52HSdx79efbEwIDToHzI8LVvV5-05M');
-            background-size: cover;
             font-family: "Courier New", monospace;
             color: #ffffff;
             text-shadow: 1px 1px 2px #000;
             font-size: 1.5rem;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 75px;
-            font-size: 3.75rem;
-            letter-spacing: 0.75rem;
-            text-transform: uppercase;
-            color: #e0e0e0;
+            background-size: cover;
+            background-repeat: no-repeat;
         }
         .container {
             max-width: 900px;
@@ -79,112 +71,103 @@
             margin-top: 30px;
             color: #e0e0e0;
         }
-input[type="number"] {
-    -moz-appearance: textfield;
-    -webkit-appearance: none;
-    appearance: none;
-}
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1; 
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%; 
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.8);
-}
-
-.modal-content {
-    background-color: rgba(44, 44, 44, 0.95);
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 600px;
-    border-radius: 15px;
-    font-family: "Courier New", monospace;
-    color: #ffffff;
-}
-
-.country-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.country-list li {
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #555;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.country-list li:hover {
-    background-color: #2c2c2c;
-}
-
-.country-list img {
-    margin-right: 10px;
-    width: 32px;
-    height: 24px;
-}
-
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: #ffffff;
-    text-decoration: none;
-    cursor: pointer;
-}
-.currency-symbol {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 1.5rem;
-}
-.input-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
+        input[type="number"] {
+            -moz-appearance: textfield;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%; 
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .modal-content {
+            background-color: rgba(44, 44, 44, 0.95);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 15px;
+            font-family: "Courier New", monospace;
+            color: #ffffff;
+        }
+        .country-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .country-list li {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #555;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .country-list li:hover {
+            background-color: #2c2c2c;
+        }
+        .country-list img {
+            margin-right: 10px;
+            width: 32px;
+            height: 24px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: #ffffff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .currency-symbol {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.5rem;
+        }
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
 
     </style>
 </head>
 <body>
 
-<h1>Nier Automata </h1>
+
+
 
 
 <div class="container">
     <label for="amount">Enter amount:</label>
-
-<div class="input-container">
-    <input type="number" id="amount" placeholder="Amount">
-    <span class="currency-symbol" id="currencySymbol"></span>
-</div>
-
+    <div class="input-container">
+        <input type="number" id="amount" placeholder="Amount">
+        <span class="currency-symbol" id="currencySymbol"></span>
+    </div>
     <div id="result"></div>
 </div>
+
 <!-- Модальное окно -->
 <div id="countryModal" class="modal">
     <div class="modal-content">
@@ -313,56 +296,64 @@ function getCurrencySymbol(currencyCode) {
             document.getElementById('countryFlag').src = flagSrc;
             document.getElementById('countryFlag').setAttribute('data-country-code', selectedCountryCode);
             document.getElementById('countryModal').style.display = "none";
-            
             await updatePrice(selectedCountryCode);
         });
     });
 
-async function updatePrice(countryCode) {
-    try {
-        const priceData = await getGamePrice(countryCode);
-        const amountInput = document.getElementById('amount');
-        const priceElement = document.getElementById('result');
-        const currencySymbol = document.getElementById('currencySymbol');
-        
-        if (priceData[steamAppId] && priceData[steamAppId].data.price_overview) {
-            const price = priceData[steamAppId].data.price_overview.final / 100;
-            const currencyCode = priceData[steamAppId].data.price_overview.currency;
-            currencySymbol.textContent = getCurrencySymbol(currencyCode);
+    async function updatePrice(countryCode) {
+        try {
+            const priceData = await getGamePrice(countryCode);
+            const amountInput = document.getElementById('amount');
+            const priceElement = document.getElementById('result');
+            const currencySymbol = document.getElementById('currencySymbol');
+            
+            if (priceData[steamAppId] && priceData[steamAppId].data.price_overview) {
+                const price = priceData[steamAppId].data.price_overview.final / 100;
+                const currencyCode = priceData[steamAppId].data.price_overview.currency;
+                currencySymbol.textContent = getCurrencySymbol(currencyCode);
 
-            amountInput.addEventListener('input', function() {
+                amountInput.addEventListener('input', function() {
+                    const amount = parseFloat(amountInput.value);
+                    if (!isNaN(amount)) {
+                        const convertedAmount = Math.floor(amount / price);
+                        priceElement.textContent = `You can buy ${convertedAmount} copies of Nier Automata.`;
+                    } else {
+                        priceElement.textContent = '';
+                    }
+                });
+
                 const amount = parseFloat(amountInput.value);
                 if (!isNaN(amount)) {
                     const convertedAmount = Math.floor(amount / price);
                     priceElement.textContent = `You can buy ${convertedAmount} copies of Nier Automata.`;
-                } else {
-                    priceElement.textContent = '';
                 }
-            });
-
-            const amount = parseFloat(amountInput.value);
-            if (!isNaN(amount)) {
-                const convertedAmount = Math.floor(amount / price);
-                priceElement.textContent = `You can buy ${convertedAmount} copies of Nier Automata.`;
+            } else {
+                throw new Error('Price information not available');
             }
-        } else {
-            throw new Error('Price information not available');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Nier Automata недоступна в вашей стране. Переключаемся на США.');
+            document.getElementById('countryFlag').src = 'https://flagcdn.com/48x36/us.png';
+            await updatePrice('US');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Nier Automata недоступна в вашей стране. Переключаемся на США.');
-        document.getElementById('countryFlag').src = 'https://flagcdn.com/48x36/us.png';
-        await updatePrice('US');
     }
-}
+
+    function setRandomBackground() {
+        const backgrounds = [
+            'https://raw.githubusercontent.com/moshiax/priceinautomata/main/background.jpg',
+            'https://raw.githubusercontent.com/moshiax/priceinautomata/main/background1.jpg'
+        ];
+        const randomIndex = Math.floor(Math.random() * backgrounds.length);
+        document.body.style.backgroundImage = `url(${backgrounds[randomIndex]})`;
+    }
+
     window.addEventListener('load', async function() {
+        setRandomBackground();
         const locationData = await getIpAndLocation();
         const countryCode = locationData.country_code;
         document.getElementById('countryFlag').src = `https://flagcdn.com/48x36/${countryCode.toLowerCase()}.png`;
-
         await updatePrice(countryCode);
     });
-
 </script>
 
 </body>

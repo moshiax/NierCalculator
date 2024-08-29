@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nier Automata Currency Converter</title>
+    <style>
+        body {
+            background-color: #d1cdb7;
+            -webkit-background-size: 0.3rem 0.3rem;
+            -moz-background-size: 0.3rem 0.3rem;
+            background-size: 0.3rem 0.3rem;
+            background-image: -webkit-linear-gradient(left, #ccc8b1 1px, rgba(204,200,177,0) 1px), 
+                              -webkit-linear-gradient(top, #ccc8b1 1px, rgba(204,200,177,0) 1px);
+            font-family: helvetica, sans-serif;
+            letter-spacing: 0.03rem;
+            font-weight: lighter;
+            color: #454138;
+        }
+        h1 {
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.5rem;
+            text-shadow: 0.3rem 0.3rem 0 #bab5a1;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #dcd8c0;
+            border: 1px solid #bab5a1;
+            box-shadow: 0.2em 0.2em 0.1em 0 #bab5a1;
+        }
+        label, select, input {
+            display: block;
+            margin: 10px 0;
+            width: 100%;
+        }
+        button {
+            padding: 10px;
+            background-color: #bab5a1;
+            color: #454138;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        button:hover {
+            background-color: #454138;
+            color: #dcd8c0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Nier Automata Currency Converter</h1>
+
+<div class="container">
+    <label for="currency">Select your currency:</label>
+    <select id="currency"></select>
+
+    <label for="amount">Enter amount:</label>
+    <input type="number" id="amount" placeholder="Amount">
+
+    <button onclick="convertCurrency()">Convert to Nier Automata currency</button>
+
+    <div id="result"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cheerio/1.0.0-rc.10/cheerio.min.js"></script>
+<script>
+    async function fetchCurrency() {
+        const ipResponse = await fetch('https://ipapi.co/json/');
+        const ipData = await ipResponse.json();
+        const currency = ipData.currency;
+        
+        const select = document.getElementById('currency');
+        const currencies = [currency, 'UAH', 'RUB', 'USD', 'EUR'];
+        currencies.forEach(cur => {
+            let option = document.createElement('option');
+            option.value = cur;
+            option.text = cur;
+            select.appendChild(option);
+        });
+
+        select.value = currency;
+    }
+
+    async function fetchNierAutomataPrice() {
+        try {
+            const response = await axios.get('https://steamdb.info/app/524220/');
+            const $ = cheerio.load(response.data);
+
+            const priceData = [];
+
+            // Парсим таблицу цен
+            $('#prices > tbody > tr').each((i, element) => {
+                const currency = $(element).find('td:nth-child(1)').text().trim();
+                const currentPrice = $(element).find('td:nth-child(2)').text().trim();
+                priceData.push({ currency, currentPrice });
+            });
+
+            return priceData;
+        } catch (error) {
+            console.error('Error fetching or parsing data:', error);
+            return null;
+        }
+    }
+
+    async function convertCurrency() {
+        const amount = document.getElementById('amount').value;
+        const currency = document.getElementById('currency').value;
+        const nierPrices = await fetchNierAutomataPrice();
+
+        if (!nierPrices) {
+            document.getElementById('result').innerHTML = 'Failed to fetch prices.';
+            return;
+        }
+
+        const price = nierPrices.find(p => p.currency.includes(currency));
+        if (price) {
+            const convertedAmount = (amount * parseFloat(price.currentPrice.replace(/[^\d.-]/g, ''))).toFixed(2);
+            document.getElementById('result').innerHTML = 
+                `Amount in ${currency}: ${convertedAmount} (Price of Nier Automata: ${price.currentPrice})`;
+        } else {
+            document.getElementById('result').innerHTML = 'Currency not found in price list.';
+        }
+    }
+
+    fetchCurrency();
+</script>
+
+</body>
+</html>

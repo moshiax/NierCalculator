@@ -35,6 +35,25 @@ html, body {
     }
 }
 
+.fade-out {
+    animation: fadeOutBackground 0.5s forwards;
+}
+
+.fade-in {
+    animation: fadeInBackground 0.5s forwards;
+}
+
+@keyframes fadeOutBackground {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeInBackground {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
 .animated-text {
     color: #FFFF00;
     animation: glow 1.5s infinite;
@@ -123,6 +142,17 @@ label {
 .purchase-button {
     opacity: 0;
     animation: fadeIn 0.5s forwards;
+}
+body {
+    transition: background-image 1s ease-in-out;
+}
+
+.fade-in {
+    opacity: 1;
+}
+
+.fade-out {
+    opacity: 0;
 }
 
 .purchase-button.hide {
@@ -231,6 +261,52 @@ label {
     animation: fadeIn 0.5s ease-in-out, fadeOut 0.5s ease-in-out 1s;
 }
 
+@keyframes fadeOutOverlay {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1000; /* Убедитесь, что заглушка отображается поверх всего остального контента */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Courier New', monospace; /* Используем шрифт Courier New */
+    font-size: 2em;
+    text-align: center;
+    transition: opacity 0.5s ease; /* Плавное изменение прозрачности */
+    overflow: hidden; /* Убедитесь, что содержимое не выходит за пределы элемента */
+}
+
+/* Для красивого фона с анимацией звездного неба */
+#loadingOverlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://www.transparenttextures.com/patterns/stardust.png'); /* Фоновый рисунок звездного неба */
+    background-size: cover;
+    opacity: 0.5;
+    z-index: -1; /* Помещаем фоновое изображение за текст */
+}
+
+#loadingOverlay.hide {
+    animation: fadeOutOverlay 0.5s ease forwards;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -294,6 +370,53 @@ label {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+#waveform {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px; 
+
+
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 1s ease-in-out;
+    z-index: -1; /* Ensure it is behind other content */
+}
+
+.fade-out::before {
+    opacity: 0;
+}
+
+.fade-in::before {
+    opacity: 1;
+}
+
+.waveform-bar {
+    background: linear-gradient(to top, #00f, #0ff); 
+    border-radius: 2px; 
+    height: 100%;
+    width: 2px; /
+    margin: 0 1px; 
+    transform: scaleY(1); 
+    transition: transform 0.1s; 
+}
+
+.waveform-bar.active {
+    transform: scaleY(2); 
+}
 
 @keyframes blink-caret {
     from, to { border-color: transparent; }
@@ -315,6 +438,7 @@ label {
     </style>
 </head>
 <body>
+<div id="loadingOverlay"></div>
 
 <div class="container">
     <label for="amount">Your money amount</label>
@@ -326,6 +450,7 @@ label {
 <div id="purchaseButtons" style="display: flex; gap: 10px; margin-top: 20px;"></div>
 
 </div>
+<canvas id="waveform" width="100%" height="100"></canvas>
 
 <div id="notification" class="notification">
     <p>NieR:Automata is not available in your country in Steam. Switched to the USA.</p>
@@ -491,60 +616,313 @@ function getCurrencySymbol(currencyCode) {
 let isPlaying = false; 
 let currentTrack = '';
 
+
 const phrases = {
-    'end of yorha': 'Weight of the World the End of YoRHa.mp3',
-    'weight world': 'Weight of the World⧸English Version.mp3',
-    'bipolar nightmare': 'Bipolar Nightmare.mp3',
-	'nothing': 'Significance - Nothing.mp3',
-	'rays light': 'City Ruins Rays of Light.mp3',
-	'peaceful sleep': 'Peaceful Sleep.mp3',
-	'memories dust': 'Memories of Dust.mp3',
-	'birth wish': 'Birth of a Wish.mp3',
-	'color depression': 'The Color of Depression.mp3',
-	'amusement park': 'Amusement Park.mp3',
-	'beautiful song': 'Beautiful Song.mp3',
-	'voice return guitar': 'Voice of No Return - Guitar.mp3',
-	'grandma destruction': 'Grandma - Destruction.mp3',
-	'dawn breeze': 'Dawn Breeze.mp3',
-	'emil shop': "Emils Shop.mp3",
-	'treasured times': 'Treasured Times.mp3',
-	'cold rain': 'Cold Rain.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-	'treasured times': 'Treasured Times.mp3',
-
-
+    'end of yorha': {
+        audio: 'Weight of the World the End of YoRHa.mp3',
+        background: 'background01.png'
+    },
+    'weight world': {
+        audio: 'Weight of the World⧸English Version.mp3',
+        background: 'background02.jpg'
+    },
+    'bipolar nightmare': {
+        audio: 'Bipolar Nightmare.mp3',
+        background: 'background03.jpg'
+    },
+    'nothing': {
+        audio: 'Significance - Nothing.mp3',
+        background: 'background04.jpg'
+    },
+    'rays light': {
+        audio: 'City Ruins Rays of Light.mp3',
+        background: 'background05.jpg'
+    },
+    'peaceful sleep': {
+        audio: 'Peaceful Sleep.mp3',
+        background: 'background06.jpg'
+    },
+    'memories dust': {
+        audio: 'Memories of Dust.mp3',
+        background: 'background07.jpg'
+    },
+    'birth wish': {
+        audio: 'Birth of a Wish.mp3',
+        background: 'background08.jpg'
+    },
+    'color depression': {
+        audio: 'The Color of Depression.mp3',
+        background: 'background09.jpg'
+    },
+    'amusement park': {
+        audio: 'Amusement Park.mp3',
+        background: 'background10.jpg'
+    },
+    'beautiful song': {
+        audio: 'Beautiful Song.mp3',
+        background: 'background11.jpg'
+    },
+    'voice return guitar': {
+        audio: 'Voice of No Return - Guitar.mp3',
+        background: 'background12.jpg'
+    },
+    'grandma destruction': {
+        audio: 'Grandma - Destruction.mp3',
+        background: 'background13.jpg'
+    },
+    'dawn breeze': {
+        audio: 'Dawn Breeze.mp3',
+        background: 'background14.jpg'
+    },
+    'emil shop': {
+        audio: 'Emils Shop.mp3',
+        background: 'background15.jpg'
+    },
+    'treasured times': {
+        audio: 'Treasured Times.mp3',
+        background: 'background16.jpg'
+    },
+    'cold rain': {
+        audio: 'Cold Rain.mp3',
+        background: 'background17.jpg'
+    },
+    'shade': {
+        audio: 'City Ruins Shade.mp3',
+        background: 'background18.jpg'
+    },
+    'end unknown': {
+        audio: 'End of the Unknown.mp3',
+        background: 'background19.jpg'
+    },
+    'voice return normal': {
+        audio: 'Voice of No Return - Normal.mp3',
+        background: 'background20.jpg'
+    },
+    'pascal': {
+        audio: 'Pascal.mp3',
+        background: 'background21.jpg'
+    },
+    'forest kingdom': {
+        audio: 'Forest Kingdom.mp3',
+        background: 'background22.jpg'
+    },
+    'significance': {
+        audio: 'Significance.mp3',
+        background: 'background23.jpg'
+    },
+    'dark colossus': {
+        audio: 'Dark Colossus.mp3',
+        background: 'background24.jpg'
+    },
+    'copied city': {
+        audio: 'Copied City.mp3',
+        background: 'background25.jpg'
+    },
+    'wretched weaponry dynamic': {
+        audio: 'Wretched Weaponry Dynamic.mp3',
+        background: 'background26.jpg'
+    },
+    'possessed disease': {
+        audio: 'Possessed By Disease.mp3',
+        background: 'background27.jpg'
+    },
+    'broken heart': {
+        audio: 'Broken Heart.mp3',
+        background: 'background28.jpg'
+    },
+    'wretched weaponry quiet': {
+        audio: 'Wretched Weaponry (Quiet).mp3',
+        background: 'background29.jpg'
+    },
+    'mourning': {
+        audio: 'Mourning.mp3',
+        background: 'background30.jpg'
+    },
+    'dependent weakling': {
+        audio: 'Dependent Weakling.mp3',
+        background: 'background31.jpg'
+    },
+    'weight world jap': {
+        audio: 'Weight of the World Japanese.mp3',
+        background: 'background32.jpg'
+    },
+    'rebirth hope': {
+        audio: 'Rebirth Hope.mp3',
+        background: 'background33.jpg'
+    },
+    'war war': {
+        audio: 'War War.mp3',
+        background: 'background34.jpg'
+    },
+    'crumbling lies': {
+        audio: 'Crumbling Lies.mp3',
+        background: 'background35.jpg'
+    },
+    'widespread illness': {
+        audio: 'Widespread Illness.mp3',
+        background: 'background36.jpg'
+    },
+    'fortress lies': {
+        audio: 'Fortress of Lies.mp3',
+        background: 'background37.jpg'
+    },
+    'spring rain': {
+        audio: 'Spring Rain.mp3',
+        background: 'background38.jpg'
+    },
+    'atonement': {
+        audio: 'Song Of The Ancients (Atonement).mp3',
+        background: 'background39.jpg'
+    },
+    'blissful death': {
+        audio: 'Blissful Death.mp3',
+        background: 'background40.jpg'
+    },
+    'emil despair': {
+        audio: 'Emil Despair.mp3',
+        background: 'background41.jpg'
+    },
+    'starry sky': {
+        audio: 'Starry Sky.mp3',
+        background: 'background42.jpg'
+    },
+    'tower': {
+        audio: 'The Tower.mp3',
+        background: 'background43.jpg'
+    },
+    'sound end': {
+        audio: 'The Sound of the End.mp3',
+        background: 'background44.jpg'
+    },
+    'weight world fr': {
+        audio: 'Weight of the World French.mp3',
+        background: 'background45.jpg'
+    },
 };
+let audioContext;
+let analyser;
+let bufferLength;
+let dataArray;
+let canvas;
+let canvasCtx;
 
-function playMusic(phraseKey) {
-    const audioFile = phrases[phraseKey];
-    const audio = new Audio(audioFile);
+function createVisualizer() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.bottom = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '150px';
+        canvas.style.pointerEvents = 'none';
+        document.body.appendChild(canvas);
 
-    if (window.currentlyPlayingAudio) {
-        window.currentlyPlayingAudio.pause();
-        window.currentlyPlayingAudio.currentTime = 0;
+        canvasCtx = canvas.getContext('2d');
+
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+    }
+}
+
+function drawVisualizer() {
+    requestAnimationFrame(drawVisualizer);
+
+    if (analyser) {
+        analyser.getByteFrequencyData(dataArray);
+
+        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            barHeight = dataArray[i];
+
+            canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+
+            x += barWidth + 1;
+        }
+    }
+}
+
+async function playMusic(trackName) {
+    if (isPlaying && currentTrack === trackName) {
+        return; 
     }
 
-    window.currentlyPlayingAudio = audio;
-    audio.play();
+    if (isPlaying) {
+        const currentAudio = document.getElementById('current-audio');
+        if (currentAudio) {
 
-    audio.addEventListener('ended', () => {
-        window.currentlyPlayingAudio = null;
+            currentAudio.pause();
+            currentAudio.currentTime = 0; 
+            currentAudio.remove();
+        }
+
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+        if (canvas) {
+            document.body.removeChild(canvas);
+            canvas = null;
+        }
+    }
+
+    const audioSrc = phrases[trackName].audio;
+    const backgroundSrc = phrases[trackName].background;
+
+    const audio = new Audio(audioSrc);
+    audio.id = 'current-audio';
+
+    audio.play().catch(error => {
+        console.error('Ошибка воспроизведения:', error);
+    });
+
+    if (!audioContext) {
+        createVisualizer();
+    }
+
+    const source = audioContext.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    drawVisualizer();
+
+    audio.onended = () => {
+        isPlaying = false;
+        currentTrack = '';
+        if (canvas) document.body.removeChild(canvas);
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+    };
+
+    isPlaying = true;
+    currentTrack = trackName;
+
+    changeBackground(backgroundSrc);
+
+    document.body.appendChild(audio);
+}
+
+
+function loadImage(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => resolve(url);
+        img.onerror = reject;
     });
 }
 
-function containsAllWords(inputText, phraseKey) {
-    const words = phraseKey.split(' ');
-    return words.every(word => inputText.includes(word));
-}
-
+// Ensure `phrases` and `getGamePrice` are defined
 async function updatePrice(countryCode) {
     try {
         const priceData = await getGamePrice(countryCode);
@@ -566,7 +944,7 @@ async function updatePrice(countryCode) {
             const updatePriceDisplay = () => {
                 setTimeout(() => {
                     const rawAmount = amountInput.value;
-                    const numericAmount = rawAmount.replace(/[^0-9]/g, ''); 
+                    const numericAmount = rawAmount.replace(/[^0-9]/g, '');
 
                     const amount = parseFloat(numericAmount);
                     if (!isNaN(amount)) {
@@ -584,13 +962,13 @@ async function updatePrice(countryCode) {
                             showPurchaseButtons();
                         } else {
                             priceElement.innerHTML = '';
-                            hidePurchaseButtons(); 
+                            hidePurchaseButtons();
                         }
                     } else {
                         priceElement.innerHTML = '';
-                        hidePurchaseButtons(); 
+                        hidePurchaseButtons();
                     }
-                }, 100); 
+                }, 100);
             };
 
             amountInput.addEventListener('input', updatePriceDisplay);
@@ -617,31 +995,49 @@ async function updatePrice(countryCode) {
     }
 }
 
-function playMusic(trackName) {
-    if (!isPlaying || currentTrack !== trackName) { 
-        if (isPlaying) {
+function loadImage(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => resolve(url);
+        img.onerror = reject;
+    });
+}
 
-            const currentAudio = document.getElementById('current-audio');
-            currentAudio.pause();
-            currentAudio.remove();
-        }
+async function changeBackground(imageUrl) {
+    const body = document.body;
 
-        const audio = new Audio(phrases[trackName]);
-        audio.id = 'current-audio'; 
+    // Создаем элемент стиля для изменения фонового изображения
+    const style = document.createElement('style');
+    style.innerHTML = `body::before { background-image: url(${imageUrl}); }`;
+    document.head.appendChild(style);
 
-        isPlaying = true;
-        currentTrack = trackName;
+    // Применяем анимацию fade-out
+    body.classList.add('fade-out');
 
-        audio.play();
+    try {
+        await loadImage(imageUrl);
 
-        audio.onended = () => {
-            isPlaying = false; 
-            currentTrack = ''; 
-        };
+        body.style.backgroundImage = `url(${imageUrl})`;
+        setTimeout(() => {
+            body.classList.remove('fade-out');
+            body.classList.add('fade-in');
+        }, 500);
+    } catch (error) {
+        console.error('Ошибка загрузки изображения:', error);
+    } finally {
 
-        document.body.appendChild(audio); 
+        document.head.removeChild(style);
     }
 }
+
+
+
+function containsAllWords(inputText, phraseKey) {
+    const words = phraseKey.split(' ');
+    return words.every(word => inputText.includes(word));
+}
+
 
 function getDominantColor(imageUrl) {
     return new Promise((resolve, reject) => {
@@ -740,7 +1136,6 @@ function hidePurchaseButtons() {
 
 
 
-
 function showNotification(message) {
     const notification = document.getElementById('notification');
     notification.querySelector('p').textContent = message;
@@ -757,25 +1152,40 @@ function showNotification(message) {
 }
 
 
-        function setRandomBackground() {
-            const backgrounds = [
-                'https://raw.githubusercontent.com/moshiax/priceinautomata/main/background.jpg',
-                'https://raw.githubusercontent.com/moshiax/priceinautomata/main/background1.jpg'
-            ];
-            const randomIndex = Math.floor(Math.random() * backgrounds.length);
-            document.body.style.backgroundImage = `url(${backgrounds[randomIndex]})`;
-        }
+function setRandomBackground() {
+    const backgrounds = [
+        'https://raw.githubusercontent.com/moshiax/priceinautomata/main/background.jpg',
+        'https://raw.githubusercontent.com/moshiax/priceinautomata/main/background1.jpg'
+    ];
+    const randomIndex = Math.floor(Math.random() * backgrounds.length);
+    document.body.style.backgroundImage = `url(${backgrounds[randomIndex]})`;
+}
 
-    window.addEventListener('load', async function() {
-        setRandomBackground();
-        const locationData = await getIpAndLocation();
-        const countryCode = locationData.country_code;
-        document.getElementById('countryFlag').src = `https://flagcdn.com/48x36/${countryCode.toLowerCase()}.png`;
-        await updatePrice(countryCode);
-    });
-    document.getElementById('result').addEventListener('click', function() {
-        window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
-    });
+window.addEventListener('load', async function() {
+    // Показываем заглушку
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+
+    setRandomBackground();
+    const locationData = await getIpAndLocation();
+    const countryCode = locationData.country_code;
+    document.getElementById('countryFlag').src = `https://flagcdn.com/48x36/${countryCode.toLowerCase()}.png`;
+    await updatePrice(countryCode);
+
+    // Скрываем заглушку с анимацией
+    overlay.classList.add('hide');
+
+    // Удаляем заглушку после анимации
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 200); // Время должно соответствовать времени анимации
+});
+
+document.getElementById('result').addEventListener('click', function() {
+    window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
+});
+
+
     </script>
 
 

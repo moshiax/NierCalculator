@@ -582,12 +582,25 @@ function getCurrencySymbol(currencyCode) {
 
 
 
-        async function getGamePrice(countryCode) {
-            const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-            const response = await fetch(url);
-            const data = await response.json();
-            return data;
-        }
+		async function getGamePrice(countryCode) {
+			const steamAppId = '524220'; 
+			const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
+			const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+
+			try {
+				const response = await fetch(proxyUrl);
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				const data = await response.json();
+
+				const contents = JSON.parse(data.contents);
+				return contents;
+			} catch (error) {
+				console.error('Error:', error);
+				return null;
+			}
+		}
 
         document.getElementById('countryFlag').addEventListener('click', function() {
             const modal = document.getElementById('countryModal');

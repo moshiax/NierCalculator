@@ -277,16 +277,16 @@ body {
     width: 100%;
     height: 100%;
     background: #000;
-    z-index: 1000; /* Убедитесь, что заглушка отображается поверх всего остального контента */
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-family: 'Courier New', monospace; /* Используем шрифт Courier New */
+    font-family: 'Courier New', monospace; 
     font-size: 2em;
     text-align: center;
-    transition: opacity 0.5s ease; /* Плавное изменение прозрачности */
-    overflow: hidden; /* Убедитесь, что содержимое не выходит за пределы элемента */
+    transition: opacity 0.5s ease;
+    overflow: hidden;
 }
 
 /* Для красивого фона с анимацией звездного неба */
@@ -297,7 +297,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('https://www.transparenttextures.com/patterns/stardust.png'); /* Фоновый рисунок звездного неба */
+    background: url('https://www.transparenttextures.com/patterns/stardust.png');
     background-size: cover;
     opacity: 0.5;
     z-index: -1; /* Помещаем фоновое изображение за текст */
@@ -922,7 +922,6 @@ function loadImage(url) {
     });
 }
 
-// Ensure `phrases` and `getGamePrice` are defined
 async function updatePrice(countryCode) {
     try {
         const priceData = await getGamePrice(countryCode);
@@ -1007,12 +1006,10 @@ function loadImage(url) {
 async function changeBackground(imageUrl) {
     const body = document.body;
 
-    // Создаем элемент стиля для изменения фонового изображения
     const style = document.createElement('style');
     style.innerHTML = `body::before { background-image: url(${imageUrl}); }`;
     document.head.appendChild(style);
 
-    // Применяем анимацию fade-out
     body.classList.add('fade-out');
 
     try {
@@ -1024,7 +1021,7 @@ async function changeBackground(imageUrl) {
             body.classList.add('fade-in');
         }, 500);
     } catch (error) {
-        console.error('Ошибка загрузки изображения:', error);
+        console.error('Image loading error:', error);
     } finally {
 
         document.head.removeChild(style);
@@ -1162,7 +1159,7 @@ function setRandomBackground() {
 }
 
 window.addEventListener('load', async function() {
-    // Показываем заглушку
+
     const overlay = document.getElementById('loadingOverlay');
     overlay.style.display = 'flex';
 
@@ -1172,13 +1169,11 @@ window.addEventListener('load', async function() {
     document.getElementById('countryFlag').src = `https://flagcdn.com/48x36/${countryCode.toLowerCase()}.png`;
     await updatePrice(countryCode);
 
-    // Скрываем заглушку с анимацией
     overlay.classList.add('hide');
 
-    // Удаляем заглушку после анимации
     setTimeout(() => {
         overlay.style.display = 'none';
-    }, 200); // Время должно соответствовать времени анимации
+    }, 700); 
 });
 
 document.getElementById('result').addEventListener('click', function() {

@@ -496,7 +496,6 @@ body::before {
 
 async function getIpAndLocation() {
     return new Promise((resolve, reject) => {
-
         window.handleResponse = function(data) {
             if (data && data.country) {
                 resolve({ country_code: data.country });
@@ -504,7 +503,6 @@ async function getIpAndLocation() {
                 reject(new Error('No country data'));
             }
         };
-
 
         const script = document.createElement('script');
         script.src = 'https://ipinfo.io/json?callback=handleResponse';

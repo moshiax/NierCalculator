@@ -319,7 +319,7 @@ label {
 <div class="container">
     <label for="amount">Your money amount</label>
     <div class="input-container">
-        <input type="number" id="amount" placeholder="Amount">
+        <input type="text" id="amount" placeholder="Amount">
         <span class="currency-symbol" id="currencySymbol"></span>
     </div>
 <div id="result"></div>
@@ -488,6 +488,63 @@ function getCurrencySymbol(currencyCode) {
         });
 		
 		
+let isPlaying = false; 
+let currentTrack = '';
+
+const phrases = {
+    'end of yorha': 'Weight of the World the End of YoRHa.mp3',
+    'weight of world': 'Weight of the World⧸English Version.mp3',
+    'bipolar nightmare': 'Bipolar Nightmare.mp3',
+	'nothing': 'Significance - Nothing.mp3',
+	'rays light': 'City Ruins Rays of Light.mp3',
+	'peaceful sleep': 'Peaceful Sleep.mp3',
+	'memories dust': 'Memories of Dust.mp3',
+	'birth wish': 'Birth of a Wish.mp3',
+	'color depression': 'The Color of Depression.mp3',
+	'amusement park': 'Amusement Park.mp3',
+	'beautiful song': 'Beautiful Song.mp3',
+	'voice return guitar': 'Voice of No Return - Guitar.mp3',
+	'grandma destruction': 'Grandma - Destruction.mp3',
+	'dawn breeze': 'Dawn Breeze.mp3',
+	'emil shop': "Emils Shop.mp3",
+	'treasured times': 'Treasured Times.mp3',
+	'cold rain': 'Cold Rain.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+	'treasured times': 'Treasured Times.mp3',
+
+
+};
+
+function playMusic(phraseKey) {
+    const audioFile = phrases[phraseKey];
+    const audio = new Audio(audioFile);
+
+    if (window.currentlyPlayingAudio) {
+        window.currentlyPlayingAudio.pause();
+        window.currentlyPlayingAudio.currentTime = 0;
+    }
+
+    window.currentlyPlayingAudio = audio;
+    audio.play();
+
+    audio.addEventListener('ended', () => {
+        window.currentlyPlayingAudio = null;
+    });
+}
+
+function containsAllWords(inputText, phraseKey) {
+    const words = phraseKey.split(' ');
+    return words.every(word => inputText.includes(word));
+}
+
 async function updatePrice(countryCode) {
     try {
         const priceData = await getGamePrice(countryCode);
@@ -507,15 +564,17 @@ async function updatePrice(countryCode) {
             currencySymbol.textContent = getCurrencySymbol(currencyCode);
 
             const updatePriceDisplay = () => {
-                setTimeout(() => { 
-                    const amount = parseFloat(amountInput.value);
+                setTimeout(() => {
+                    const rawAmount = amountInput.value;
+                    const numericAmount = rawAmount.replace(/[^0-9]/g, ''); 
+
+                    const amount = parseFloat(numericAmount);
                     if (!isNaN(amount)) {
                         const convertedAmount = Math.floor(amount / price);
                         let displayText = '';
 
                         if (convertedAmount > 0) {
                             if (convertedAmount.toString().includes('e')) {
-
                                 displayText = `You can buy<br><span id="animated-text" class="animated-text">a lot but not enough</span> <br>copies of NieR:Automata.`;
                             } else {
                                 displayText = `You can buy<br><span id="copyCount" class="typewriter">${convertedAmount}</span> <br>copies of NieR:Automata.`;
@@ -535,6 +594,17 @@ async function updatePrice(countryCode) {
             };
 
             amountInput.addEventListener('input', updatePriceDisplay);
+
+            amountInput.addEventListener('input', () => {
+                const inputText = amountInput.value.trim().toLowerCase();
+                for (const phraseKey in phrases) {
+                    if (containsAllWords(inputText, phraseKey)) {
+                        playMusic(phraseKey);
+                        break;
+                    }
+                }
+            });
+
             updatePriceDisplay();
         } else {
             throw new Error('Price information not available');
@@ -544,6 +614,32 @@ async function updatePrice(countryCode) {
         showNotification('NieR:Automata is not available in your country. Switched to the USA.');
         document.getElementById('countryFlag').src = 'https://flagcdn.com/48x36/us.png';
         await updatePrice('US');
+    }
+}
+
+function playMusic(trackName) {
+    if (!isPlaying || currentTrack !== trackName) { 
+        if (isPlaying) {
+
+            const currentAudio = document.getElementById('current-audio');
+            currentAudio.pause();
+            currentAudio.remove();
+        }
+
+        const audio = new Audio(phrases[trackName]);
+        audio.id = 'current-audio'; 
+
+        isPlaying = true;
+        currentTrack = trackName;
+
+        audio.play();
+
+        audio.onended = () => {
+            isPlaying = false; 
+            currentTrack = ''; 
+        };
+
+        document.body.appendChild(audio); 
     }
 }
 
@@ -677,8 +773,6 @@ function showNotification(message) {
         document.getElementById('countryFlag').src = `https://flagcdn.com/48x36/${countryCode.toLowerCase()}.png`;
         await updatePrice(countryCode);
     });
-
-    // Добавление обработчика клика на элемент с идентификатором "result"
     document.getElementById('result').addEventListener('click', function() {
         window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
     });

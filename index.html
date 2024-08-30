@@ -492,7 +492,13 @@ body::before {
 
     <script>
 !function(t,r){"object"==typeof exports&&"undefined"!=typeof module?module.exports=r():"function"==typeof define&&define.amd?define(r):t.ColorThief=r()}(this,function(){if(!t)var t={map:function(t,r){var n={};return r?t.map(function(t,o){return n.index=o,r.call(n,t)}):t.slice()},naturalOrder:function(t,r){return t<r?-1:t>r?1:0},sum:function(t,r){var n={};return t.reduce(r?function(t,o,e){return n.index=e,t+r.call(n,o)}:function(t,r){return t+r},0)},max:function(r,n){return Math.max.apply(null,n?t.map(r,n):r)}};var r=function(){var r=5,n=8-r,o=1e3;function e(t,n,o){return(t<<2*r)+(n<<r)+o}function i(t){var r=[],n=!1;function o(){r.sort(t),n=!0}return{push:function(t){r.push(t),n=!1},peek:function(t){return n||o(),void 0===t&&(t=r.length-1),r[t]},pop:function(){return n||o(),r.pop()},size:function(){return r.length},map:function(t){return r.map(t)},debug:function(){return n||o(),r}}}function u(t,r,n,o,e,i,u){this.r1=t,this.r2=r,this.g1=n,this.g2=o,this.b1=e,this.b2=i,this.histo=u}function a(){this.vboxes=new i(function(r,n){return t.naturalOrder(r.vbox.count()*r.vbox.volume(),n.vbox.count()*n.vbox.volume())})}function s(r,n){if(n.count()){var o=n.r2-n.r1+1,i=n.g2-n.g1+1,u=t.max([o,i,n.b2-n.b1+1]);if(1==n.count())return[n.copy()];var a,s,h,c,f=0,v=[],l=[];if(u==o)for(a=n.r1;a<=n.r2;a++){for(c=0,s=n.g1;s<=n.g2;s++)for(h=n.b1;h<=n.b2;h++)c+=r[e(a,s,h)]||0;v[a]=f+=c}else if(u==i)for(a=n.g1;a<=n.g2;a++){for(c=0,s=n.r1;s<=n.r2;s++)for(h=n.b1;h<=n.b2;h++)c+=r[e(s,a,h)]||0;v[a]=f+=c}else for(a=n.b1;a<=n.b2;a++){for(c=0,s=n.r1;s<=n.r2;s++)for(h=n.g1;h<=n.g2;h++)c+=r[e(s,h,a)]||0;v[a]=f+=c}return v.forEach(function(t,r){l[r]=f-t}),function(t){var r,o,e,i,u,s=t+"1",h=t+"2",c=0;for(a=n[s];a<=n[h];a++)if(v[a]>f/2){for(e=n.copy(),i=n.copy(),u=(r=a-n[s])<=(o=n[h]-a)?Math.min(n[h]-1,~~(a+o/2)):Math.max(n[s],~~(a-1-r/2));!v[u];)u++;for(c=l[u];!c&&v[u-1];)c=l[--u];return e[h]=u,i[s]=e[h]+1,[e,i]}}(u==o?"r":u==i?"g":"b")}}return u.prototype={volume:function(t){return this._volume&&!t||(this._volume=(this.r2-this.r1+1)*(this.g2-this.g1+1)*(this.b2-this.b1+1)),this._volume},count:function(t){var r=this.histo;if(!this._count_set||t){var n,o,i,u=0;for(n=this.r1;n<=this.r2;n++)for(o=this.g1;o<=this.g2;o++)for(i=this.b1;i<=this.b2;i++)u+=r[e(n,o,i)]||0;this._count=u,this._count_set=!0}return this._count},copy:function(){return new u(this.r1,this.r2,this.g1,this.g2,this.b1,this.b2,this.histo)},avg:function(t){var n=this.histo;if(!this._avg||t){var o,i,u,a,s=0,h=1<<8-r,c=0,f=0,v=0;for(i=this.r1;i<=this.r2;i++)for(u=this.g1;u<=this.g2;u++)for(a=this.b1;a<=this.b2;a++)s+=o=n[e(i,u,a)]||0,c+=o*(i+.5)*h,f+=o*(u+.5)*h,v+=o*(a+.5)*h;this._avg=s?[~~(c/s),~~(f/s),~~(v/s)]:[~~(h*(this.r1+this.r2+1)/2),~~(h*(this.g1+this.g2+1)/2),~~(h*(this.b1+this.b2+1)/2)]}return this._avg},contains:function(t){var r=t[0]>>n;return gval=t[1]>>n,bval=t[2]>>n,r>=this.r1&&r<=this.r2&&gval>=this.g1&&gval<=this.g2&&bval>=this.b1&&bval<=this.b2}},a.prototype={push:function(t){this.vboxes.push({vbox:t,color:t.avg()})},palette:function(){return this.vboxes.map(function(t){return t.color})},size:function(){return this.vboxes.size()},map:function(t){for(var r=this.vboxes,n=0;n<r.size();n++)if(r.peek(n).vbox.contains(t))return r.peek(n).color;return this.nearest(t)},nearest:function(t){for(var r,n,o,e=this.vboxes,i=0;i<e.size();i++)((n=Math.sqrt(Math.pow(t[0]-e.peek(i).color[0],2)+Math.pow(t[1]-e.peek(i).color[1],2)+Math.pow(t[2]-e.peek(i).color[2],2)))<r||void 0===r)&&(r=n,o=e.peek(i).color);return o},forcebw:function(){var r=this.vboxes;r.sort(function(r,n){return t.naturalOrder(t.sum(r.color),t.sum(n.color))});var n=r[0].color;n[0]<5&&n[1]<5&&n[2]<5&&(r[0].color=[0,0,0]);var o=r.length-1,e=r[o].color;e[0]>251&&e[1]>251&&e[2]>251&&(r[o].color=[255,255,255])}},{quantize:function(h,c){if(!h.length||c<2||c>256)return!1;var f=function(t){var o,i=new Array(1<<3*r);return t.forEach(function(t){o=e(t[0]>>n,t[1]>>n,t[2]>>n),i[o]=(i[o]||0)+1}),i}(h);f.forEach(function(){});var v=function(t,r){var o,e,i,a=1e6,s=0,h=1e6,c=0,f=1e6,v=0;return t.forEach(function(t){(o=t[0]>>n)<a?a=o:o>s&&(s=o),(e=t[1]>>n)<h?h=e:e>c&&(c=e),(i=t[2]>>n)<f?f=i:i>v&&(v=i)}),new u(a,s,h,c,f,v,r)}(h,f),l=new i(function(r,n){return t.naturalOrder(r.count(),n.count())});function g(t,r){for(var n,e=t.size(),i=0;i<o;){if(e>=r)return;if(i++>o)return;if((n=t.pop()).count()){var u=s(f,n),a=u[0],h=u[1];if(!a)return;t.push(a),h&&(t.push(h),e++)}else t.push(n),i++}}l.push(v),g(l,.75*c);for(var p=new i(function(r,n){return t.naturalOrder(r.count()*r.volume(),n.count()*n.volume())});l.size();)p.push(l.pop());g(p,c);for(var d=new a;p.size();)d.push(p.pop());return d}}}().quantize,n=function(t){this.canvas=document.createElement("canvas"),this.context=this.canvas.getContext("2d"),this.width=this.canvas.width=t.width,this.height=this.canvas.height=t.height,this.context.drawImage(t,0,0,this.width,this.height)};n.prototype.getImageData=function(){return this.context.getImageData(0,0,this.width,this.height)};var o=function(){};return o.prototype.getColor=function(t,r){return void 0===r&&(r=10),this.getPalette(t,5,r)[0]},o.prototype.getPalette=function(t,o,e){var i=function(t){var r=t.colorCount,n=t.quality;if(void 0!==r&&Number.isInteger(r)){if(1===r)throw new Error("colorCount should be between 2 and 20. To get one color, call getColor() instead of getPalette()");r=Math.max(r,2),r=Math.min(r,20)}else r=10;return void 0===n||Number.isInteger(n)?n=10:n<1&&(n=10),{colorCount:r,quality:n}}({colorCount:o,quality:e}),u=new n(t),a=function(t,r,n){for(var o=t,e=[],i=0,u=void 0,a=void 0,s=void 0,h=void 0,c=void 0;i<r;i+=n)a=o[0+(u=4*i)],s=o[u+1],h=o[u+2],(void 0===(c=o[u+3])||c>=125)&&(a>250&&s>250&&h>250||e.push([a,s,h]));return e}(u.getImageData().data,u.width*u.height,i.quality),s=r(a,i.colorCount);return s?s.palette():null},o.prototype.getColorFromUrl=function(t,r,n){var o=document.createElement("img"),e=this;o.addEventListener("load",function(){var i=e.getPalette(o,5,n);r(i[0],t)}),o.src=t},o.prototype.getImageData=function(t,r){var n=new XMLHttpRequest;n.open("GET",t,!0),n.responseType="arraybuffer",n.onload=function(){if(200==this.status){var t=new Uint8Array(this.response);o=t.length;for(var n=new Array(o),o=0;o<t.length;o++)n[o]=String.fromCharCode(t[o]);var e=n.join(""),i=window.btoa(e);r("data:image/png;base64,"+i)}},n.send()},o.prototype.getColorAsync=function(t,r,n){var o=this;this.getImageData(t,function(t){var e=document.createElement("img");e.addEventListener("load",function(){var t=o.getPalette(e,5,n);r(t[0],this)}),e.src=t})},o});
-        const steamAppId = '524220';
+
+
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+
+       const steamAppId = '524220';
 
 async function getIpAndLocation() {
     return new Promise((resolve, reject) => {
@@ -517,66 +523,6 @@ async function getIpAndLocation() {
     });
 }
 
-
-
-function getCurrencySymbol(currencyCode) {
-    const symbols = {
-        "USD": "$",
-        "EUR": "€",
-        "GBP": "£",
-        "JPY": "¥",
-        "RUB": "₽",
-        "UAH": "₴",
-        "BRL": "R$",
-        "CAD": "C$",
-        "AUD": "A$",
-        "CHF": "Fr",
-        "CNY": "¥",
-        "KRW": "₩",
-        "INR": "₹",
-        "MXN": "Mex$",
-        "PLN": "zł",
-        "ZAR": "R",
-        "TRY": "₺",
-        "AED": "د.إ",
-        "THB": "฿",
-        "TWD": "NT$",
-        "SAR": "ر.س",
-        "QAR": "ر.ق",
-        "KWD": "د.ك",
-        "KZT": "₸",
-        "MYR": "RM",
-        "IDR": "Rp",
-        "ILS": "₪",
-        "COP": "$",
-        "CRC": "₡",
-        "PEN": "S/",
-        "PHP": "₱",
-        "VND": "₫",
-        "CLP": "$",
-        "RUB": "₽",
-        "GEL": "₾",
-        "HRK": "kn",
-        "HUF": "Ft",
-        "LKR": "Rs",
-        "MDL": "L",
-        "NOK": "kr",
-        "RON": "lei",
-        "SEK": "kr",
-        "UGX": "USh",
-        "MNT": "₮",
-        "TZS": "TSh",
-        "NAD": "$",
-        "ZWL": "$",
-        "BAM": "KM",
-        "GHS": "₵",
-        "BND": "$",
-        "SBD": "$",
-        "MOP": "MOP$",
-        "PGK": "K"
-    };
-    return symbols[currencyCode] || currencyCode;
-}
 
 
 
@@ -628,199 +574,130 @@ function getCurrencySymbol(currencyCode) {
             });
         });
 		
-		
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+
 let isPlaying = false; 
 let currentTrack = '';
 
-
 const phrases = {
-    'end of yorha': {
-        audio: 'music/Weight of the World the End of YoRHa.mp3',
-        background: 'backgrounds/background01.png'
-    },
-    'weight world': {
-        audio: 'music/Weight of the World⧸English Version.mp3',
-        background: 'backgrounds/background02.png'
-    },
-    'bipolar nightmare': {
-        audio: 'music/Bipolar Nightmare.mp3',
-        background: 'backgrounds/background03.jpeg'
-    },
-    'nothing': {
-        audio: 'music/Significance - Nothing.mp3',
-        background: 'backgrounds/background04.jpeg'
-    },
-    'rays light': {
-        audio: 'music/City Ruins Rays of Light.mp3',
-        background: 'backgrounds/background05.jpg'
-    },
-    'peaceful sleep': {
-        audio: 'music/Peaceful Sleep.mp3',
-        background: 'backgrounds/background06.jpg'
-    },
-    'memories dust': {
-        audio: 'music/Memories of Dust.mp3',
-        background: 'backgrounds/background07.jpg'
-    },
-    'birth wish': {
-        audio: 'music/Birth of a Wish.mp3',
-        background: 'backgrounds/background08.jpg'
-    },
-    'color depression': {
-        audio: 'music/The Color of Depression.mp3',
-        background: 'backgrounds/background09.jpg'
-    },
-    'amusement park': {
-        audio: 'music/Amusement Park.mp3',
-        background: 'backgrounds/background10.jpg'
-    },
-    'beautiful song': {
-        audio: 'music/Beautiful Song.mp3',
-        background: 'backgrounds/background11.jpg'
-    },
-    'voice return guitar': {
-        audio: 'music/Voice of No Return - Guitar.mp3',
-        background: 'backgrounds/background12.jpg'
-    },
-    'grandma destruction': {
-        audio: 'music/Grandma - Destruction.mp3',
-        background: 'backgrounds/background13.jpg'
-    },
-    'dawn breeze': {
-        audio: 'music/Dawn Breeze.mp3',
-        background: 'backgrounds/background14.jpg'
-    },
-    'emil shop': {
-        audio: 'music/Emils Shop.mp3',
-        background: 'backgrounds/background15.jpg'
-    },
-    'treasured times': {
-        audio: 'music/Treasured Times.mp3',
-        background: 'backgrounds/background16.jpg'
-    },
-    'cold rain': {
-        audio: 'music/Cold Rain.mp3',
-        background: 'backgrounds/background17.jpg'
-    },
-    'shade': {
-        audio: 'music/City Ruins Shade.mp3',
-        background: 'backgrounds/background18.jpg'
-    },
-    'end unknown': {
-        audio: 'music/End of the Unknown.mp3',
-        background: 'backgrounds/background19.jpg'
-    },
-    'voice return normal': {
-        audio: 'music/Voice of No Return - Normal.mp3',
-        background: 'backgrounds/background20.jpg'
-    },
-    'pascal': {
-        audio: 'music/Pascal.mp3',
-        background: 'backgrounds/background21.jpg'
-    },
-    'forest kingdom': {
-        audio: 'music/Forest Kingdom.mp3',
-        background: 'backgrounds/background22.jpg'
-    },
-    'significance': {
-        audio: 'music/Significance.mp3',
-        background: 'backgrounds/background23.jpg'
-    },
-    'dark colossus': {
-        audio: 'music/Dark Colossus.mp3',
-        background: 'backgrounds/background24.jpg'
-    },
-    'copied city': {
-        audio: 'music/Copied City.mp3',
-        background: 'backgrounds/background25.jpg'
-    },
-    'wretched weaponry dynamic': {
-        audio: 'music/Wretched Weaponry Dynamic.mp3',
-        background: 'backgrounds/background26.jpg'
-    },
-    'possessed disease': {
-        audio: 'music/Possessed By Disease.mp3',
-        background: 'backgrounds/background27.jpg'
-    },
-    'broken heart': {
-        audio: 'music/Broken Heart.mp3',
-        background: 'backgrounds/background28.jpg'
-    },
-    'wretched weaponry quiet': {
-        audio: 'music/Wretched Weaponry (Quiet).mp3',
-        background: 'backgrounds/background29.jpg'
-    },
-    'mourning': {
-        audio: 'music/Mourning.mp3',
-        background: 'backgrounds/background30.jpg'
-    },
-    'dependent weakling': {
-        audio: 'music/Dependent Weakling.mp3',
-        background: 'backgrounds/background31.jpg'
-    },
-    'weight world jap': {
-        audio: 'music/Weight of the World Japanese.mp3',
-        background: 'backgrounds/background32.jpg'
-    },
-    'rebirth hope': {
-        audio: 'music/Rebirth Hope.mp3',
-        background: 'backgrounds/background33.jpg'
-    },
-    'war war': {
-        audio: 'music/War War.mp3',
-        background: 'backgrounds/background34.jpg'
-    },
-    'crumbling lies': {
-        audio: 'music/Crumbling Lies.mp3',
-        background: 'backgrounds/background35.jpg'
-    },
-    'widespread illness': {
-        audio: 'music/Widespread Illness.mp3',
-        background: 'backgrounds/background36.jpg'
-    },
-    'fortress lies': {
-        audio: 'music/Fortress of Lies.mp3',
-        background: 'backgrounds/background37.jpg'
-    },
-    'spring rain': {
-        audio: 'music/Spring Rain.mp3',
-        background: 'backgrounds/background38.jpg'
-    },
-    'atonement': {
-        audio: 'music/Song Of The Ancients (Atonement).mp3',
-        background: 'backgrounds/background39.jpg'
-    },
-    'blissful death': {
-        audio: 'music/Blissful Death.mp3',
-        background: 'backgrounds/background40.jpg'
-    },
-    'emil despair': {
-        audio: 'music/Emil Despair.mp3',
-        background: 'backgrounds/background41.jpg'
-    },
-    'starry sky': {
-        audio: 'music/Starry Sky.mp3',
-        background: 'backgrounds/background42.jpg'
-    },
-    'tower': {
-        audio: 'music/The Tower.mp3',
-        background: 'backgrounds/background43.jpg'
-    },
-    'sound end': {
-        audio: 'music/The Sound of the End.mp3',
-        background: 'backgrounds/background44.jpg'
-    },
-    'weight world fr': {
-        audio: 'music/Weight of the World French.mp3',
-        background: 'backgrounds/background45.jpg'
-    },
+    'end of yorha': { audio: 'music/Weight of the World the End of YoRHa.mp3', background: 'backgrounds/background01.png' },
+    'weight world': { audio: 'music/Weight of the World⧸English Version.mp3', background: 'backgrounds/background02.png' },
+    'japanese': { audio: 'music/Weight of the World Japanese.mp3', background: 'backgrounds/background02.png' },
+    'french': { audio: 'music/Weight of the World French.mp3', background: 'backgrounds/background02.png' },
+    'bipolar nightmare': { audio: 'music/Bipolar Nightmare.mp3', background: 'backgrounds/background03.jpeg' },
+    'nothing': { audio: 'music/Significance - Nothing.mp3', background: 'backgrounds/background04.jpeg' },
+    'rays light': { audio: 'music/City Ruins Rays of Light.mp3', background: 'backgrounds/background05.jpg' },
+    'peaceful sleep': { audio: 'music/Peaceful Sleep.mp3', background: 'backgrounds/background06.jpg' },
+    'memories dust': { audio: 'music/Memories of Dust.mp3', background: 'backgrounds/background07.jpg' },
+    'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/background08.jpg' },
+    'color depression': { audio: 'music/The Color of Depression.mp3', background: 'backgrounds/background09.jpg' },
+    'amusement park': { audio: 'music/Amusement Park.mp3', background: 'backgrounds/background10.jpg' },
+    'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background11.jpg' },
+    'voice return guitar': { audio: 'music/Voice of No Return - Guitar.mp3', background: 'backgrounds/background12.jpg' },
+    'grandma destruction': { audio: 'music/Grandma - Destruction.mp3', background: 'backgrounds/background13.jpg' },
+    'dawn breeze': { audio: 'music/Dawn Breeze.mp3', background: 'backgrounds/background14.jpg' },
+    'emil shop': { audio: 'music/Emils Shop.mp3', background: 'backgrounds/background15.jpg' },
+    'treasured times': { audio: 'music/Treasured Times.mp3', background: 'backgrounds/background16.jpg' },
+    'cold rain': { audio: 'music/Cold Rain.mp3', background: 'backgrounds/background17.jpg' },
+    'shade': { audio: 'music/City Ruins Shade.mp3', background: 'backgrounds/background18.jpg' },
+    'end unknown': { audio: 'music/End of the Unknown.mp3', background: 'backgrounds/background19.jpg' },
+    'voice return normal': { audio: 'music/Voice of No Return - Normal.mp3', background: 'backgrounds/background20.jpg' },
+    'pascal': { audio: 'music/Pascal.mp3', background: 'backgrounds/background21.jpg' },
+    'forest kingdom': { audio: 'music/Forest Kingdom.mp3', background: 'backgrounds/background22.jpg' },
+    'significance': { audio: 'music/Significance.mp3', background: 'backgrounds/background23.jpg' },
+    'dark colossus': { audio: 'music/Dark Colossus.mp3', background: 'backgrounds/background24.jpg' },
+    'copied city': { audio: 'music/Copied City.mp3', background: 'backgrounds/background25.jpg' },
+    'wretched weaponry dynamic': { audio: 'music/Wretched Weaponry Dynamic.mp3', background: 'backgrounds/background26.jpg' },
+    'possessed disease': { audio: 'music/Possessed By Disease.mp3', background: 'backgrounds/background27.jpg' },
+    'broken heart': { audio: 'music/Broken Heart.mp3', background: 'backgrounds/background28.jpg' },
+    'wretched weaponry quiet': { audio: 'music/Wretched Weaponry (Quiet).mp3', background: 'backgrounds/background29.jpg' },
+    'mourning': { audio: 'music/Mourning.mp3', background: 'backgrounds/background30.jpg' },
+    'dependent weakling': { audio: 'music/Dependent Weakling.mp3', background: 'backgrounds/background31.jpg' },
+    'rebirth hope': { audio: 'music/Rebirth Hope.mp3', background: 'backgrounds/background33.jpg' },
+    'war war': { audio: 'music/War War.mp3', background: 'backgrounds/background.png' },
+    'crumbling lies': { audio: 'music/Crumbling Lies.mp3', background: 'backgrounds/background35.jpg' },
+    'widespread illness': { audio: 'music/Widespread Illness.mp3', background: 'backgrounds/background36.jpg' },
+    'fortress lies': { audio: 'music/Fortress of Lies.mp3', background: 'backgrounds/background37.jpg' },
+    'spring rain': { audio: 'music/Spring Rain.mp3', background: 'backgrounds/background38.jpg' },
+    'atonement': { audio: 'music/Song Of The Ancients (Atonement).mp3', background: 'backgrounds/background39.jpg' },
+    'blissful death': { audio: 'music/Blissful Death.mp3', background: 'backgrounds/background40.jpg' },
+    'emil despair': { audio: 'music/Emil Despair.mp3', background: 'backgrounds/background41.jpg' },
+    'starry sky': { audio: 'music/Starry Sky.mp3', background: 'backgrounds/background42.jpg' },
+    'tower': { audio: 'music/The Tower.mp3', background: 'backgrounds/background43.jpg' },
+    'sound end': { audio: 'music/The Sound of the End.mp3', background: 'backgrounds/background44.jpg' }
 };
+
 let audioContext;
 let analyser;
 let bufferLength;
 let dataArray;
 let canvas;
 let canvasCtx;
+
+async function playMusic(trackName) {
+    if (isPlaying && currentTrack === trackName) {
+        return; 
+    }
+
+    if (isPlaying) {
+        const currentAudio = document.getElementById('current-audio');
+        if (currentAudio) {
+
+            currentAudio.pause();
+            currentAudio.currentTime = 0; 
+            currentAudio.remove();
+        }
+
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+        if (canvas) {
+            document.body.removeChild(canvas);
+            canvas = null;
+        }
+    }
+
+    const audioSrc = phrases[trackName].audio;
+    const backgroundSrc = phrases[trackName].background;
+
+    const audio = new Audio(audioSrc);
+    audio.id = 'current-audio';
+
+    audio.play().catch(error => {
+        console.error('Error:', error);
+    });
+
+    if (!audioContext) {
+        createVisualizer();
+    }
+
+    const source = audioContext.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    drawVisualizer();
+
+    audio.onended = () => {
+        isPlaying = false;
+        currentTrack = '';
+        if (canvas) document.body.removeChild(canvas);
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+    };
+
+    isPlaying = true;
+    currentTrack = trackName;
+
+    changeBackground(backgroundSrc);
+
+    document.body.appendChild(audio);
+}
+
 
 function createVisualizer() {
     if (!audioContext) {
@@ -866,77 +743,9 @@ function drawVisualizer() {
     }
 }
 
-async function playMusic(trackName) {
-    if (isPlaying && currentTrack === trackName) {
-        return; 
-    }
-
-    if (isPlaying) {
-        const currentAudio = document.getElementById('current-audio');
-        if (currentAudio) {
-
-            currentAudio.pause();
-            currentAudio.currentTime = 0; 
-            currentAudio.remove();
-        }
-
-        if (audioContext) {
-            audioContext.close();
-            audioContext = null;
-        }
-        if (canvas) {
-            document.body.removeChild(canvas);
-            canvas = null;
-        }
-    }
-
-    const audioSrc = phrases[trackName].audio;
-    const backgroundSrc = phrases[trackName].background;
-
-    const audio = new Audio(audioSrc);
-    audio.id = 'current-audio';
-
-    audio.play().catch(error => {
-        console.error('Ошибка воспроизведения:', error);
-    });
-
-    if (!audioContext) {
-        createVisualizer();
-    }
-
-    const source = audioContext.createMediaElementSource(audio);
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-
-    drawVisualizer();
-
-    audio.onended = () => {
-        isPlaying = false;
-        currentTrack = '';
-        if (canvas) document.body.removeChild(canvas);
-        if (audioContext) {
-            audioContext.close();
-            audioContext = null;
-        }
-    };
-
-    isPlaying = true;
-    currentTrack = trackName;
-
-    changeBackground(backgroundSrc);
-
-    document.body.appendChild(audio);
-}
-
-
-function loadImage(url) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = url;
-        img.onload = () => resolve(url);
-        img.onerror = reject;
-    });
-}
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
 async function updatePrice(countryCode) {
     try {
@@ -1010,28 +819,74 @@ async function updatePrice(countryCode) {
     }
 }
 
-function loadImage(url) {
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.querySelector('p').textContent = message;
+    notification.style.display = 'block';
+    notification.style.animation = 'fadeIn 0.5s ease-in-out';
+
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.5s ease-in-out';
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.style.animation = ''; 
+        }, 500); 
+    }, 1500);
+}
+function getCurrencySymbol(currencyCode) {
+    const symbols = {
+        "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "RUB": "₽", "UAH": "₴",
+        "BRL": "R$", "CAD": "C$", "AUD": "A$", "CHF": "Fr", "CNY": "¥", "KRW": "₩",
+        "INR": "₹", "MXN": "Mex$", "PLN": "zł", "ZAR": "R", "TRY": "₺", "AED": "د.إ",
+        "THB": "฿", "TWD": "NT$", "SAR": "ر.س", "QAR": "ر.ق", "KWD": "د.ك", "KZT": "₸",
+        "MYR": "RM", "IDR": "Rp", "ILS": "₪", "COP": "$", "CRC": "₡", "PEN": "S/",
+        "PHP": "₱", "VND": "₫", "CLP": "$", "GEL": "₾", "HRK": "kn", "HUF": "Ft",
+        "LKR": "Rs", "MDL": "L", "NOK": "kr", "RON": "lei", "SEK": "kr", "UGX": "USh",
+        "MNT": "₮", "TZS": "TSh", "NAD": "$", "ZWL": "$", "BAM": "KM", "GHS": "₵",
+        "BND": "$", "SBD": "$", "MOP": "MOP$", "PGK": "K"
+    };
+    return symbols[currencyCode] || currencyCode;
+}
+
+
+function containsAllWords(inputText, phraseKey) {
+    const words = phraseKey.split(' ');
+    return words.every(word => inputText.includes(word));
+}
+
+async function loadImage(url) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = url;
-        img.onload = () => resolve(url);
-        img.onerror = reject;
+        img.onload = () => resolve();
+        img.onerror = (error) => reject(error);
     });
 }
 
+
 async function changeBackground(imageUrl) {
     const body = document.body;
+
+    const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+
+
+    if (currentBackground === imageUrl) {
+        console.log('Background image is the same, no change needed.');
+        return;
+    }
 
     const style = document.createElement('style');
     style.innerHTML = `body::before { background-image: url(${imageUrl}); }`;
     document.head.appendChild(style);
 
+    // Add fade-out animation class
     body.classList.add('fade-out');
 
     try {
         await loadImage(imageUrl);
 
         body.style.backgroundImage = `url(${imageUrl})`;
+
         setTimeout(() => {
             body.classList.remove('fade-out');
             body.classList.add('fade-in');
@@ -1046,27 +901,11 @@ async function changeBackground(imageUrl) {
 
 
 
-function containsAllWords(inputText, phraseKey) {
-    const words = phraseKey.split(' ');
-    return words.every(word => inputText.includes(word));
-}
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
-
-function getDominantColor(imageUrl) {
-    return new Promise((resolve, reject) => {
-        const colorThief = new ColorThief();
-        const img = new Image();
-        img.crossOrigin = 'Anonymous'; 
-        img.src = imageUrl;
-
-        img.onload = () => {
-            const dominantColor = colorThief.getColor(img);
-            resolve(`rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`);
-        };
-
-        img.onerror = () => reject('Error loading image');
-    });
-}
+let buttonsShown = false; 
 
 function updatePriceDisplay() {
     const amount = parseFloat(amountInput.value);
@@ -1077,13 +916,31 @@ function updatePriceDisplay() {
             showPurchaseButtons();
         } else {
             priceElement.innerHTML = '';
-            hidePurchaseButtons(); 
+            hidePurchaseButtons();
         }
     } else {
         priceElement.innerHTML = '';
-        hidePurchaseButtons(); 
+        hidePurchaseButtons();
     }
 }
+
+function hidePurchaseButtons() {
+    if (!buttonsShown) return;
+
+    const buttonsContainer = document.getElementById('purchaseButtons');
+    const buttons = buttonsContainer.querySelectorAll('.purchase-button');
+
+    buttons.forEach(button => {
+        button.classList.remove('show');
+        button.classList.add('hide');
+    });
+
+    setTimeout(() => {
+        buttonsContainer.innerHTML = '';
+        buttonsShown = false; 
+    }, 300);
+}
+
 
 function showPurchaseButtons() {
     if (buttonsShown) return; 
@@ -1133,43 +990,75 @@ function showPurchaseButtons() {
     buttonsShown = true; 
 }
 
-function hidePurchaseButtons() {
-    const buttonsContainer = document.getElementById('purchaseButtons');
-    const buttons = buttonsContainer.querySelectorAll('.purchase-button');
-    
-    buttons.forEach(button => {
-        button.classList.remove('show');
-        button.classList.add('hide');
+function getDominantColor(imageUrl) {
+    return new Promise((resolve, reject) => {
+        const colorThief = new ColorThief();
+        const img = new Image();
+        img.crossOrigin = 'Anonymous'; 
+        img.src = imageUrl;
+
+        img.onload = () => {
+            const dominantColor = colorThief.getColor(img);
+            resolve(`rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`);
+        };
+
+        img.onerror = () => reject('Error loading image');
     });
-
-    setTimeout(() => {
-        buttonsContainer.innerHTML = '';
-        buttonsShown = false; 
-    }, 300);
 }
 
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
-
-function showNotification(message) {
-    const notification = document.getElementById('notification');
-    notification.querySelector('p').textContent = message;
-    notification.style.display = 'block';
-    notification.style.animation = 'fadeIn 0.5s ease-in-out';
-
-    setTimeout(() => {
-        notification.style.animation = 'fadeOut 0.5s ease-in-out';
+function toggleFade(element, action) {
+    if (action === 'hide') {
+        element.style.transition = 'opacity 0.5s';
+        element.style.opacity = 0;
         setTimeout(() => {
-            notification.style.display = 'none';
-            notification.style.animation = ''; 
-        }, 500); 
-    }, 1500);
+            element.style.display = 'none';
+        }, 500);
+    } else if (action === 'show') {
+        element.style.display = '';
+        setTimeout(() => {
+            element.style.transition = 'opacity 0.5s';
+            element.style.opacity = 1;
+        }, 10);
+    }
 }
 
+
+function toggleVisibility() {
+    const elementsToToggle = [
+        document.querySelector('.container'),
+        document.getElementById('countryFlag')
+    ];
+
+    elementsToToggle.forEach(element => {
+        if (element.style.display === 'none') {
+            toggleFade(element, 'show');
+        } else {
+            toggleFade(element, 'hide');
+        }
+    });
+}
+
+document.addEventListener('keydown', (event) => {
+    const isTyping = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
+    if (event.code === 'KeyH' && !isTyping) {
+        event.preventDefault();
+        toggleVisibility();
+    }
+});
+
+
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
 function setRandomBackground() {
     const backgrounds = [
         'backgrounds/background.png',
-        'backgrounds/background1.png'
+        'backgrounds/background02.png'
     ];
     const randomIndex = Math.floor(Math.random() * backgrounds.length);
     document.body.style.backgroundImage = `url(${backgrounds[randomIndex]})`;
@@ -1197,6 +1086,10 @@ document.getElementById('result').addEventListener('click', function() {
     window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
 });
 
+
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
     </script>
 

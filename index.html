@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/moshiax/priceinautomata/main/logo.png">
+    <link rel="icon" type="image/png" href="icons/logo.png">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +15,7 @@
             font-size: 1.5rem;
             background-size: cover;
             background-repeat: no-repeat;
+			transition: background-image 1s ease-in-out;
         }
 html, body {
     height: 100%;
@@ -143,9 +144,7 @@ label {
     opacity: 0;
     animation: fadeIn 0.5s forwards;
 }
-body {
-    transition: background-image 1s ease-in-out;
-}
+
 
 .fade-in {
     opacity: 1;
@@ -297,7 +296,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('https://www.transparenttextures.com/patterns/stardust.png');
+    background: url('backgrounds/stardust.png');
     background-size: cover;
     opacity: 0.5;
     z-index: -1; 
@@ -337,7 +336,6 @@ body {
     height: 60px; 
     border-radius: 50%;
     background-color: transparent;
-
     cursor: pointer;
     margin: 0 auto;
 }
@@ -369,9 +367,6 @@ body {
     left: 0;
     width: 100%;
     height: 150px; 
-
-
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -386,7 +381,7 @@ body::before {
     background-size: cover;
     background-position: center;
     transition: opacity 1s ease-in-out;
-    z-index: -1; /* Ensure it is behind other content */
+    z-index: -1; 
 }
 
 .fade-out::before {
@@ -410,6 +405,56 @@ body::before {
 .waveform-bar.active {
     transform: scaleY(2); 
 }
+#play-button-wrapper {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+}
+
+#play-button {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 9999; 
+}
+
+#play-icon, #playing-icon {
+    width: 40px; 
+    height: 40px; 
+    opacity: 0.2;
+}
+
+.pulsating {
+    animation: pulsate 1s infinite; 
+}
+
+@keyframes pulsate {
+    0% { opacity: 0.2; }
+    50% { opacity: 0.6; }
+    100% { opacity: 0.2; }
+}
+
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.2;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.2;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
 
 @keyframes blink-caret {
     from, to { border-color: transparent; }
@@ -432,7 +477,12 @@ body::before {
 </head>
 <body>
 <div id="loadingOverlay"></div>
-
+<div id="play-button-wrapper">
+<div id="play-button">
+    <img id="play-icon" src="icons/play.png" alt="Play">
+    <img id="playing-icon" src="icons/playing.png" alt="Playing" style="display: none;">
+</div>
+</div>
 <div class="container">
     <label for="amount">Your money amount</label>
     <div class="input-container">
@@ -580,6 +630,12 @@ async function getIpAndLocation() {
 
 let isPlaying = false; 
 let currentTrack = '';
+let audioContext;
+let analyser;
+let bufferLength;
+let dataArray;
+let canvas;
+let canvasCtx;
 
 const phrases = {
     'end of yorha': { audio: 'music/Weight of the World the End of YoRHa.mp3', background: 'backgrounds/background01.png' },
@@ -588,8 +644,8 @@ const phrases = {
     'french': { audio: 'music/Weight of the World French.mp3', background: 'backgrounds/background02.png' },
     'bipolar nightmare': { audio: 'music/Bipolar Nightmare.mp3', background: 'backgrounds/background03.jpeg' },
     'nothing': { audio: 'music/Significance - Nothing.mp3', background: 'backgrounds/background04.jpeg' },
-    'rays light': { audio: 'music/City Ruins Rays of Light.mp3', background: 'backgrounds/background05.jpg' },
-    'peaceful sleep': { audio: 'music/Peaceful Sleep.mp3', background: 'backgrounds/background06.jpg' },
+    'rays light': { audio: 'music/City Ruins Rays of Light.mp3', background: 'backgrounds/background05.png' },
+    'peaceful sleep': { audio: 'music/Peaceful Sleep.mp3', background: 'backgrounds/background06.png' },
     'memories dust': { audio: 'music/Memories of Dust.mp3', background: 'backgrounds/background07.jpg' },
     'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/background08.jpg' },
     'color depression': { audio: 'music/The Color of Depression.mp3', background: 'backgrounds/background09.jpg' },
@@ -629,35 +685,13 @@ const phrases = {
     'sound end': { audio: 'music/The Sound of the End.mp3', background: 'backgrounds/background44.jpg' }
 };
 
-let audioContext;
-let analyser;
-let bufferLength;
-let dataArray;
-let canvas;
-let canvasCtx;
-
 async function playMusic(trackName) {
     if (isPlaying && currentTrack === trackName) {
         return; 
     }
 
     if (isPlaying) {
-        const currentAudio = document.getElementById('current-audio');
-        if (currentAudio) {
-
-            currentAudio.pause();
-            currentAudio.currentTime = 0; 
-            currentAudio.remove();
-        }
-
-        if (audioContext) {
-            audioContext.close();
-            audioContext = null;
-        }
-        if (canvas) {
-            document.body.removeChild(canvas);
-            canvas = null;
-        }
+        stopMusic();
     }
 
     const audioSrc = phrases[trackName].audio;
@@ -688,14 +722,74 @@ async function playMusic(trackName) {
             audioContext.close();
             audioContext = null;
         }
+        updatePlayIcon();
     };
 
     isPlaying = true;
     currentTrack = trackName;
 
     changeBackground(backgroundSrc);
-
     document.body.appendChild(audio);
+    updatePlayIcon();
+}
+
+function stopMusic() {
+    const currentAudio = document.getElementById('current-audio');
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0; 
+        currentAudio.remove();
+    }
+
+    if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+    }
+    if (canvas) {
+        document.body.removeChild(canvas);
+        canvas = null;
+    }
+
+    isPlaying = false;
+    updatePlayIcon();
+}
+
+const playIcon = document.getElementById('play-icon');
+
+function updatePlayIcon() {
+    const playIcon = document.getElementById('play-icon');
+    const playingIcon = document.getElementById('playing-icon');
+
+    if (isPlaying) {
+        playIcon.style.display = 'none';
+        playingIcon.style.display = 'block';
+    } else {
+        playIcon.style.display = 'block';
+        playingIcon.style.display = 'none';
+    }
+}
+document.getElementById('play-button').addEventListener('click', () => {
+    if (isPlaying) {
+        stopMusic();
+    } else {
+        if (currentTrack) {
+            playMusic(currentTrack);
+        } else {
+            playRandomMusic(); 
+        }
+    }
+});
+
+
+function playRandomMusic() {
+    if (isPlaying) {
+        return; 
+    }
+
+    const trackNames = Object.keys(phrases);
+    const randomTrack = trackNames[Math.floor(Math.random() * trackNames.length)];
+    
+    playMusic(randomTrack);
 }
 
 
@@ -879,7 +973,6 @@ async function changeBackground(imageUrl) {
     style.innerHTML = `body::before { background-image: url(${imageUrl}); }`;
     document.head.appendChild(style);
 
-    // Add fade-out animation class
     body.classList.add('fade-out');
 
     try {

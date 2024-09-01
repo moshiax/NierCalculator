@@ -642,16 +642,17 @@ const phrases = {
     'weight world': { audio: 'music/Weight of the World⧸English Version.mp3', background: 'backgrounds/background02.png' },
     'japanese': { audio: 'music/Weight of the World Japanese.mp3', background: 'backgrounds/background02.png' },
     'french': { audio: 'music/Weight of the World French.mp3', background: 'backgrounds/background02.png' },
-    'bipolar nightmare': { audio: 'music/Bipolar Nightmare.mp3', background: 'backgrounds/background03.jpeg' },
+    'bipolar nightmare': { audio: 'music/Bipolar Nightmare.mp3', background: 'backgrounds/background03.png' },
     'nothing': { audio: 'music/Significance - Nothing.mp3', background: 'backgrounds/background04.jpeg' },
     'rays light': { audio: 'music/City Ruins Rays of Light.mp3', background: 'backgrounds/background05.png' },
     'peaceful sleep': { audio: 'music/Peaceful Sleep.mp3', background: 'backgrounds/background06.png' },
-    'memories dust': { audio: 'music/Memories of Dust.mp3', background: 'backgrounds/background07.jpg' },
-    'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/background08.jpg' },
-    'color depression': { audio: 'music/The Color of Depression.mp3', background: 'backgrounds/background09.jpg' },
-    'amusement park': { audio: 'music/Amusement Park.mp3', background: 'backgrounds/background10.jpg' },
-    'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background11.jpg' },
-    'voice return guitar': { audio: 'music/Voice of No Return - Guitar.mp3', background: 'backgrounds/background12.jpg' },
+    'memories dust': { audio: 'music/Memories of Dust.mp3', background: 'backgrounds/background07.png' },
+    'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/background08.png' },
+    'color depression': { audio: 'music/The Color of Depression.mp3', background: 'backgrounds/background04.jpeg' },
+    'amusement park': { audio: 'music/Amusement Park.mp3', background: 'backgrounds/background09.png' },
+    'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background10.png' },
+    'voice return guitar': { audio: 'music/Voice of No Return - Guitar.mp3', background: 'backgrounds/background11.png' },
+    'voice return normal': { audio: 'music/Voice of No Return - Normal.mp3', background: 'backgrounds/background11.png' },
     'grandma destruction': { audio: 'music/Grandma - Destruction.mp3', background: 'backgrounds/background13.jpg' },
     'dawn breeze': { audio: 'music/Dawn Breeze.mp3', background: 'backgrounds/background14.jpg' },
     'emil shop': { audio: 'music/Emils Shop.mp3', background: 'backgrounds/background15.jpg' },
@@ -659,7 +660,6 @@ const phrases = {
     'cold rain': { audio: 'music/Cold Rain.mp3', background: 'backgrounds/background17.jpg' },
     'shade': { audio: 'music/City Ruins Shade.mp3', background: 'backgrounds/background18.jpg' },
     'end unknown': { audio: 'music/End of the Unknown.mp3', background: 'backgrounds/background19.jpg' },
-    'voice return normal': { audio: 'music/Voice of No Return - Normal.mp3', background: 'backgrounds/background20.jpg' },
     'pascal': { audio: 'music/Pascal.mp3', background: 'backgrounds/background21.jpg' },
     'forest kingdom': { audio: 'music/Forest Kingdom.mp3', background: 'backgrounds/background22.jpg' },
     'significance': { audio: 'music/Significance.mp3', background: 'backgrounds/background23.jpg' },
@@ -1041,13 +1041,13 @@ function showPurchaseButtons() {
     const buttonsContainer = document.getElementById('purchaseButtons');
     buttonsContainer.innerHTML = `
 		<div class="purchase-button" id="xboxButton">
-			<img src="shops/xbox.png" alt="Xbox">
+			<img src="icons/xbox.png" alt="Xbox">
 		</div>
 		<div class="purchase-button" id="steamButton">
-			<img src="shops/steam.png" alt="Steam">
+			<img src="icons/steam.png" alt="Steam">
 		</div>
 		<div class="purchase-button" id="walmartButton">
-			<img src="shops/walmart.png" alt="Walmart">
+			<img src="icons/walmart.png" alt="Walmart">
 		</div>
 
     `;

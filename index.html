@@ -636,11 +636,12 @@ let bufferLength;
 let dataArray;
 let canvas;
 let canvasCtx;
+let currentTrackAudioSrc = '';
 const phrases = {
     // "Weight of the World"
     'end of yorha': { audio: 'music/Weight of the World the End of YoRHa.mp3', background: 'backgrounds/background01.png' }, //
     'weight world': { audio: 'music/Weight of the World⧸English Version.mp3', background: 'backgrounds/background02.png' }, //
-    'jap': { audio: 'music/Weight of the World Japanese.mp3', background: 'backgrounds/background02.png' },/ //
+    'jap': { audio: 'music/Weight of the World Japanese.mp3', background: 'backgrounds/background02.png' }, //
     'fr': { audio: 'music/Weight of the World French.mp3', background: 'backgrounds/background02.png' }, //
 
     // "Voice of No Return"
@@ -682,12 +683,12 @@ const phrases = {
     'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/background08.png' },
     'dawn breeze': { audio: 'music/Dawn Breeze.mp3', background: 'backgrounds/background14.jpg' },
     'cold rain': { audio: 'music/Cold Rain.mp3', background: 'backgrounds/background17.jpg' },
+    'spring rain': { audio: 'music/Spring Rain.mp3', background: 'backgrounds/springrain.jpeg' }, //
     'nothing': { audio: 'music/Significance - Nothing.mp3', background: 'backgrounds/background04.jpeg' },
-    'spring rain': { audio: 'music/Spring Rain.mp3', background: 'backgrounds/springrain.jpeg' },
     'rebirth hope': { audio: 'music/Rebirth Hope.mp3', background: 'backgrounds/background33.jpg' },
     'treasured times': { audio: 'music/Treasured Times.mp3', background: 'backgrounds/background16.jpg' },
     'end unknown': { audio: 'music/End of the Unknown.mp3', background: 'backgrounds/background19.jpg' },
-    'starry sky': { audio: 'music/Starry Sky.mp3', background: 'backgrounds/starrysky.png' },
+    'starry sky': { audio: 'music/Starry Sky.mp3', background: 'backgrounds/starrysky.png' }, //
 
     // Emil
     'emil shop': { audio: 'music/Emils Shop.mp3', background: 'backgrounds/background15.jpg' },
@@ -708,7 +709,9 @@ const phrases = {
 };
 
 async function playMusic(trackName) {
-    if (isPlaying && currentTrack === trackName) {
+    const audioSrc = phrases[trackName].audio;
+
+    if (isPlaying && currentTrackAudioSrc === audioSrc) {
         return;
     }
 
@@ -752,8 +755,6 @@ async function playMusic(trackName) {
         await fadeOutAudio(document.getElementById('current-audio'));
         stopMusic();
     }
-    const audioSrc = phrases[trackName].audio;
-    const backgroundSrc = phrases[trackName].background;
 
     const audio = new Audio(audioSrc);
     audio.id = 'current-audio';
@@ -768,7 +769,7 @@ async function playMusic(trackName) {
     drawVisualizer();
     audio.onended = () => {
         isPlaying = false;
-        currentTrack = '';
+        currentTrackAudioSrc = '';
         if (canvas) document.body.removeChild(canvas);
         if (audioContext) {
             audioContext.close();
@@ -778,7 +779,8 @@ async function playMusic(trackName) {
     };
 
     isPlaying = true;
-    currentTrack = trackName;
+    currentTrackAudioSrc = audioSrc; 
+    const backgroundSrc = phrases[trackName].background;
     changeBackground(backgroundSrc);
     toggleVisibility();
     showNotification('You can switch the UI by pressing [H] on keyboard.');
@@ -790,6 +792,7 @@ async function playMusic(trackName) {
         amountInput.value = '';
     }
 }
+
 
 function stopMusic() {
     const currentAudio = document.getElementById('current-audio');
@@ -810,6 +813,8 @@ function stopMusic() {
 
     isPlaying = false;
     updatePlayIcon();
+	currentTrackAudioSrc = '';
+
 }
 
 const playIcon = document.getElementById('play-icon');

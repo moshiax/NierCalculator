@@ -691,20 +691,51 @@ async function playMusic(trackName) {
         return;
     }
 
-    if (isPlaying) {
-        stopMusic();
+    async function fadeOutAudio(audio, duration = 1000) {
+        if (!audio) return;
+        let volume = audio.volume;
+        const step = volume / (duration / 50);
+
+        return new Promise(resolve => {
+            const fadeOutInterval = setInterval(() => {
+                if (volume > 0) {
+                    volume = Math.max(0, volume - step);
+                    audio.volume = volume;
+                } else {
+                    clearInterval(fadeOutInterval);
+                    audio.pause();
+                    audio.currentTime = 0;
+                    resolve();
+                }
+            }, 50);
+        });
     }
 
+    function fadeInAudio(audio, duration = 1000) {
+        let volume = 0;
+        const step = 1 / (duration / 50);
+        audio.volume = 0;
+        audio.play().catch(error => console.error('Error:', error));
+
+        const fadeInInterval = setInterval(() => {
+            if (volume < 1) {
+                volume = Math.min(1, volume + step);
+                audio.volume = volume;
+            } else {
+                clearInterval(fadeInInterval);
+            }
+        }, 50);
+    }
+
+    if (isPlaying) {
+        await fadeOutAudio(document.getElementById('current-audio'));
+        stopMusic();
+    }
     const audioSrc = phrases[trackName].audio;
     const backgroundSrc = phrases[trackName].background;
 
     const audio = new Audio(audioSrc);
     audio.id = 'current-audio';
-
-    audio.play().catch(error => {
-        console.error('Error:', error);
-    });
-
     if (!audioContext) {
         createVisualizer();
     }
@@ -714,7 +745,6 @@ async function playMusic(trackName) {
     analyser.connect(audioContext.destination);
 
     drawVisualizer();
-
     audio.onended = () => {
         isPlaying = false;
         currentTrack = '';
@@ -728,18 +758,18 @@ async function playMusic(trackName) {
 
     isPlaying = true;
     currentTrack = trackName;
-
     changeBackground(backgroundSrc);
     toggleVisibility();
     showNotification('You can switch the UI by pressing [H] on keyboard.');
-
     document.body.appendChild(audio);
+    fadeInAudio(audio);
     updatePlayIcon();
     const amountInput = document.getElementById('amount');
     if (amountInput) {
         amountInput.value = '';
     }
 }
+
 function stopMusic() {
     const currentAudio = document.getElementById('current-audio');
     if (currentAudio) {

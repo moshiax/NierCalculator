@@ -636,54 +636,75 @@ let bufferLength;
 let dataArray;
 let canvas;
 let canvasCtx;
-
 const phrases = {
-    'end of yorha': { audio: 'music/Weight of the World the End of YoRHa.mp3', background: 'backgrounds/background01.png' },
-    'weight world': { audio: 'music/Weight of the World⧸English Version.mp3', background: 'backgrounds/background02.png' },
-    'japanese': { audio: 'music/Weight of the World Japanese.mp3', background: 'backgrounds/background02.png' },
-    'french': { audio: 'music/Weight of the World French.mp3', background: 'backgrounds/background02.png' },
-    'bipolar nightmare': { audio: 'music/Bipolar Nightmare.mp3', background: 'backgrounds/background03.png' },
-    'nothing': { audio: 'music/Significance - Nothing.mp3', background: 'backgrounds/background04.jpeg' },
-    'rays light': { audio: 'music/City Ruins Rays of Light.mp3', background: 'backgrounds/background05.png' },
-    'peaceful sleep': { audio: 'music/Peaceful Sleep.mp3', background: 'backgrounds/background06.png' },
-    'memories dust': { audio: 'music/Memories of Dust.mp3', background: 'backgrounds/background07.png' },
-    'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/background08.png' },
-    'color depression': { audio: 'music/The Color of Depression.mp3', background: 'backgrounds/background04.jpeg' },
-    'amusement park': { audio: 'music/Amusement Park.mp3', background: 'backgrounds/background09.png' },
-    'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background10.png' },
-    'voice return guitar': { audio: 'music/Voice of No Return - Guitar.mp3', background: 'backgrounds/background11.png' },
-    'voice return normal': { audio: 'music/Voice of No Return - Normal.mp3', background: 'backgrounds/background11.png' },
-//////////
+    // "Weight of the World"
+    'end of yorha': { audio: 'music/Weight of the World the End of YoRHa.mp3', background: 'backgrounds/background01.png' }, //
+    'weight world': { audio: 'music/Weight of the World⧸English Version.mp3', background: 'backgrounds/background02.png' }, //
+    'jap': { audio: 'music/Weight of the World Japanese.mp3', background: 'backgrounds/background02.png' },/ //
+    'fr': { audio: 'music/Weight of the World French.mp3', background: 'backgrounds/background02.png' }, //
+
+    // "Voice of No Return"
+    'voice return': { audio: 'music/Voice of No Return - Guitar.mp3', background: 'backgrounds/background11.png' }, //
+    'normal': { audio: 'music/Voice of No Return - Normal.mp3', background: 'backgrounds/background11.png' }, //
+
+    // "Song of the Ancients"
+    'atonement': { audio: 'music/Song Of The Ancients (Atonement).mp3', background: 'backgrounds/background39.jpg' }, 
+    'song ancients': { audio: 'music/Song Of The Ancients (Atonement).mp3', background: 'backgrounds/background39.jpg' },
+	
+    // "Wretched Weaponry"
+    'dynamic': { audio: 'music/Wretched Weaponry Dynamic.mp3', background: 'backgrounds/background26.jpg' }, 
+    'quiet': { audio: 'music/Wretched Weaponry (Quiet).mp3', background: 'backgrounds/background29.jpg' },
+    'wretched weaponry': { audio: 'music/Wretched Weaponry Dynamic.mp3', background: 'backgrounds/background26.jpg' },
+	
+
+    // Fights
+    'bipolar nightmare': { audio: 'music/Bipolar Nightmare.mp3', background: 'backgrounds/background03.png' }, //
+    'significance': { audio: 'music/Significance.mp3', background: 'backgrounds/background04.jpg' }, //
+    'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background10.png' }, //
+    'dark colossus': { audio: 'music/Dark Colossus.mp3', background: 'backgrounds/darkcolossus.png' }, //
+    'war war': { audio: 'music/War War.mp3', background: 'backgrounds/background.png' }, //
     'grandma destruction': { audio: 'music/Grandma - Destruction.mp3', background: 'backgrounds/background13.jpg' },
+    'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background10.png' }, //
+	
+    // Places
+    'rays light': { audio: 'music/City Ruins Rays of Light.mp3', background: 'backgrounds/background05.png' }, //
+    'shade': { audio: 'music/City Ruins Shade.mp3', background: 'backgrounds/shade.png' }, //
+    'copied city': { audio: 'music/Copied City.mp3', background: 'backgrounds/copiedcity.jpeg' }, //
+    'memories dust': { audio: 'music/Memories of Dust.mp3', background: 'backgrounds/background07.png' }, //
+    'forest kingdom': { audio: 'music/Forest Kingdom.mp3', background: 'backgrounds/background02.png' }, //
+    'pascal': { audio: 'music/Pascal.mp3',hbackground: 'backgrounds/background21.jpg' }, 
+    'amusement park': { audio: 'music/Amusement Park.mp3', background: 'backgrounds/background09.png' }, //
+    'tower': { audio: 'music/The Tower.mp3', background: 'backgrounds/backgroundtower.png' }, //
+    'sound end': { audio: 'music/The Sound of the End.mp3', background: 'backgrounds/background44.jpg' },
+
+    // Ambient
+    'peaceful sleep': { audio: 'music/Peaceful Sleep.mp3', background: 'backgrounds/background06.png' },
+    'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/background08.png' },
     'dawn breeze': { audio: 'music/Dawn Breeze.mp3', background: 'backgrounds/background14.jpg' },
-    'emil shop': { audio: 'music/Emils Shop.mp3', background: 'backgrounds/background15.jpg' },
-    'treasured times': { audio: 'music/Treasured Times.mp3', background: 'backgrounds/background16.jpg' },
     'cold rain': { audio: 'music/Cold Rain.mp3', background: 'backgrounds/background17.jpg' },
-    'shade': { audio: 'music/City Ruins Shade.mp3', background: 'backgrounds/shade.png' },
+    'nothing': { audio: 'music/Significance - Nothing.mp3', background: 'backgrounds/background04.jpeg' },
+    'spring rain': { audio: 'music/Spring Rain.mp3', background: 'backgrounds/springrain.jpeg' },
+    'rebirth hope': { audio: 'music/Rebirth Hope.mp3', background: 'backgrounds/background33.jpg' },
+    'treasured times': { audio: 'music/Treasured Times.mp3', background: 'backgrounds/background16.jpg' },
     'end unknown': { audio: 'music/End of the Unknown.mp3', background: 'backgrounds/background19.jpg' },
-    'pascal': { audio: 'music/Pascal.mp3', background: 'backgrounds/background21.jpg' },
-    'forest kingdom': { audio: 'music/Forest Kingdom.mp3', background: 'backgrounds/background22.jpg' },
-    'significance': { audio: 'music/Significance.mp3', background: 'backgrounds/background23.jpg' },
-    'dark colossus': { audio: 'music/Dark Colossus.mp3', background: 'backgrounds/background24.jpg' },
-    'copied city': { audio: 'music/Copied City.mp3', background: 'backgrounds/background25.jpg' },
-    'wretched weaponry dynamic': { audio: 'music/Wretched Weaponry Dynamic.mp3', background: 'backgrounds/background26.jpg' },
-    'possessed disease': { audio: 'music/Possessed By Disease.mp3', background: 'backgrounds/background27.jpg' },
-    'broken heart': { audio: 'music/Broken Heart.mp3', background: 'backgrounds/background28.jpg' },
-    'wretched weaponry quiet': { audio: 'music/Wretched Weaponry (Quiet).mp3', background: 'backgrounds/background29.jpg' },
+    'starry sky': { audio: 'music/Starry Sky.mp3', background: 'backgrounds/starrysky.png' },
+
+    // Emil
+    'emil shop': { audio: 'music/Emils Shop.mp3', background: 'backgrounds/background15.jpg' },
+    'emil despair': { audio: 'music/Emil Despair.mp3', background: 'backgrounds/background41.jpg' },
+
+
+    // Other
+
+    'crumbling lies': { audio: 'music/Crumbling Lies.mp3', background: 'backgrounds/background35.jpg' },
+    'fortress lies': { audio: 'music/Fortress of Lies.mp3', background: 'backgrounds/fortressoflies.png' }, //
+    'widespread illness': { audio: 'music/Widespread Illness.mp3', background: 'backgrounds/background36.jpg' },
+    'blissful death': { audio: 'music/Blissful Death.mp3', background: 'backgrounds/background40.jpg' }, 
     'mourning': { audio: 'music/Mourning.mp3', background: 'backgrounds/background30.jpg' },
     'dependent weakling': { audio: 'music/Dependent Weakling.mp3', background: 'backgrounds/background31.jpg' },
-    'rebirth hope': { audio: 'music/Rebirth Hope.mp3', background: 'backgrounds/background33.jpg' },
-    'war war': { audio: 'music/War War.mp3', background: 'backgrounds/background.png' },
-    'crumbling lies': { audio: 'music/Crumbling Lies.mp3', background: 'backgrounds/background35.jpg' },
-    'widespread illness': { audio: 'music/Widespread Illness.mp3', background: 'backgrounds/background36.jpg' },
-    'fortress lies': { audio: 'music/Fortress of Lies.mp3', background: 'backgrounds/background37.jpg' },
-    'spring rain': { audio: 'music/Spring Rain.mp3', background: 'backgrounds/background38.jpg' },
-    'atonement': { audio: 'music/Song Of The Ancients (Atonement).mp3', background: 'backgrounds/background39.jpg' },
-    'blissful death': { audio: 'music/Blissful Death.mp3', background: 'backgrounds/background40.jpg' },
-    'emil despair': { audio: 'music/Emil Despair.mp3', background: 'backgrounds/background41.jpg' },
-    'starry sky': { audio: 'music/Starry Sky.mp3', background: 'backgrounds/starrysky.png' },
-    'tower': { audio: 'music/The Tower.mp3', background: 'backgrounds/backgroundtower.png' },
-    'sound end': { audio: 'music/The Sound of the End.mp3', background: 'backgrounds/background44.jpg' }
+    'possessed disease': { audio: 'music/Possessed By Disease.mp3', background: 'backgrounds/background27.jpg' },
+    'broken heart': { audio: 'music/Broken Heart.mp3', background: 'backgrounds/background28.jpg' },
+
 };
 
 async function playMusic(trackName) {

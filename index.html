@@ -958,15 +958,18 @@ async function updatePrice(countryCode) {
 
             currencySymbol.textContent = getCurrencySymbol(currencyCode);
 
+            let previousDisplayText = '';
+
             const updatePriceDisplay = () => {
                 setTimeout(() => {
                     const rawAmount = amountInput.value;
                     const numericAmount = rawAmount.replace(/[^0-9]/g, '');
 
                     const amount = parseFloat(numericAmount);
+                    let displayText = '';
+
                     if (!isNaN(amount)) {
                         const convertedAmount = Math.floor(amount / price);
-                        let displayText = '';
 
                         if (convertedAmount > 0) {
                             if (convertedAmount.toString().includes('e')) {
@@ -975,8 +978,11 @@ async function updatePrice(countryCode) {
                                 displayText = `You can buy<br><span id="copyCount" class="typewriter">${convertedAmount}</span> <br>copies of NieR:Automata.`;
                             }
 
-                            priceElement.innerHTML = displayText;
-                            showPurchaseButtons();
+                            if (displayText !== previousDisplayText) {
+                                previousDisplayText = displayText; 
+                                priceElement.innerHTML = displayText;
+                                showPurchaseButtons();
+                            }
                         } else {
                             priceElement.innerHTML = '';
                             hidePurchaseButtons();
@@ -1011,6 +1017,7 @@ async function updatePrice(countryCode) {
         await updatePrice('US');
     }
 }
+
 
 function containsAllWords(inputText, phraseKey) {
     const words = phraseKey.split(' ');
@@ -1073,6 +1080,10 @@ async function changeBackground(imageUrl) {
         document.head.removeChild(style);
     }
 }
+
+document.getElementById('result').addEventListener('click', function() {
+    window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
+});
 
 
 
@@ -1326,10 +1337,6 @@ window.addEventListener('load', async function() {
     setTimeout(() => {
         overlay.style.display = 'none';
     }, 700); 
-});
-
-document.getElementById('result').addEventListener('click', function() {
-    window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
 });
 
 

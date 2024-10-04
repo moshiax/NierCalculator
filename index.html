@@ -78,6 +78,23 @@ body.fade-in::before {
 }
 
 
+
+
+
+h2 {
+  margin: 0 auto;
+  width: fit-content;
+  text-align: center
+}
+.animated-text {
+  color: #ff0;
+  animation: glow 1.5s infinite
+}
+
+
+/*====================================================================*/
+
+
 .container {
   width: 80vw;
   height: 18vh;
@@ -94,24 +111,26 @@ body.fade-in::before {
 
 @media (max-width: 768px) {
   .container {
+    width: auto;
+    height: auto;
+
+    padding: 45px;
+    background-color: rgba(0, 0, 0, .6);
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .5);
+    box-sizing: border-box;
+    text-align: center;
+    margin-top: -20px;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
     height: 13.3vh;
 
   }
 }
-
-
-h2 {
-  margin: 0 auto;
-  width: fit-content;
-  text-align: center
-}
-.animated-text {
-  color: #ff0;
-  animation: glow 1.5s infinite
-}
-
-
-/*====================================================================*/
 
 input {
   width: 100%;
@@ -177,6 +196,7 @@ label {
   font-size: 1.5rem
   margin-left: 5px
 }
+
 /*====================================================================*/
 
 .flag {
@@ -288,8 +308,6 @@ label {
   text-decoration: none;
   cursor: pointer
 }
-
-
 
 
 

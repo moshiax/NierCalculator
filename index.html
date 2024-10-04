@@ -1385,7 +1385,6 @@ function setRandomBackground() {
 }
 
 window.addEventListener('load', async function() {
-
     const overlay = document.getElementById('loadingOverlay');
     overlay.style.display = 'flex';
 
@@ -1394,6 +1393,17 @@ window.addEventListener('load', async function() {
     const countryCode = locationData.country_code;
     document.getElementById('countryFlag').src = `https://flagcdn.com/48x36/${countryCode.toLowerCase()}.png`;
     await updatePrice(countryCode);
+	
+    if (/android/i.test(navigator.userAgent)) {
+        const emojiContainer = document.createElement('div');
+        for (let i = 0; i < 300; i++) {
+            const emoji = document.createElement('span');
+            emoji.textContent = '♿️';
+            emoji.classList.add('hidden');
+            emojiContainer.appendChild(emoji);
+        }
+        document.body.appendChild(emojiContainer);
+    }
 
     overlay.classList.add('hide');
 

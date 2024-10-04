@@ -635,24 +635,36 @@ async function getIpAndLocation() {
 
 
 		async function getGamePrice(countryCode) {
-			const steamAppId = '524220'; 
+			const steamAppId = '524220';
 			const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
 			const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
 
-			try {
-				const response = await fetch(proxyUrl);
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
+			let attempts = 0;
+			const maxAttempts = 3;
+			
+			while (attempts < maxAttempts) {
+				try {
+					const response = await fetch(proxyUrl);
+					if (!response.ok) {
+						throw new Error(':(');
+					}
+					const data = await response.json();
+					const contents = JSON.parse(data.contents);
+					return contents;
+				} catch (error) {
+					console.error('Error:', error);
+					attempts++;
+					if (attempts < maxAttempts) {
+						console.log(`${attempts} / ${maxAttempts} (origins)`);
+						await new Promise(resolve => setTimeout(resolve, 1000)); 
+					} else {
+						console.error(':(');
+						return null; 
+					}
 				}
-				const data = await response.json();
-
-				const contents = JSON.parse(data.contents);
-				return contents;
-			} catch (error) {
-				console.error('Error:', error);
-				return null;
 			}
 		}
+
 
         document.getElementById('countryFlag').addEventListener('click', function() {
             const modal = document.getElementById('countryModal');

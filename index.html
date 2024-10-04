@@ -71,13 +71,21 @@ body.fade-in::before {
   max-width: 1200px;
   max-height: 600px;
   padding: 45px;
-  background-color: rgba(0,0,0,.6);
+  background-color: rgba(0, 0, 0, .6);
   border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0,0,0,.5);
+  box-shadow: 0 0 15px rgba(0, 0, 0, .5);
   box-sizing: border-box;
   text-align: center;
-  margin-top: -20px
+  margin-top: -20px;
 }
+
+@media (max-width: 768px) {
+  .container {
+    height: 13.3vh;
+
+  }
+}
+
 
 h2 {
   margin: 0 auto;
@@ -132,13 +140,18 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 label {
-  margin-bottom: 25px;
   margin-top: -15px;
-  font-size: 1.8rem;
+  font-size: 1.3em;
   display: block;
-  color: #ccc
-  display: block;
-  margin-bottom: 10px
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  label {
+    margin-top: -23px; 
+    font-size: 0.93em; 
+  }
 }
 
 

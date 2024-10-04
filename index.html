@@ -30,6 +30,7 @@ html {
   justify-content: center;
 }
 body {
+
   background-color: #d1cdb7;
   font-family: "Courier New", monospace;
   color: #fff;
@@ -38,6 +39,13 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   transition: background-image 1s ease-in-out;
+
+}
+
+@media (max-width: 768px) {
+  body {
+    background-position: center;
+  }
 }
 
 body::before {

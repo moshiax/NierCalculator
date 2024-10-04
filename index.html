@@ -250,7 +250,7 @@ label {
 .modal {
   display: none;
   position: fixed;
-  z-index: 1;
+  z-index: 10001;
   left: 0;
   top: 0;
   width: 100%;
@@ -337,7 +337,7 @@ label {
   width: 100%;
   height: 100%;
   background: #000;
-  z-index: 1000;
+  z-index: 100000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -923,7 +923,7 @@ async function playMusic(trackName) {
     const notificationKey = 'notificationCount';
     let notificationCount = parseInt(localStorage.getItem(notificationKey)) || 0;
 
-    if (notificationCount < 3) {
+    if (notificationCount < 3 && !isMobile) {
         showNotification(
             'You can switch the UI by pressing [H] on keyboard,\n' +
             'Pause by [P],\n' +
@@ -941,6 +941,7 @@ async function playMusic(trackName) {
         amountInput.value = '';
     }
 }
+
 
 
 

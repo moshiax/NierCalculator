@@ -920,8 +920,16 @@ async function playMusic(trackName) {
 
     changeBackground(backgroundSrc); 
 
-    if (!isMobile) {
-        toggleVisibility();
+    const container = document.querySelector('.container');
+    const countryFlag = document.getElementById('countryFlag');
+
+    const isContainerVisible = container && getComputedStyle(container).display !== 'none' && getComputedStyle(container).visibility !== 'hidden';
+    const isCountryFlagVisible = countryFlag && getComputedStyle(countryFlag).display !== 'none' && getComputedStyle(countryFlag).visibility !== 'hidden';
+
+    if (isContainerVisible && isCountryFlagVisible) {
+        if (!isMobile) {
+            toggleVisibility(); 
+        }
     }
 
     const notificationKey = 'notificationCount';
@@ -940,12 +948,12 @@ async function playMusic(trackName) {
     document.body.appendChild(audio);
     fadeInAudio(audio);
     updatePlayIcon();
+    
     const amountInput = document.getElementById('amount');
     if (amountInput) {
         amountInput.value = '';
     }
 }
-
 
 
 

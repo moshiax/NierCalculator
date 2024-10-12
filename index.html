@@ -902,7 +902,9 @@ async function playMusic(trackName) {
     const source = audioContext.createMediaElementSource(audio);
     source.connect(analyser);
     analyser.connect(audioContext.destination);
-
+	
+    changeBackground(backgroundSrc); 
+	
     drawVisualizer();
     audio.onended = () => {
         isPlaying = false;
@@ -917,8 +919,6 @@ async function playMusic(trackName) {
 
     isPlaying = true;
     currentTrackAudioSrc = audioSrc;
-
-    changeBackground(backgroundSrc); 
 
     const container = document.querySelector('.container');
     const countryFlag = document.getElementById('countryFlag');

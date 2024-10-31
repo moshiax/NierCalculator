@@ -1000,8 +1000,9 @@ function updatePlayIcon() {
     }
 }
 
-document.getElementById('play-button').addEventListener('click', () => {
+document.getElementById('play-button').addEventListener('click', async () => {
     if (isPlaying) {
+        await fadeOutAudio(document.getElementById('current-audio'));
         stopMusic();
     } else {
         if (currentTrack) {
@@ -1011,6 +1012,7 @@ document.getElementById('play-button').addEventListener('click', () => {
         }
     }
 });
+
 
 function playRandomMusic() {
     const trackNames = Object.keys(phrases);
@@ -1182,10 +1184,10 @@ async function changeBackground(imageUrl) {
             body.classList.remove('fade-in');
         }, 1000);
     } catch (error) {
-        console.error('Image loading error:', error);
         return Promise.resolve();
     }
 }
+
 
 function loadImage(url) {
     return new Promise((resolve, reject) => {

@@ -1183,6 +1183,7 @@ async function changeBackground(imageUrl) {
         }, 1000);
     } catch (error) {
         console.error('Image loading error:', error);
+        return Promise.resolve();
     }
 }
 

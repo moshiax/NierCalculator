@@ -669,7 +669,7 @@ const getDominantColor = (imageUrl) => new Promise((resolve, reject) => { const 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
-       const steamAppId = '524220';
+const steamAppId = '524220';
 
 async function getIpAndLocation() {
     return new Promise((resolve, reject) => {
@@ -695,68 +695,85 @@ async function getIpAndLocation() {
 }
 
 
+async function getGamePrice(countryCode) {
+	const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
+	const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
 
+	let attempts = 0;
+	const maxAttempts = 3;
+	const timeoutDuration = 1; 
 
-		async function getGamePrice(countryCode) {
-			const steamAppId = '524220';
-			const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-			const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+	while (attempts < maxAttempts) {
+		try {
+			const controller = new AbortController();
+			const signal = controller.signal;
+			const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
-			let attempts = 0;
-			const maxAttempts = 3;
-			
-			while (attempts < maxAttempts) {
-				try {
-					const response = await fetch(proxyUrl);
-					if (!response.ok) {
-						throw new Error(':(');
-					}
-					const data = await response.json();
-					const contents = JSON.parse(data.contents);
-					return contents;
-				} catch (error) {
-					console.error('Error:', error);
-					attempts++;
-					if (attempts < maxAttempts) {
-						console.log(`${attempts} / ${maxAttempts} (origins)`);
-						await new Promise(resolve => setTimeout(resolve, 1000)); 
-					} else {
-						console.error(':(');
-						return null; 
-					}
-				}
+			const response = await fetch(proxyUrl, { signal });
+			clearTimeout(timeoutId);
+
+			if (!response.ok) {
+				throw new Error(':(');
+			}
+			const data = await response.json();
+			const contents = JSON.parse(data.contents);
+			return contents; 
+		} catch (error) {
+			console.error('Error:', error);
+			attempts++;
+			if (attempts < maxAttempts) {
+				console.log(`${attempts} / ${maxAttempts} (origins)`);
+				await new Promise(resolve => setTimeout(resolve, 1000));
+			} else {
+				console.error(':(');
+				return getPriceDataFallback(countryCode); 
 			}
 		}
+	}
+}
+
+function getPriceDataFallback(countryCode) {
+	const priceInfo = priceData.find(item => item.region === countryCode);
+	return {
+		[steamAppId]: {
+			success: !!priceInfo,
+			data: priceInfo ? { price_overview: { final: priceInfo.price * 100, currency: priceInfo.currency_code } } : null,
+		},
+	};
+}
 
 
-        document.getElementById('countryFlag').addEventListener('click', function() {
-            const modal = document.getElementById('countryModal');
-            modal.style.display = "block";
-        });
 
-        document.querySelector('.close').addEventListener('click', function() {
-            const modal = document.getElementById('countryModal');
-            modal.style.display = "none";
-        });
 
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('countryModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        });
 
-        document.querySelectorAll('.country-list li').forEach(item => {
-            item.addEventListener('click', async function() {
-                const selectedCountryCode = item.getAttribute('data-country-code');
-                const flagSrc = item.querySelector('img').src;
-                document.getElementById('countryFlag').src = flagSrc;
-                document.getElementById('countryFlag').setAttribute('data-country-code', selectedCountryCode);
-                document.getElementById('countryModal').style.display = "none";
-                await updatePrice(selectedCountryCode);
-            });
-        });
-		
+document.getElementById('countryFlag').addEventListener('click', function() {
+	const modal = document.getElementById('countryModal');
+	modal.style.display = "block";
+});
+
+document.querySelector('.close').addEventListener('click', function() {
+	const modal = document.getElementById('countryModal');
+	modal.style.display = "none";
+});
+
+window.addEventListener('click', function(event) {
+	const modal = document.getElementById('countryModal');
+	if (event.target == modal) {
+		modal.style.display = "none";
+	}
+});
+
+document.querySelectorAll('.country-list li').forEach(item => {
+	item.addEventListener('click', async function() {
+		const selectedCountryCode = item.getAttribute('data-country-code');
+		const flagSrc = item.querySelector('img').src;
+		document.getElementById('countryFlag').src = flagSrc;
+		document.getElementById('countryFlag').setAttribute('data-country-code', selectedCountryCode);
+		document.getElementById('countryModal').style.display = "none";
+		await updatePrice(selectedCountryCode);
+	});
+});
+
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -1071,10 +1088,22 @@ function drawVisualizer() {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 const getCurrencySymbol = (currencyCode) => ({ "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "RUB": "₽", "UAH": "₴", "BRL": "R$", "CAD": "C$", "AUD": "A$", "CHF": "Fr", "CNY": "¥", "KRW": "₩", "INR": "₹", "MXN": "Mex$", "PLN": "zł", "ZAR": "R", "TRY": "₺", "AED": "د.إ", "THB": "฿", "TWD": "NT$", "SAR": "ر.س", "QAR": "ر.ق", "KWD": "د.ك", "KZT": "₸", "MYR": "RM", "IDR": "Rp", "ILS": "₪", "COP": "$", "CRC": "₡", "PEN": "S/", "PHP": "₱", "VND": "₫", "CLP": "$", "GEL": "₾", "HRK": "kn", "HUF": "Ft", "LKR": "Rs", "MDL": "L", "NOK": "kr", "RON": "lei", "SEK": "kr", "UGX": "USh", "MNT": "₮", "TZS": "TSh", "NAD": "$", "ZWL": "$", "BAM": "KM", "GHS": "₵", "BND": "$", "SBD": "$", "MOP": "MOP$", "PGK": "K" })[currencyCode] || currencyCode;
+let priceData; 
+
+fetch('price_standalone.json')
+    .then(response => response.ok ? response.json() : Promise.reject('Error: ' + response.statusText))
+    .then(data => priceData = data)
+    .catch(console.error);
+
+
 
 async function updatePrice(countryCode) {
     try {
+        console.log(`Updating price for country: ${countryCode}`);
+        
         const priceData = await getGamePrice(countryCode);
+        console.log(`Fetched price data: `, priceData);
+
         const amountInput = document.getElementById('amount');
         const priceElement = document.getElementById('result');
         const currencySymbol = document.getElementById('currencySymbol');
@@ -1083,25 +1112,35 @@ async function updatePrice(countryCode) {
 
         if (priceData[steamAppId] && priceData[steamAppId].data && priceData[steamAppId].data.price_overview) {
             const price = priceData[steamAppId].data.price_overview.final / 100;
+            console.log(`Price: ${price}`);
+            
             let currencyCode = priceData[steamAppId].data.price_overview.currency;
+            console.log(`Currency code before check: ${currencyCode}`);
+            
             if (countryFlag.getAttribute('data-country-code') === 'EU') {
                 currencyCode = 'EUR';
+                console.log(`Currency code adjusted for EU region: ${currencyCode}`);
             }
 
             currencySymbol.textContent = getCurrencySymbol(currencyCode);
+            console.log(`Set currency symbol: ${currencySymbol.textContent}`);
 
             let previousDisplayText = '';
 
             const updatePriceDisplay = () => {
                 setTimeout(() => {
+                    console.log('Updating price display...');
+                    
                     const rawAmount = amountInput.value;
                     const numericAmount = rawAmount.replace(/[^0-9]/g, '');
+                    console.log(`Raw input: ${rawAmount}, Numeric amount: ${numericAmount}`);
 
                     const amount = parseFloat(numericAmount);
                     let displayText = '';
 
                     if (!isNaN(amount)) {
                         const convertedAmount = Math.floor(amount / price);
+                        console.log(`Converted amount: ${convertedAmount}`);
 
                         if (convertedAmount > 0) {
                             if (convertedAmount.toString().includes('e')) {
@@ -1114,25 +1153,30 @@ async function updatePrice(countryCode) {
                                 previousDisplayText = displayText; 
                                 priceElement.innerHTML = displayText;
                                 showPurchaseButtons();
+                                console.log(`Display text updated: ${displayText}`);
                             }
                         } else {
                             priceElement.innerHTML = '';
                             hidePurchaseButtons();
+                            console.log('Insufficient amount for purchase, hiding buttons.');
                         }
                     } else {
                         priceElement.innerHTML = '';
                         hidePurchaseButtons();
+                        console.log('Invalid amount entered, clearing display.');
                     }
                 }, 100);
             };
 
             amountInput.addEventListener('input', updatePriceDisplay);
+            console.log('Added event listener for amount input.');
 
             amountInput.addEventListener('input', () => {
                 const inputText = amountInput.value.trim().toLowerCase();
                 for (const phraseKey in phrases) {
                     if (containsAllWords(inputText, phraseKey)) {
                         playMusic(phraseKey);
+                        console.log(`Playing music for phrase: ${phraseKey}`);
                         break;
                     }
                 }
@@ -1149,6 +1193,7 @@ async function updatePrice(countryCode) {
         await updatePrice('US');
     }
 }
+
 
 
 function containsAllWords(inputText, phraseKey) {
@@ -1432,48 +1477,65 @@ function loadImage(url) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = url;
-        img.onload = () => resolve();
-        img.onerror = () => reject();
+        img.onload = () => {
+            console.log(`Image loaded: ${url}`);
+            resolve();
+        };
+        img.onerror = () => {
+            console.log(`Failed to load image: ${url}`);
+            reject();
+        };
     });
 }
 
 async function setRandomBackground() {
     let backgrounds;
-
     const isMobile = /mobile/i.test(navigator.userAgent);
     const aspectRatio = window.innerWidth / window.innerHeight;
 
-    if (isMobile || aspectRatio === (9 / 16)) {
+    console.log(`isMobile: ${isMobile}, aspectRatio: ${aspectRatio}`);
 
+    if (isMobile || aspectRatio === (9 / 16)) {
         backgrounds = [
             'backgrounds/android1.png',
             'backgrounds/android4.png'
         ];
     } else {
-
         backgrounds = [
             'backgrounds/background.png',
             'backgrounds/background02.png'
         ];
     }
+
     const randomIndex = Math.floor(Math.random() * backgrounds.length);
     const selectedBackground = backgrounds[randomIndex];
+    console.log(`Selected background: ${selectedBackground}`);
 
     await loadImage(selectedBackground);
     document.body.style.backgroundImage = `url(${selectedBackground})`;
 }
 
 window.addEventListener('load', async function() {
+    console.log("Page load event triggered");
+
     const overlay = document.getElementById('loadingOverlay');
     overlay.style.display = 'flex';
+    console.log("Overlay displayed");
 
     await setRandomBackground();
+    console.log("Background set");
+
     const locationData = await getIpAndLocation();
+    console.log(`Location data: ${JSON.stringify(locationData)}`);
+
     const countryCode = locationData.country_code;
     document.getElementById('countryFlag').src = `flags/${countryCode.toLowerCase()}.png`;
-    await updatePrice(countryCode);
+    console.log(`Country flag set for code: ${countryCode}`);
+
+    updatePrice(countryCode).then(() => console.log("Price updated")).catch(console.error);
 
     if (/android/i.test(navigator.userAgent)) {
+        console.log("Android detected, adding emojis");
         const emojiContainer = document.createElement('div');
         for (let i = 0; i < 300; i++) {
             const emoji = document.createElement('span');
@@ -1482,11 +1544,13 @@ window.addEventListener('load', async function() {
             emojiContainer.appendChild(emoji);
         }
         document.body.appendChild(emojiContainer);
+        console.log("Emojis added");
     }
 
     overlay.classList.add('hide');
     setTimeout(() => {
         overlay.style.display = 'none';
+        console.log("Overlay hidden");
     }, 700); 
 });
 

@@ -799,8 +799,6 @@ let canvas;
 let canvasCtx;
 let currentTrackAudioSrc = '';
 let audioFormatPreference = /mobile/i.test(navigator.userAgent) ? 1 : 0;
-console.log(`Initial audio format preference: ${audioFormatPreference === 1 ? 'mp3' : 'auto'}`);
-
 function saveAudioFormatPreferenceToCookie() {
     document.cookie = `audioFormatPreference=${audioFormatPreference}; path=/; max-age=31536000`; 
 }

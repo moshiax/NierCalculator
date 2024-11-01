@@ -980,11 +980,10 @@ async function playMusic(trackName) {
     const isContainerVisible = container && getComputedStyle(container).display !== 'none' && getComputedStyle(container).visibility !== 'hidden';
     const isCountryFlagVisible = countryFlag && getComputedStyle(countryFlag).display !== 'none' && getComputedStyle(countryFlag).visibility !== 'hidden';
 
-    if (isContainerVisible && isCountryFlagVisible) {
-        if (!isMobile) {
-            toggleVisibility(); 
-        }
-    }
+	if (isContainerVisible && isCountryFlagVisible) {
+		toggleVisibility();
+	}
+
 
     function saveNotificationCountToCookie(count) {
         document.cookie = `notificationCount=${count}; path=/; max-age=31536000`;
@@ -1069,6 +1068,7 @@ document.getElementById('play-button').addEventListener('click', async () => {
     if (isPlaying) {
         await fadeOutAudio(document.getElementById('current-audio'));
         stopMusic();
+		toggleVisibility();
     } else {
         if (currentTrack) {
             playMusic(currentTrack);

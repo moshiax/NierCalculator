@@ -787,77 +787,94 @@ let dataArray;
 let canvas;
 let canvasCtx;
 let currentTrackAudioSrc = '';
+let audioFormatPreference = /mobile/i.test(navigator.userAgent) ? 1 : 0;
+console.log(`Initial audio format preference: ${audioFormatPreference === 1 ? 'mp3' : 'auto'}`);
 
+function saveAudioFormatPreferenceToCookie() {
+    document.cookie = `audioFormatPreference=${audioFormatPreference}; path=/; max-age=31536000`; 
+}
+
+function loadAudioFormatPreferenceFromCookie() {
+    const cookies = document.cookie.split('; ');
+    const formatPreferenceCookie = cookies.find(row => row.startsWith('audioFormatPreference='));
+    if (formatPreferenceCookie) {
+        audioFormatPreference = parseInt(formatPreferenceCookie.split('=')[1]);
+        const format = audioFormatPreference === 1 ? 'mp3' : audioFormatPreference === 2 ? 'flac' : 'auto';
+        console.log(`Loaded: ${format}`);
+    }
+}
+
+loadAudioFormatPreferenceFromCookie();
 
 const phrases = {
 	// "Weight of the World"
-	'end of yorha': { audio: 'music/Weight of the World the End of YoRHa.mp3', background: 'backgrounds/background01.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'weight world': { audio: 'music/Weight of the World⧸English Version.mp3', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'jap': { audio: 'music/Weight of the World Japanese.mp3', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'fr': { audio: 'music/Weight of the World French.mp3', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'end of yorha': { audio: 'music/Weight of the World the End of YoRHa', background: 'backgrounds/background01.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'weight world': { audio: 'music/Weight of the World⧸English Version', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'jap': { audio: 'music/Weight of the World Japanese', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'fr': { audio: 'music/Weight of the World French', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 	// "Voice of No Return"
-	'voice return': { audio: 'music/Voice of No Return - Guitar.mp3', background: 'backgrounds/background11.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'normal': { audio: 'music/Voice of No Return - Normal.mp3', background: 'backgrounds/background11.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'voice return': { audio: 'music/Voice of No Return - Guitar', background: 'backgrounds/background11.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'normal': { audio: 'music/Voice of No Return - Normal', background: 'backgrounds/background11.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 	// "Song of the Ancients"
-	'atonement': { audio: 'music/Song of the Ancients - Atonement.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'song ancients': { audio: 'music/Song of the Ancients - Atonement.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'atonement': { audio: 'music/Song of the Ancients - Atonement', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'song ancients': { audio: 'music/Song of the Ancients - Atonement', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 	// "Wretched Weaponry"
-	'dynamic': { audio: 'music/Wretched Weaponry Dynamic.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'quiet': { audio: 'music/Wretched Weaponry Quiet.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'wretched weaponry': { audio: 'music/Wretched Weaponry Dynamic.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'dynamic': { audio: 'music/Wretched Weaponry Dynamic', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'quiet': { audio: 'music/Wretched Weaponry Quiet', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'wretched weaponry': { audio: 'music/Wretched Weaponry Dynamic', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 
 	// Fights
-	'bipolar nightmare': { audio: 'music/Bipolar Nightmare.mp3', background: 'backgrounds/background03.png' , backgroundAndroid: 'backgrounds/android03.png' },
-	'significance': { audio: 'music/Significance.mp3', background: 'backgrounds/background04.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background10.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'dark colossus': { audio: 'music/Dark Colossus - Kaiju.mp3', background: 'backgrounds/darkcolossus.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'war war': { audio: 'music/War & War.mp3', background: 'backgrounds/background.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'grandma destruction': { audio: 'music/Grandma - Destruction.mp3', background: 'backgrounds/background13.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'beautiful song': { audio: 'music/Beautiful Song.mp3', background: 'backgrounds/background10.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'bipolar nightmare': { audio: 'music/Bipolar Nightmare', background: 'backgrounds/background03.png' , backgroundAndroid: 'backgrounds/android03.png' },
+	'significance': { audio: 'music/Significance', background: 'backgrounds/background04.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'beautiful song': { audio: 'music/Beautiful Song', background: 'backgrounds/background10.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'dark colossus': { audio: 'music/Dark Colossus - Kaiju', background: 'backgrounds/darkcolossus.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'war war': { audio: 'music/War & War', background: 'backgrounds/background.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'grandma destruction': { audio: 'music/Grandma - Destruction', background: 'backgrounds/background13.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'beautiful song': { audio: 'music/Beautiful Song', background: 'backgrounds/background10.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 	// Places
-	'rays light': { audio: 'music/City Ruins - Rays of Light.mp3', background: 'backgrounds/background05.png' , backgroundAndroid: 'backgrounds/android05.png' },
-	'shade': { audio: 'music/City Ruins - Shade.mp3', background: 'backgrounds/shade.png' , backgroundAndroid: 'backgrounds/shade-android.png' },
-	'copied city': { audio: 'music/Copied City.mp3', background: 'backgrounds/copiedcity.jpeg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'memories dust': { audio: 'music/Memories of Dust.mp3', background: 'backgrounds/background07.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'forest kingdom': { audio: 'music/Forest Kingdom.mp3', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/android02.png' },
-	'pascal': { audio: 'music/Pascal.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'amusement park': { audio: 'music/Amusement Park.mp3', background: 'backgrounds/background09.png' , backgroundAndroid: 'backgrounds/android4.png' },
-	'tower': { audio: 'music/The Tower.mp3', background: 'backgrounds/backgroundtower.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'sound end': { audio: 'music/The Sound of the End.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'alien': { audio: 'music/Alien Manifestation.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'rays light': { audio: 'music/City Ruins - Rays of Light', background: 'backgrounds/background05.png' , backgroundAndroid: 'backgrounds/android05.png' },
+	'shade': { audio: 'music/City Ruins - Shade', background: 'backgrounds/shade.png' , backgroundAndroid: 'backgrounds/shade-android.png' },
+	'copied city': { audio: 'music/Copied City', background: 'backgrounds/copiedcity.jpeg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'memories dust': { audio: 'music/Memories of Dust', background: 'backgrounds/background07.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'forest kingdom': { audio: 'music/Forest Kingdom', background: 'backgrounds/background02.png' , backgroundAndroid: 'backgrounds/android02.png' },
+	'pascal': { audio: 'music/Pascal', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'amusement park': { audio: 'music/Amusement Park', background: 'backgrounds/background09.png' , backgroundAndroid: 'backgrounds/android4.png' },
+	'tower': { audio: 'music/The Tower', background: 'backgrounds/backgroundtower.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'sound end': { audio: 'music/The Sound of the End', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'alien': { audio: 'music/Alien Manifestation', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 	// Ambient
-	'peaceful sleep': { audio: 'music/Peaceful Sleep.mp3', background: 'backgrounds/!!!!!!!!!.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'birth wish': { audio: 'music/Birth of a Wish.mp3', background: 'backgrounds/!!!!!!!!!.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'dawn breeze': { audio: 'music/Faltering Prayer - Dawn Breeze.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'cold rain': { audio: 'music/Vague Hope - Cold Rain.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'spring rain': { audio: 'music/Vague Hope - Spring Rain.mp3', background: 'backgrounds/springrain.jpeg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'nothing': { audio: 'music/Significance - Nothing.mp3', background: 'backgrounds/!!!!!!!!!.jpeg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'rebirth hope': { audio: 'music/Rebirth & Hope.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'treasured times': { audio: 'music/Treasured Times.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'end unknown': { audio: 'music/End of the Unknown.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'starry sky': { audio: 'music/Starry Sky.mp3', background: 'backgrounds/starrysky.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'peaceful sleep': { audio: 'music/Peaceful Sleep', background: 'backgrounds/!!!!!!!!!.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'birth wish': { audio: 'music/Birth of a Wish', background: 'backgrounds/!!!!!!!!!.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'dawn breeze': { audio: 'music/Faltering Prayer - Dawn Breeze', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'cold rain': { audio: 'music/Vague Hope - Cold Rain', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'spring rain': { audio: 'music/Vague Hope - Spring Rain', background: 'backgrounds/springrain.jpeg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'nothing': { audio: 'music/Significance - Nothing', background: 'backgrounds/!!!!!!!!!.jpeg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'rebirth hope': { audio: 'music/Rebirth & Hope', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'treasured times': { audio: 'music/Treasured Times', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'end unknown': { audio: 'music/End of the Unknown', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'starry sky': { audio: 'music/Starry Sky', background: 'backgrounds/starrysky.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 	// Emil
-	'emil shop': { audio: 'music/Emils Shop.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'emil despair': { audio: 'music/Emil Despair.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'emil shop': { audio: 'music/Emils Shop', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'emil despair': { audio: 'music/Emil Despair', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 
 	// Other
 
-	'crumbling lies': { audio: 'music/Crumbling Lies.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'fortress lies': { audio: 'music/Fortress of Lies.mp3', background: 'backgrounds/fortressoflies.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'widespread illness': { audio: 'music/Widespread Illness.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'blissful death': { audio: 'music/Blissful Death.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'mourning': { audio: 'music/Mourning.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'dependent weakling': { audio: 'music/Dependent Weakling.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'possessed disease': { audio: 'music/Possessed By Disease.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'broken heart': { audio: 'music/Broken Heart.mp3', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'crumbling lies': { audio: 'music/Crumbling Lies', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'fortress lies': { audio: 'music/Fortress of Lies', background: 'backgrounds/fortressoflies.png' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'widespread illness': { audio: 'music/Widespread Illness', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'blissful death': { audio: 'music/Blissful Death', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'mourning': { audio: 'music/Mourning', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'dependent weakling': { audio: 'music/Dependent Weakling', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'possessed disease': { audio: 'music/Possessed By Disease', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'broken heart': { audio: 'music/Broken Heart', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 };
 
@@ -899,7 +916,20 @@ function fadeInAudio(audio, duration = 1000) {
 }
 
 async function playMusic(trackName) {
-    const audioSrc = phrases[trackName].audio;
+    let format;
+    
+    if (audioFormatPreference === 1) {
+        format = '.mp3';
+        console.log("Chosen: mp3");
+    } else if (audioFormatPreference === 2) {
+        format = '.flac';
+        console.log("Chosen: flac");
+    } else {
+        format = isFlacSupported() ? '.flac' : '.mp3';
+        console.log(`Auto: ${format === '.flac' ? 'flac' : 'mp3'}`);
+    }
+
+    const audioSrc = phrases[trackName].audio + format;
 
     if (isPlaying && currentTrackAudioSrc === audioSrc) {
         return;
@@ -956,17 +986,28 @@ async function playMusic(trackName) {
         }
     }
 
+    function saveNotificationCountToCookie(count) {
+        document.cookie = `notificationCount=${count}; path=/; max-age=31536000`;
+    }
+
+    function loadNotificationCountFromCookie() {
+        const cookies = document.cookie.split('; ');
+        const notificationCookie = cookies.find(row => row.startsWith('notificationCount='));
+        return notificationCookie ? parseInt(notificationCookie.split('=')[1]) : 0;
+    }
+
     const notificationKey = 'notificationCount';
-    let notificationCount = parseInt(localStorage.getItem(notificationKey)) || 0;
+    let notificationCount = loadNotificationCountFromCookie();
 
     if (notificationCount < 3 && !isMobile) {
         showNotification(
             'You can switch the UI by pressing [H] on keyboard,\n' +
             'Pause by [P],\n' +
-            'And play next by [N]'
+            'And play next by [N],\n' +
+            'Switch the quality of audio by [Q]'
         );
         notificationCount++;
-        localStorage.setItem(notificationKey, notificationCount);
+        saveNotificationCountToCookie(notificationCount);
     }
 
     document.body.appendChild(audio);
@@ -978,6 +1019,12 @@ async function playMusic(trackName) {
         amountInput.value = '';
     }
 }
+function isFlacSupported() {
+    const audio = new Audio();
+    return audio.canPlayType('audio/flac;') !== '';
+}
+
+
 
 
 
@@ -1130,18 +1177,14 @@ async function updatePrice(countryCode) {
 
             const updatePriceDisplay = () => {
                 setTimeout(() => {
-                    console.log('Updating price display...');
-                    
                     const rawAmount = amountInput.value;
                     const numericAmount = rawAmount.replace(/[^0-9]/g, '');
-                    console.log(`Raw input: ${rawAmount}, Numeric amount: ${numericAmount}`);
 
                     const amount = parseFloat(numericAmount);
                     let displayText = '';
 
                     if (!isNaN(amount)) {
                         const convertedAmount = Math.floor(amount / price);
-                        console.log(`Converted amount: ${convertedAmount}`);
 
                         if (convertedAmount > 0) {
                             if (convertedAmount.toString().includes('e')) {
@@ -1154,17 +1197,14 @@ async function updatePrice(countryCode) {
                                 previousDisplayText = displayText; 
                                 priceElement.innerHTML = displayText;
                                 showPurchaseButtons();
-                                console.log(`Display text updated: ${displayText}`);
                             }
                         } else {
                             priceElement.innerHTML = '';
                             hidePurchaseButtons();
-                            console.log('Insufficient amount for purchase, hiding buttons.');
                         }
                     } else {
                         priceElement.innerHTML = '';
                         hidePurchaseButtons();
-                        console.log('Invalid amount entered, clearing display.');
                     }
                 }, 100);
             };
@@ -1257,7 +1297,8 @@ function showNotification(message) {
     const formattedMessage = message
         .replace(/\[H\]/g, '<span class="notification-key" data-key="[H]">[H]</span>')
         .replace(/\[P\]/g, '<span class="notification-key" data-key="[P]">[P]</span>')
-        .replace(/\[N\]/g, '<span class="notification-key" data-key="[N]">[N]</span>');
+        .replace(/\[N\]/g, '<span class="notification-key" data-key="[N]">[N]</span>')
+        .replace(/\[Q\]/g, '<span class="notification-key" data-key="[Q]">[Q]</span>');
 
     const notification = document.getElementById('notification');
     notification.querySelector('p').innerHTML = formattedMessage;
@@ -1280,7 +1321,6 @@ function showNotification(message) {
         }, 500);
     }, 2300);
 }
-
 
 function handleKeyAction(key) {
     switch (key) {
@@ -1308,10 +1348,24 @@ function handleKeyAction(key) {
                 playRandomMusic();
             }
             break;
+        case '[Q]':
+            toggleAudioFormat();
+            break;
         default:
             console.log('Unknown key');
             break;
     }
+}
+
+function toggleAudioFormat() {
+    if (audioFormatPreference === 0 || audioFormatPreference === 2) {
+        audioFormatPreference = 1;
+        showNotification('Format changed to mp3 - 320 kbps');
+    } else {
+        audioFormatPreference = 2;
+        showNotification('Format changed to flac - up to 1000 kbps');
+    }
+    saveAudioFormatPreferenceToCookie(); 
 }
 
 document.addEventListener('keydown', async (event) => {
@@ -1344,7 +1398,13 @@ document.addEventListener('keydown', async (event) => {
         event.preventDefault();
         playRandomMusic();
     }
+
+    if (event.code === 'KeyQ') {
+        event.preventDefault();
+        toggleAudioFormat();
+    }
 });
+
 
 function toggleFade(element, action) {
     if (action === 'hide') {

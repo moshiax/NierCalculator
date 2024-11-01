@@ -436,9 +436,20 @@ label {
 #playing-icon {
   width: 40px;
   height: 40px;
-  opacity: .2
+  opacity: .35
+}
+#playing-icon {
+    animation: rotate 2s linear infinite;
 }
 
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
 /*====================================================================*/
 
 .pulsating {
@@ -862,7 +873,7 @@ const phrases = {
 
 	// Emil
 	'emil shop': { audio: 'music/Emils Shop', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
-	'emil despair': { audio: 'music/Emil Despair', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
+	'emil despair': { audio: 'music/Emil - Despair', background: 'backgrounds/!!!!!!!!!.jpg' , backgroundAndroid: 'backgrounds/!!!!!!!!!.png' },
 
 
 	// Other
@@ -915,9 +926,9 @@ function fadeInAudio(audio, duration = 1000) {
     }, 50);
 }
 
-async function playMusic(trackName) {
+async function playMusic(trackName, isRandomPlay = false) {
     let format;
-    
+
     if (audioFormatPreference === 1) {
         format = '.mp3';
         console.log("Chosen: mp3");
@@ -934,7 +945,7 @@ async function playMusic(trackName) {
     if (isPlaying && currentTrackAudioSrc === audioSrc) {
         return;
     }
-
+	
     if (isPlaying) {
         await fadeOutAudio(document.getElementById('current-audio'));
         stopMusic();
@@ -958,8 +969,8 @@ async function playMusic(trackName) {
     analyser.connect(audioContext.destination);
 	
     await changeBackground(backgroundSrc); 
-	
     drawVisualizer();
+
     audio.onended = () => {
         isPlaying = false;
         currentTrackAudioSrc = '';
@@ -969,6 +980,9 @@ async function playMusic(trackName) {
             audioContext = null;
         }
         updatePlayIcon();
+        if (isRandomPlay) {
+            playRandomMusic();
+        }
     };
 
     isPlaying = true;
@@ -976,14 +990,12 @@ async function playMusic(trackName) {
 
     const container = document.querySelector('.container');
     const countryFlag = document.getElementById('countryFlag');
-
     const isContainerVisible = container && getComputedStyle(container).display !== 'none' && getComputedStyle(container).visibility !== 'hidden';
     const isCountryFlagVisible = countryFlag && getComputedStyle(countryFlag).display !== 'none' && getComputedStyle(countryFlag).visibility !== 'hidden';
 
 	if (isContainerVisible && isCountryFlagVisible) {
 		toggleVisibility();
 	}
-
 
     function saveNotificationCountToCookie(count) {
         document.cookie = `notificationCount=${count}; path=/; max-age=31536000`;
@@ -997,7 +1009,6 @@ async function playMusic(trackName) {
 
     const notificationKey = 'notificationCount';
     let notificationCount = loadNotificationCountFromCookie();
-
     if (notificationCount < 3 && !isMobile) {
         showNotification(
             'You can switch the UI by pressing [H] on keyboard,\n' +
@@ -1018,13 +1029,17 @@ async function playMusic(trackName) {
         amountInput.value = '';
     }
 }
+
 function isFlacSupported() {
     const audio = new Audio();
     return audio.canPlayType('audio/flac;') !== '';
 }
 
-
-
+function playRandomMusic() {
+    const trackNames = Object.keys(phrases);
+    const randomTrack = trackNames[Math.floor(Math.random() * trackNames.length)];
+    playMusic(randomTrack, true); 
+}
 
 
 function stopMusic() {
@@ -1049,7 +1064,6 @@ function stopMusic() {
     currentTrackAudioSrc = '';
 }
 
-const playIcon = document.getElementById('play-icon');
 
 function updatePlayIcon() {
     const playIcon = document.getElementById('play-icon');
@@ -1078,12 +1092,6 @@ document.getElementById('play-button').addEventListener('click', async () => {
     }
 });
 
-
-function playRandomMusic() {
-    const trackNames = Object.keys(phrases);
-    const randomTrack = trackNames[Math.floor(Math.random() * trackNames.length)];
-    playMusic(randomTrack);
-}
 
 function createVisualizer() {
     if (!audioContext) {

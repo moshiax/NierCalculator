@@ -434,15 +434,22 @@ label {
   left: 10px;
   z-index: 9999
 }
-#play-icon,
+
+
+#play-icon {
+  width: 40px;
+  height: 40px;
+  opacity: .35;
+}
+
 #playing-icon {
   width: 40px;
   height: 40px;
-  opacity: .35
+  opacity: .20;
+  animation: rotate 2s linear infinite;
 }
-#playing-icon {
-    animation: rotate 2s linear infinite;
-}
+
+
 
 @keyframes rotate {
     from {
@@ -515,7 +522,7 @@ label {
   right: 10px;
   width: 40px;
   height: 40px; 
-  opacity: 0.45;
+  opacity: 0.35;
   z-index: 9999;
 }
 
@@ -1531,7 +1538,8 @@ function toggleFade(element, action) {
 function toggleVisibility() {
     const elementsToToggle = [
         document.querySelector('.container'),
-        document.getElementById('countryFlag')
+        document.getElementById('countryFlag'),
+        document.getElementById('Settings')
     ];
 
     elementsToToggle.forEach(element => {

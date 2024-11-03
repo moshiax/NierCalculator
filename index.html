@@ -276,6 +276,8 @@ label {
   color: #fff
 }
 
+
+
 /*====================================================================*/
 
 .country-list {
@@ -330,7 +332,7 @@ label {
   box-shadow: 0 0 15px rgba(0,0,0,.5);
   font-size: 1.5rem;
   text-align: center;
-  z-index: 10000;
+  z-index: 10000000;
   animation: fadeIn .5s ease-in-out,fadeOut .5s ease-in-out 1s
 }
 
@@ -450,6 +452,78 @@ label {
         transform: rotate(360deg);
     }
 }
+
+
+.audio-toggle-btn {
+	display: block; 
+	margin: 10px 0; 
+	padding: 10px 20px;
+	font-size: 16px;
+	border-radius: 5px;
+	border: 1px solid #ffffffaa;
+	background-color: rgba(0, 0, 0, .45); 
+	color: #ffffffaa;
+	cursor: pointer;
+	transition: background-color 0.3s;
+	overflow: hidden;
+	position: relative;
+   font-family: 'Courier New',monospace;
+	width: 100%; 
+}
+
+.audio-toggle-btn:hover {
+	background-color: rgba(0, 0, 0, .6);
+}
+
+.audio-toggle-btn .text {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 1;
+	transition: opacity 0.5s ease;
+}
+
+.audio-toggle-btn .text.fade-out {
+	opacity: 0;
+}
+
+#audioToggleBtn {
+	transition: opacity 0.5s ease;
+}
+
+#audioToggleBtn.fade-out {
+	opacity: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#Settings {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px; 
+  opacity: 0.45;
+  z-index: 9999;
+}
+
+#Settings:hover {
+  animation: spin 6s linear infinite;
+}
+
+
 /*====================================================================*/
 
 .pulsating {
@@ -606,22 +680,6 @@ label {
   }
 }
 
-.audio-toggle-btn {
-	display: inline-block;
-	margin: 10px;
-	padding: 10px 20px;
-	font-size: 16px;
-	border-radius: 5px;
-	border: 1px solid #ffffffaa;
-	background-color: transparent;
-	color: #ffffffaa;
-	cursor: pointer;
-	transition: all 0.3s;
-	text-decoration: none;
-}
-.audio-toggle-btn:hover {
-	background-color: #ffffff22;
-}
     </style>
 </head>
 <body>
@@ -632,6 +690,8 @@ label {
     <img id="playing-icon" src="icons/playing.png" alt="Playing" style="display: none;">
 </div>
 </div>
+<img id="Settings" src="icons/gear.png"/>
+
 <div class="container">
     <label for="amount">Your money amount</label>
     <div class="input-container">
@@ -640,7 +700,6 @@ label {
     </div>
 <div id="result"></div>
 <div id="purchaseButtons" style="display: flex; gap: 10px; margin-top: 20px;"></div>
-<button class="audio-toggle-btn" onclick="toggleAudioFormat()" id="audioToggleBtn">AUTO</button>
 
 </div>
 <canvas id="waveform" width="100%" height="100"></canvas>
@@ -652,8 +711,12 @@ label {
 <div id="countryModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Select your country</h2>
+        <h2>Region & Settings</h2>
 		<ul class="country-list">
+		<img id="countryFlag" src="" alt="" style="display: block; margin: 10px auto 0 auto;" />
+
+
+		<button class="audio-toggle-btn" onclick="toggleAudioFormat()" id="audioToggleBtn"></button>
 		<li data-country-code="US"><img src="flags/us.png" alt="USA Flag"> United States</li>
 		<li data-country-code="UA"><img src="flags/ua.png" alt="Ukraine Flag"> Ukraine</li>
 		<li data-country-code="RU"><img src="flags/ru.png" alt="Russia Flag"> Russia</li>
@@ -683,11 +746,11 @@ label {
 		<li data-country-code="HK"><img src="flags/hk.png" alt="Hong Kong Flag"> Hong Kong</li>
 		<li data-country-code="GB"><img src="flags/gb.png" alt="United Kingdom Flag"> United Kingdom</li>
 		<li data-country-code="CA"><img src="flags/ca.png" alt="Canada Flag"> Canada</li>
+
+
 		</ul>
     </div>
 </div>
-
-<img id="countryFlag" src="" alt="" style="cursor: pointer; position: absolute; top: 20px; right: 20px;" />
 
 
     <script>
@@ -775,7 +838,7 @@ function getPriceDataFallback(countryCode) {
 
 
 
-document.getElementById('countryFlag').addEventListener('click', function() {
+document.getElementById('Settings').addEventListener('click', function() {
 	const modal = document.getElementById('countryModal');
 	modal.style.display = "block";
 });
@@ -832,6 +895,7 @@ function loadAudioFormatPreferenceFromCookie() {
 }
 
 loadAudioFormatPreferenceFromCookie();
+updateButtonText();
 
 const phrases = {
 	// "Weight of the World"
@@ -1396,14 +1460,17 @@ function toggleAudioFormat() {
 
 function updateButtonText() {
 	const button = document.getElementById('audioToggleBtn');
-	if (audioFormatPreference === 0) {
-		button.textContent = 'AUTO';
-	} else if (audioFormatPreference === 1) {
-		button.textContent = 'MP3';
-	} else if (audioFormatPreference === 2) {
-		button.textContent = 'FLAC';
-	}
+	const newText = audioFormatPreference === 0 ? 'AUDIO QUALITY - AUTO (you will never see it so i love A2)' :
+	                audioFormatPreference === 1 ? 'AUDIO QUALITY - MP3 (320 KBPS)' :
+	                'AUDIO QUALITY - FLAC (UP TO 1000 KBPS)';
+	
+	button.classList.add('fade-out');
+	setTimeout(() => {
+		button.textContent = newText;
+		button.classList.remove('fade-out');
+	}, 500);
 }
+
 
 
 document.addEventListener('keydown', async (event) => {
@@ -1632,19 +1699,6 @@ window.addEventListener('load', async function() {
     console.log(`Country flag set for code: ${countryCode}`);
 
     updatePrice(countryCode).then(() => console.log("Price updated")).catch(console.error);
-
-    if (/android/i.test(navigator.userAgent)) {
-        console.log("Android detected, adding emojis");
-        const emojiContainer = document.createElement('div');
-        for (let i = 0; i < 300; i++) {
-            const emoji = document.createElement('span');
-            emoji.textContent = '♿️';
-            emoji.classList.add('hidden');
-            emojiContainer.appendChild(emoji);
-        }
-        document.body.appendChild(emojiContainer);
-        console.log("Emojis added");
-    }
 
     overlay.classList.add('hide');
     setTimeout(() => {

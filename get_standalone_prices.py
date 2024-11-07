@@ -10,9 +10,12 @@ for region in regions:
 		price_overview=data[str(steam_app_id)]['data'][_A];price=price_overview['final']/100;currency_code=price_overview['currency']
 		if region=='EU':currency_code='EUR'
 		currency_symbol=get_currency_symbol(currency_code);item={'region':region,'price':price,'currency_code':currency_code,'currency_symbol':currency_symbol};price_data.append(item)
-with open('price_standalone.json','w')as file:
-	file.write('[\n')
-	for(i,item)in enumerate(price_data):
-		json_line=json.dumps(item,separators=(',',':'));file.write(json_line)
-		if i<len(price_data)-1:file.write(',\n')
-	file.write('\n]')
+with open('price_standalone.json', 'w') as file:
+    file.write('[\n')
+    for i, item in enumerate(price_data):
+        json_line = json.dumps(item, separators=(',', ':'))
+        file.write(json_line)
+        print(json_line)
+        if i < len(price_data) - 1:
+            file.write(',\n')
+    file.write('\n]')

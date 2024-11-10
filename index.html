@@ -32,6 +32,7 @@ html {
 }
 body {
 
+  background-color: #d1cdb7;
   font-family: "Courier New", monospace;
   color: #fff;
   text-shadow: 1px 1px 2px #000;
@@ -942,7 +943,7 @@ const phrases = {
 	// Places
 	'rays light': { audio: 'music/City Ruins - Rays of Light', background: 'backgrounds/background05.jpg', backgroundAndroid: 'backgrounds/android05.jpg', title: 'City Ruins - Rays of Light', artist: 'Keiichi Okabe, Vocals?: J\'Nique Nicole' },
 	'shade': { audio: 'music/City Ruins - Shade', background: 'backgrounds/shade.jpg', backgroundAndroid: 'backgrounds/shade-android.jpg', title: 'City Ruins - Shade', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-	'copied city': { audio: 'music/Copied City', background: 'backgrounds/copiedcity.jpeg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Copied City', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa' },
+	'copied city': { audio: 'music/Copied City', background: 'backgrounds/copiedcity.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Copied City', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa' },
 	'memories dust': { audio: 'music/Memories of Dust', background: 'backgrounds/background07.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Memories of Dust', artist: 'Kuniyuki Takahashi, Vocals?: J\'Nique Nicole' },
 	'forest kingdom': { audio: 'music/Forest Kingdom', background: 'backgrounds/background02.jpg', backgroundAndroid: 'backgrounds/android02.jpg', title: 'Forest Kingdom', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa' },
 	'pascal': { audio: 'music/Pascal', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Pascal', artist: 'Keiichi Okabe, Vocals?: Saki Ishii' },
@@ -957,7 +958,7 @@ const phrases = {
 	'dawn breeze': { audio: 'music/Faltering Prayer - Dawn Breeze', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Faltering Prayer - Dawn Breeze', artist: 'Keigo Hoashi & Keiichi Okabe, Vocals?: Emi Evans' },
 	'cold rain': { audio: 'music/Vague Hope - Cold Rain', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Vague Hope - Cold Rain', artist: 'Keigo Hoashi, Vocals?: Emi Evans' },
 	'spring rain': { audio: 'music/Vague Hope - Spring Rain', background: 'backgrounds/springrain.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Vague Hope - Spring Rain', artist: 'Keigo Hoashi, Vocals?: Emi Evans' },
-	'nothing': { audio: 'music/Significance - Nothing', background: 'backgrounds/!!!!!!!!!.jpeg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Significance - Nothing', artist: 'Keiichi Okabe, Vocals?: J\'Nique Nicole' },
+	'nothing': { audio: 'music/Significance - Nothing', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Significance - Nothing', artist: 'Keiichi Okabe, Vocals?: J\'Nique Nicole' },
 	'rebirth hope': { audio: 'music/Rebirth & Hope', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Rebirth & Hope', artist: 'Keigo Hoashi, Vocals?: Emi Evans, Nami Nakagawa, Marina Kawano' },
 	'treasured times': { audio: 'music/Treasured Times', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Treasured Times', artist: 'Keigo Hoashi, Vocals?: Saki Ishii' },
 	'end unknown': { audio: 'music/End of the Unknown', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'End of the Unknown', artist: 'Keiichi Okabe, Vocals?: NieR:Automata Choir' },
@@ -1382,23 +1383,29 @@ async function changeBackground(imageUrl) {
     const body = document.body;
     const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
 
-    if (currentBackground === imageUrl) {
-        return;
-    }
+    if (currentBackground === imageUrl) return;
 
     body.classList.add('fade-in');
 
     try {
         await loadImage(imageUrl);
-        body.style.backgroundImage = `url(${imageUrl})`;
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => {
+            const colorThief = new ColorThief();
+            const [r, g, b] = colorThief.getColor(img);
+            const rgbColor = `rgb(${r}, ${g}, ${b})`;
 
-        setTimeout(() => {
-            body.classList.remove('fade-in');
-        }, 1000);
+            body.style.backgroundImage = `url(${imageUrl})`;
+            body.style.backgroundColor = rgbColor;
+
+            setTimeout(() => body.classList.remove('fade-in'), 1000);
+        };
     } catch (error) {
-        return Promise.resolve();
+        console.error('Error:', error);
     }
 }
+
 
 
 function loadImage(url) {
@@ -1498,7 +1505,7 @@ function toggleAudioFormat() {
 
 function updateButtonText() {
 	const button = document.getElementById('audioToggleBtn');
-	const newText = audioFormatPreference === 0 ? 'AUDIO QUALITY - AUTO (you will never see it so i love A2)' :
+	const newText = audioFormatPreference === 0 ? 'AUDIO QUALITY - AUTO' :
 	                audioFormatPreference === 1 ? 'AUDIO QUALITY - MP3 (320 KBPS)' :
 	                'AUDIO QUALITY - FLAC (UP TO 1000 KBPS)';
 	
@@ -1715,10 +1722,9 @@ async function setRandomBackground() {
     const randomIndex = Math.floor(Math.random() * backgrounds.length);
     const selectedBackground = backgrounds[randomIndex];
     console.log(`Selected background: ${selectedBackground}`);
-
-    await loadImage(selectedBackground);
-    document.body.style.backgroundImage = `url(${selectedBackground})`;
+    await changeBackground(selectedBackground);
 }
+
 
 window.addEventListener('load', async function() {
     console.log("Page load event triggered");

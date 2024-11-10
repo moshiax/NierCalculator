@@ -302,6 +302,11 @@ label {
   height: 24px
 }
 
+
+#countryFlag {
+    display: block;
+}
+
 /*====================================================================*/
 
 .close {
@@ -687,6 +692,7 @@ label {
   }
 }
 
+
     </style>
 </head>
 <body>
@@ -1039,10 +1045,12 @@ async function playMusic(trackName, isRandomPlay = false) {
     audio.id = 'current-audio';
 
     const isMobile = /mobile/i.test(navigator.userAgent);
-    
+
     const backgroundSrc = isMobile && phrases[trackName].backgroundAndroid && phrases[trackName].backgroundAndroid !== "backgrounds/!!!!!!!!!.png"
-        ? phrases[trackName].backgroundAndroid 
+        ? phrases[trackName].backgroundAndroid
         : phrases[trackName].background;
+
+    const artworkSrc = phrases[trackName].background; 
 
     if (!audioContext) {
         createVisualizer();
@@ -1051,21 +1059,21 @@ async function playMusic(trackName, isRandomPlay = false) {
     const source = audioContext.createMediaElementSource(audio);
     source.connect(analyser);
     analyser.connect(audioContext.destination);
-    
-    await changeBackground(backgroundSrc); 
+
+    await changeBackground(backgroundSrc);
     drawVisualizer();
 
     const img = new Image();
-    img.src = backgroundSrc;
+    img.src = artworkSrc;
+    
     img.onload = () => {
-
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: phrases[trackName].title,
                 artist: phrases[trackName].author,
                 artwork: [
                     { 
-                        src: backgroundSrc, 
+                        src: artworkSrc, 
                         sizes: `${img.width}x${img.height}`, 
                         type: 'image/jpeg' 
                     }
@@ -1132,6 +1140,7 @@ async function playMusic(trackName, isRandomPlay = false) {
         amountInput.value = '';
     }  
 }
+
 
 
 function isFlacSupported() {

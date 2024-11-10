@@ -1378,7 +1378,6 @@ async function loadImage(url) {
     });
 }
 
-
 async function changeBackground(imageUrl) {
     const body = document.body;
     const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
@@ -1392,19 +1391,32 @@ async function changeBackground(imageUrl) {
         const img = new Image();
         img.src = imageUrl;
         img.onload = () => {
-            const colorThief = new ColorThief();
-            const [r, g, b] = colorThief.getColor(img);
-            const rgbColor = `rgb(${r}, ${g}, ${b})`;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = 10;  
+            ctx.drawImage(img, 0, img.height - 10, img.width, 10, 0, 0, img.width, 10);
+            
+            const tempImg = new Image();
+            tempImg.src = canvas.toDataURL();
+            tempImg.onload = () => {
+                const colorThief = new ColorThief();
+                const dominantColor = colorThief.getColor(tempImg);
 
-            body.style.backgroundImage = `url(${imageUrl})`;
-            body.style.backgroundColor = rgbColor;
+                const rgbColor = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+                body.style.backgroundColor = rgbColor;
+                setTimeout(() => {
+                    body.style.backgroundImage = `url(${imageUrl})`;
+                }, 200);
 
-            setTimeout(() => body.classList.remove('fade-in'), 1000);
+                setTimeout(() => body.classList.remove('fade-in'), 1000);
+            };
         };
     } catch (error) {
         console.error('Error:', error);
     }
 }
+
 
 
 

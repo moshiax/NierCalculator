@@ -1067,20 +1067,23 @@ async function playMusic(trackName, isRandomPlay = false) {
     img.src = artworkSrc;
     
 
+	audio.onended = () => {
+		isPlaying = false;
+		currentTrackAudioSrc = '';
+		if (canvas) document.body.removeChild(canvas);
+		if (audioContext) {
+			audioContext.close();
+			audioContext = null;
+		}
+		updatePlayIcon();
 
-    audio.onended = () => {
-        isPlaying = false;
-        currentTrackAudioSrc = '';
-        if (canvas) document.body.removeChild(canvas);
-        if (audioContext) {
-            audioContext.close();
-            audioContext = null;
-        }
-        updatePlayIcon();
-        if (isRandomPlay) {
-            playRandomMusic();
-        }
-    };
+		if (isRandomPlay) {
+			playRandomMusic();
+		} else {
+			toggleVisibility();
+		}
+	};
+
 
     isPlaying = true;
     currentTrackAudioSrc = audioSrc;

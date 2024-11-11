@@ -1103,17 +1103,18 @@ async function playMusic(trackName, isRandomPlay = false) {
 
     const notificationKey = 'notificationCount';
     let notificationCount = loadNotificationCountFromCookie();
-    if (notificationCount < 3 && !isMobile) {
-        showNotification(
-            'You can switch the UI by pressing [H] on keyboard,\n' +
-            'Pause by [P],\n' +
-            'And play next by [N],\n' +
-            'Switch the quality of audio by [Q]'
-        );
-        notificationCount++;
-        saveNotificationCountToCookie(notificationCount);
-    }
+	const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|mobile/i.test(navigator.userAgent);
 
+	if (notificationCount < 3 && (!isMobile || isMobile)) {  
+		showNotification(
+			'You can switch the UI by pressing [H] on keyboard,\n' +
+			'Pause by [P],\n' +
+			'And play next by [N],\n' +
+			'Switch the quality of audio by [Q]'
+		);
+		notificationCount++;
+		saveNotificationCountToCookie(notificationCount);
+	}
     document.body.appendChild(audio);
     fadeInAudio(audio);
     updatePlayIcon();

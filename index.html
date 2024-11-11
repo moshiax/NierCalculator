@@ -1729,12 +1729,8 @@ async function setRandomBackground() {
 }
 
 window.addEventListener('load', async function() {
-    console.log("Page load event triggered");
 
     const overlay = document.getElementById('loadingOverlay');
-    overlay.style.display = 'flex';
-    console.log("Overlay displayed");
-
     await setRandomBackground();
     console.log("Background set");
     const cookies = document.cookie.split('; ');

@@ -1040,12 +1040,14 @@ async function playMusic(trackName, isRandomPlay = false) {
     const audio = new Audio(audioSrc);
     audio.id = 'current-audio';
 
-
 	const aspectRatio = window.innerWidth / window.innerHeight;
 
-	const backgroundSrc = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)
-		? phrases[trackName].backgroundAndroid
-		: phrases[trackName].background;
+	const backgroundSrc = 
+		(Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9) &&
+		 phrases[trackName].backgroundAndroid !== "backgrounds/!!!!!!!!!.jpg")
+			? phrases[trackName].backgroundAndroid
+			: phrases[trackName].background;
+
 		
     const artworkSrc = phrases[trackName].background; 
 
@@ -1060,27 +1062,32 @@ async function playMusic(trackName, isRandomPlay = false) {
     await changeBackground(backgroundSrc);
     drawVisualizer();
 
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: phrases[trackName].title,
+            artist: phrases[trackName].artist,
+        });
+    }
+
     const img = new Image();
     img.src = artworkSrc;
-    
 
-	audio.onended = () => {
-		isPlaying = false;
-		currentTrackAudioSrc = '';
-		if (canvas) document.body.removeChild(canvas);
-		if (audioContext) {
-			audioContext.close();
-			audioContext = null;
-		}
-		updatePlayIcon();
+    audio.onended = () => {
+        isPlaying = false;
+        currentTrackAudioSrc = '';
+        if (canvas) document.body.removeChild(canvas);
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+        updatePlayIcon();
 
-		if (isRandomPlay) {
-			playRandomMusic();
-		} else {
-			toggleVisibility();
-		}
-	};
-
+        if (isRandomPlay) {
+            playRandomMusic();
+        } else {
+            toggleVisibility();
+        }
+    };
 
     isPlaying = true;
     currentTrackAudioSrc = audioSrc;
@@ -1120,27 +1127,22 @@ async function playMusic(trackName, isRandomPlay = false) {
     document.body.appendChild(audio);
     fadeInAudio(audio);
     updatePlayIcon();
-
     img.onload = () => {
         if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: phrases[trackName].title,
-                artist: phrases[trackName].artist,
-                artwork: [
-                    { 
-                        src: artworkSrc, 
-                        sizes: `${img.width}x${img.height}`, 
-                        type: 'image/jpeg' 
-                    }
-                ]
-            });
+            navigator.mediaSession.metadata.artwork = [
+                {
+                    src: artworkSrc,
+                    sizes: `${img.width}x${img.height}`,
+                    type: 'image/jpeg'
+                }
+            ];
         }
     };
-	
+
     const amountInput = document.getElementById('amount');
     if (amountInput) {
         amountInput.value = '';
-    }  
+    }
 }
 
 

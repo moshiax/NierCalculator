@@ -1258,8 +1258,6 @@ fetch('price_standalone.json')
     .then(data => priceData = data)
     .catch(console.error);
 
-
-
 async function updatePrice(countryCode) {
     try {
         console.log(`Updating price for country: ${countryCode}`);
@@ -1418,6 +1416,37 @@ async function changeBackground(imageUrl) {
     }
 }
 
+function getOrientation() {
+    return window.innerWidth / window.innerHeight > 1 ? 'landscape' : 'portrait';
+}
+
+function updateBackgroundBasedOnOrientation() {
+    const orientation = getOrientation();
+    const body = document.body;
+    const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+
+    const trackName = Object.keys(phrases).find(key => {
+        const trackBackground = phrases[key];
+        return (
+            trackBackground.background === currentBackground || 
+            trackBackground.backgroundAndroid === currentBackground
+        );
+    });
+
+    if (trackName) {
+        const targetBackground =
+            orientation === 'portrait' && phrases[trackName].backgroundAndroid !== 'backgrounds/!!!!!!!!!.jpg'
+                ? phrases[trackName].backgroundAndroid
+                : phrases[trackName].background;
+
+        if (currentBackground !== targetBackground) {
+            changeBackground(targetBackground);
+        }
+    }
+}
+
+window.addEventListener('resize', updateBackgroundBasedOnOrientation);
+document.addEventListener('DOMContentLoaded', updateBackgroundBasedOnOrientation);
 
 
 document.getElementById('result').addEventListener('click', function() {
@@ -1558,23 +1587,6 @@ document.addEventListener('keydown', async (event) => {
 });
 
 
-function toggleFade(element, action) {
-    if (action === 'hide') {
-        element.style.transition = 'opacity 0.5s';
-        element.style.opacity = 0;
-        setTimeout(() => {
-            element.style.display = 'none';
-        }, 500);
-    } else if (action === 'show') {
-        element.style.display = '';
-        setTimeout(() => {
-            element.style.transition = 'opacity 0.5s';
-            element.style.opacity = 1;
-        }, 10);
-    }
-}
-
-
 function toggleVisibility() {
     const elementsToToggle = [
         document.querySelector('.container'),
@@ -1583,14 +1595,21 @@ function toggleVisibility() {
     ];
 
     elementsToToggle.forEach(element => {
-        if (element.style.display === 'none') {
-            toggleFade(element, 'show');
+        if (window.getComputedStyle(element).display === 'none') {
+            element.style.display = '';
+            setTimeout(() => {
+                element.style.transition = 'opacity 0.5s';
+                element.style.opacity = 1;
+            }, 10);
         } else {
-            toggleFade(element, 'hide');
+            element.style.transition = 'opacity 0.5s';
+            element.style.opacity = 0;
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 500);
         }
     });
 }
-
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -1686,21 +1705,6 @@ function showPurchaseButtons() {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
-
-function loadImage(url) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = url;
-        img.onload = () => {
-            console.log(`Image loaded: ${url}`);
-            resolve();
-        };
-        img.onerror = () => {
-            console.log(`Failed to load image: ${url}`);
-            reject();
-        };
-    });
-}
 
 async function setRandomBackground() {
     let backgrounds;

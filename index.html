@@ -864,16 +864,6 @@ window.addEventListener('click', function(event) {
 	}
 });
 
-document.querySelectorAll('.country-list li').forEach(item => {
-	item.addEventListener('click', async function() {
-		const selectedCountryCode = item.getAttribute('data-country-code');
-		const flagSrc = item.querySelector('img').src;
-		document.getElementById('countryFlag').src = flagSrc;
-		document.getElementById('countryFlag').setAttribute('data-country-code', selectedCountryCode);
-		document.getElementById('countryModal').style.display = "none";
-		await updatePrice(selectedCountryCode);
-	});
-});
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -1361,6 +1351,19 @@ async function updatePrice(countryCode) {
 }
 
 
+document.querySelectorAll('.country-list li').forEach(item => {
+    item.addEventListener('click', async function() {
+        const selectedCountryCode = item.getAttribute('data-country-code');
+        const flagSrc = item.querySelector('img').src;
+        document.getElementById('countryFlag').src = flagSrc;
+        document.getElementById('countryFlag').setAttribute('data-country-code', selectedCountryCode);
+        document.getElementById('countryModal').style.display = "none";
+        document.cookie = `selectedCountryCode=${selectedCountryCode}; path=/; max-age=31536000`;
+
+        await updatePrice(selectedCountryCode);
+    });
+});
+
 
 function containsAllWords(inputText, phraseKey) {
     const words = phraseKey.split(' ');
@@ -1725,7 +1728,6 @@ async function setRandomBackground() {
     await changeBackground(selectedBackground);
 }
 
-
 window.addEventListener('load', async function() {
     console.log("Page load event triggered");
 
@@ -1735,22 +1737,33 @@ window.addEventListener('load', async function() {
 
     await setRandomBackground();
     console.log("Background set");
+    const cookies = document.cookie.split('; ');
+    const savedCountryCode = cookies.find(cookie => cookie.startsWith('selectedCountryCode='));
+    const countryCode = savedCountryCode ? savedCountryCode.split('=')[1] : null;
 
-    const locationData = await getIpAndLocation();
-    console.log(`Location data: ${JSON.stringify(locationData)}`);
+    let finalCountryCode;
+    if (countryCode) {
+        finalCountryCode = countryCode;
+        console.log(`Loaded country code from cookie: ${finalCountryCode}`);
+    } else {
+        const locationData = await getIpAndLocation();
+        finalCountryCode = locationData.country_code;
+        console.log(`Determined country code by IP: ${finalCountryCode}`);
+    }
 
-    const countryCode = locationData.country_code;
-    document.getElementById('countryFlag').src = `flags/${countryCode.toLowerCase()}.png`;
-    console.log(`Country flag set for code: ${countryCode}`);
+    document.getElementById('countryFlag').src = `flags/${finalCountryCode.toLowerCase()}.png`;
+    document.getElementById('countryFlag').setAttribute('data-country-code', finalCountryCode);
+    console.log(`Country flag set for code: ${finalCountryCode}`);
 
-    updatePrice(countryCode).then(() => console.log("Price updated")).catch(console.error);
-
+    updatePrice(finalCountryCode).then(() => console.log("Price updated")).catch(console.error);
+    await new Promise(resolve => setTimeout(resolve, 250));
     overlay.classList.add('hide');
     setTimeout(() => {
         overlay.style.display = 'none';
         console.log("Overlay hidden");
     }, 900); 
 });
+
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>

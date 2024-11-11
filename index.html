@@ -1040,12 +1040,13 @@ async function playMusic(trackName, isRandomPlay = false) {
     const audio = new Audio(audioSrc);
     audio.id = 'current-audio';
 
-    const isMobile = /mobile/i.test(navigator.userAgent);
 
-    const backgroundSrc = isMobile && phrases[trackName].backgroundAndroid && phrases[trackName].backgroundAndroid !== "backgrounds/!!!!!!!!!.jpg"
-        ? phrases[trackName].backgroundAndroid
-        : phrases[trackName].background;
+	const aspectRatio = window.innerWidth / window.innerHeight;
 
+	const backgroundSrc = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)
+		? phrases[trackName].backgroundAndroid
+		: phrases[trackName].background;
+		
     const artworkSrc = phrases[trackName].background; 
 
     if (!audioContext) {
@@ -1699,21 +1700,22 @@ function loadImage(url) {
 async function setRandomBackground() {
     let backgrounds;
     const isMobile = /mobile/i.test(navigator.userAgent);
-    const aspectRatio = window.innerWidth / window.innerHeight;
+	const aspectRatio = window.innerWidth / window.innerHeight;
 
-    console.log(`isMobile: ${isMobile}, aspectRatio: ${aspectRatio}`);
+	console.log(`aspectRatio: ${aspectRatio}`);
 
-    if (isMobile || aspectRatio === (9 / 16)) {
-        backgrounds = [
-            'backgrounds/android1.jpg',
-            'backgrounds/android4.jpg'
-        ];
-    } else {
-        backgrounds = [
-            'backgrounds/background.jpg',
-            'backgrounds/background02.jpg'
-        ];
-    }
+	if (Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)) {
+		backgrounds = [
+			'backgrounds/android1.jpg',
+			'backgrounds/android4.jpg'
+		];
+	} else {
+		backgrounds = [
+			'backgrounds/background.jpg',
+			'backgrounds/background02.jpg'
+		];
+	}
+
 
     const randomIndex = Math.floor(Math.random() * backgrounds.length);
     const selectedBackground = backgrounds[randomIndex];

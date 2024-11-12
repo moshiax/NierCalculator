@@ -986,24 +986,20 @@ function getPriceDataFallback(countryCode) {
 }
 
 
+const modal = document.getElementById('countryModal');
+const settingsButton = document.getElementById('Settings');
+const closeButton = document.querySelector('.close');
 
+settingsButton.addEventListener('click', () => modal.classList.add('show'));
 
-document.getElementById('Settings').addEventListener('click', function() {
-    const modal = document.getElementById('countryModal');
-    modal.classList.add('show');
-});
+closeButton.addEventListener('click', () => modal.classList.remove('show'));
 
-document.querySelector('.close').addEventListener('click', function() {
-    const modal = document.getElementById('countryModal');
-    modal.classList.remove('show');
-});
-
-window.addEventListener('click', function(event) {
-    const modal = document.getElementById('countryModal');
-    if (event.target == modal) {
+window.addEventListener('click', (event) => {
+    if (event.target === modal) {
         modal.classList.remove('show');
     }
 });
+
 
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -1032,7 +1028,7 @@ let hideTimeout;
 document.getElementById('volume-slider').value = audioVolume;
 
 function saveAudioFormatPreferenceToCookie() {
-    document.cookie = `audioFormatPreference=${audioFormatPreference}; path=/; max-age=31536000`; 
+    document.cookie = `audioFormatPreference=${audioFormatPreference}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
 }
 
 function loadAudioFormatPreferenceFromCookie() {
@@ -1138,7 +1134,6 @@ async function fadeOutAudio(audio, duration = 1000) {
     });
 }
 
-
 function fadeInAudio(audio, duration = 1000) {
     let volume = 0;
     const targetVolume = audioVolume; 
@@ -1202,9 +1197,8 @@ document.getElementById('volume-slider').addEventListener('input', (event) => {
 
 
 function saveVolumeToCookie(volume) {
-    document.cookie = `audioVolume=${volume}; path=/`; 
+    document.cookie = `audioVolume=${volume}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
 }
-
 
 function loadVolumeFromCookie() {
     const cookies = document.cookie.split('; ');
@@ -1329,9 +1323,9 @@ async function playMusic(trackName, isRandomPlay = false) {
         toggleVisibility();
     }
 
-    function saveNotificationCountToCookie(count) {
-        document.cookie = `notificationCount=${count}; path=/; max-age=31536000`;
-    }
+	function saveNotificationCountToCookie(count) {
+		document.cookie = `notificationCount=${count}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
+	}
 
     function loadNotificationCountFromCookie() {
         const cookies = document.cookie.split('; ');
@@ -1341,19 +1335,20 @@ async function playMusic(trackName, isRandomPlay = false) {
 
     const notificationKey = 'notificationCount';
     let notificationCount = loadNotificationCountFromCookie();
-    const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|mobile/i.test(navigator.userAgent);
+	const isMobile = window.matchMedia('(pointer: coarse)').matches;
 
-    if (notificationCount < 3 && (!isMobile || isMobile)) {
-        showNotification(
-            'You can switch the UI by pressing [H] on keyboard,\n' +
-            'Pause by [P],\n' +
-            'Play next by [N],\n' +
-            'Switch the quality of audio by [Q], \n' +
+	if (notificationCount < 3 && !isMobile) {
+		showNotification(
+			'You can switch the UI by pressing [H] on keyboard,\n' +
+			'Pause by [P],\n' +
+			'Play next by [N],\n' +
+			'Switch the quality of audio by [Q], \n' +
 			'And volume by arrowkeys'
-        );
-        notificationCount++;
-        saveNotificationCountToCookie(notificationCount);
-    }
+		);
+		notificationCount++;
+		saveNotificationCountToCookie(notificationCount);
+	}
+
     document.body.appendChild(audio);
     fadeInAudio(audio);
     updatePlayIcon();
@@ -1590,19 +1585,19 @@ async function updatePrice(countryCode) {
 
 
 document.querySelectorAll('.country-list li').forEach(item => {
-    item.addEventListener('click', async function() {
-        const selectedCountryCode = item.getAttribute('data-country-code');
+    item.addEventListener('click', async () => {
+        const selectedCountryCode = item.dataset.countryCode;
         const flagSrc = item.querySelector('img').src;
-        document.getElementById('countryFlag').src = flagSrc;
-        document.getElementById('countryFlag').setAttribute('data-country-code', selectedCountryCode);
-        const modal = document.getElementById('countryModal');
-        modal.classList.remove('show'); 
+        const countryFlag = document.getElementById('countryFlag');
+        countryFlag.src = flagSrc;
+        countryFlag.dataset.countryCode = selectedCountryCode;
 
-        document.cookie = `selectedCountryCode=${selectedCountryCode}; path=/; max-age=31536000`;
-
+        document.getElementById('countryModal').classList.remove('show');
+        document.cookie = `selectedCountryCode=${selectedCountryCode}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
         await updatePrice(selectedCountryCode);
     });
 });
+
 
 
 function containsAllWords(inputText, phraseKey) {
@@ -1658,12 +1653,8 @@ async function changeBackground(imageUrl) {
     }
 }
 
-function getOrientation() {
-    return window.innerWidth / window.innerHeight > 1 ? 'landscape' : 'portrait';
-}
-
 function updateBackgroundBasedOnOrientation() {
-    const orientation = getOrientation();
+    const orientation = window.innerWidth / window.innerHeight > 1 ? 'landscape' : 'portrait';
     const body = document.body;
     const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
 
@@ -1708,12 +1699,9 @@ document.addEventListener('click', function(event) {
 });
 
 function showNotification(message) {
-    const formattedMessage = message
-        .replace(/\n/g, '<br>')
-        .replace(/\[H\]/g, '<span class="notification-key" data-key="[H]">[H]</span>')
-        .replace(/\[P\]/g, '<span class="notification-key" data-key="[P]">[P]</span>')
-        .replace(/\[N\]/g, '<span class="notification-key" data-key="[N]">[N]</span>')
-        .replace(/\[Q\]/g, '<span class="notification-key" data-key="[Q]">[Q]</span>');
+    const formattedMessage = message.replace(/\n/g, '<br>').replace(/\[(H|P|N|Q)\]/g, match => 
+        `<span class="notification-key" data-key="${match}">${match}</span>`
+    );
 
     const notification = document.getElementById('notification');
     notification.querySelector('p').innerHTML = formattedMessage;
@@ -1724,46 +1712,34 @@ function showNotification(message) {
         notification.style.animation = 'fadeOut 0.5s ease-in-out';
         setTimeout(() => {
             notification.style.display = 'none';
-            notification.style.animation = '';
         }, 500);
     }, 2300);
 }
 
 function handleKeyAction(key) {
-    switch (key) {
-        case '[H]':
-            toggleVisibility();
-            break;
-        case '[P]':
+    const actions = {
+        '[H]': toggleVisibility,
+        '[P]': () => {
             const currentAudio = document.getElementById('current-audio');
             if (currentAudio) {
                 if (currentAudio.paused) {
-                    fadeInAudio(currentAudio); 
+                    fadeInAudio(currentAudio);
                     isPlaying = true;
-                    updatePlayIcon();
                 } else {
                     fadeOutAudio(currentAudio).then(() => {
                         currentAudio.pause();
                         isPlaying = false;
-                        updatePlayIcon();
                     });
                 }
+                updatePlayIcon();
             }
-            break;
-        case '[N]':
-            if (isPlaying) {
-                playRandomMusic();
-            }
-            break;
-        case '[Q]':
-            toggleAudioFormat();
-            break;
-        default:
-            console.log('Unknown key');
-            break;
-    }
-}
+        },
+        '[N]': () => isPlaying && playRandomMusic(),
+        '[Q]': toggleAudioFormat,
+    };
 
+    (actions[key] || (() => console.log('Unknown key')))();
+}
 
 function toggleAudioFormat() {
 	if (audioFormatPreference === 0 || audioFormatPreference === 2) {
@@ -1949,30 +1925,18 @@ function showPurchaseButtons() {
 
 
 async function setRandomBackground() {
-    let backgrounds;
-    const isMobile = /mobile/i.test(navigator.userAgent);
-	const aspectRatio = window.innerWidth / window.innerHeight;
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    console.log(`aspectRatio: ${aspectRatio}`);
 
-	console.log(`aspectRatio: ${aspectRatio}`);
+    const backgrounds = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9) 
+        ? ['backgrounds/android1.jpg', 'backgrounds/android4.jpg'] 
+        : ['backgrounds/background.jpg', 'backgrounds/background02.jpg'];
 
-	if (Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)) {
-		backgrounds = [
-			'backgrounds/android1.jpg',
-			'backgrounds/android4.jpg'
-		];
-	} else {
-		backgrounds = [
-			'backgrounds/background.jpg',
-			'backgrounds/background02.jpg'
-		];
-	}
-
-
-    const randomIndex = Math.floor(Math.random() * backgrounds.length);
-    const selectedBackground = backgrounds[randomIndex];
+    const selectedBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
     console.log(`Selected background: ${selectedBackground}`);
     await changeBackground(selectedBackground);
 }
+
 
 window.addEventListener('load', async function() {
 

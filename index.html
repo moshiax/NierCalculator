@@ -272,7 +272,8 @@ label {
   max-width: 600px;
   border-radius: 15px;
   font-family: "Courier New",monospace;
-  color: #fff
+  color: #fff;
+  margin-top: 3vh;
 }
 
 
@@ -284,27 +285,41 @@ label {
   padding: 0;
   margin: 0
 }
-.country-list li {
-  display: flex;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #555;
-  cursor: pointer;
-  transition: background-color .2s
-}
-.country-list li:hover {
-  background-color: #2c2c2c
-}
-.country-list img {
-  margin-right: 10px;
-  width: 32px;
-  height: 24px
+.country-items li {
+  position: relative;
+  padding: 5px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  overflow: hidden; 
 }
 
+.country-items li:hover {
+  transform: scale(1.2);
+  background-color: rgba(163, 163, 163, 0.45)
+}
+
+.country-items img {
+  width: 32px;
+  height: 24px;
+  transition: transform 0.3s ease;
+}
+
+
+.country-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 15px;
+  align-items: stretch;
+  justify-items: center;
+  justify-content: space-evenly;
+  margin-top: 10px;
+}
 
 #countryFlag {
     display: block;
 }
+
+
+
 
 /*====================================================================*/
 
@@ -573,7 +588,7 @@ label {
 
 .purchase-button {
   opacity: 0;
-  animation: fadeIn .5s forwards
+  animation: fadeInModal .5s forwards
   
 }
 .purchase-button.hide {
@@ -595,7 +610,6 @@ label {
 .purchase-button img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   transition: transform .3s ease;
   position: absolute;
   top: 0;
@@ -782,7 +796,28 @@ label {
 		display: none;
 	}
 }
+  @keyframes fadeInModal {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
 
+  #countryModal {
+    display: none;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  #countryModal.show {
+    display: block;
+    animation: fadeInModal 0.3s forwards;
+  }
 
     </style>
 </head>
@@ -822,46 +857,47 @@ label {
             <div id="volume-bar-container">
                 <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7" />
             </div>
-            <li data-country-code="US"><img src="flags/us.png" alt="USA Flag"> United States</li>
-            <li data-country-code="UA"><img src="flags/ua.png" alt="Ukraine Flag"> Ukraine</li>
-            <li data-country-code="RU"><img src="flags/ru.png" alt="Russia Flag"> Russia</li>
-            <li data-country-code="PL"><img src="flags/pl.png" alt="Poland Flag"> Poland</li>
-            <li data-country-code="KZ"><img src="flags/kz.png" alt="Kazakhstan Flag"> Kazakhstan</li>
-            <li data-country-code="KR"><img src="flags/kr.png" alt="South Korea Flag"> South Korea</li>
-            <li data-country-code="BR"><img src="flags/br.png" alt="Brazil Flag"> Brazil</li>
-            <li data-country-code="MX"><img src="flags/mx.png" alt="Mexico Flag"> Mexico</li>
-            <li data-country-code="IN"><img src="flags/in.png" alt="India Flag"> India</li>
-            <li data-country-code="UY"><img src="flags/uy.png" alt="Uruguay Flag"> Uruguay</li>
-            <li data-country-code="KW"><img src="flags/kw.png" alt="Kuwait Flag"> Kuwait</li>
-            <li data-country-code="ZA"><img src="flags/za.png" alt="South Africa Flag"> South Africa</li>
-            <li data-country-code="CR"><img src="flags/cr.png" alt="Costa Rica Flag"> Costa Rica</li>
-            <li data-country-code="CO"><img src="flags/co.png" alt="Colombia Flag"> Colombia</li>
-            <li data-country-code="NO"><img src="flags/no.png" alt="Norway Flag"> Norway</li>
-            <li data-country-code="CL"><img src="flags/cl.png" alt="Chile Flag"> Chile</li>
-            <li data-country-code="VN"><img src="flags/vn.png" alt="Vietnam Flag"> Vietnam</li>
-            <li data-country-code="TH"><img src="flags/th.png" alt="Thailand Flag"> Thailand</li>
-            <li data-country-code="IL"><img src="flags/il.png" alt="Israel Flag"> Israel</li>
-            <li data-country-code="SG"><img src="flags/sg.png" alt="Singapore Flag"> Singapore</li>
-            <li data-country-code="PE"><img src="flags/pe.png" alt="Peru Flag"> Peru</li>
-            <li data-country-code="EU"><img src="flags/eu.png" alt="Euro Flag"> Eurozone</li>
-            <li data-country-code="CH"><img src="flags/ch.png" alt="Switzerland Flag"> Switzerland</li>
-            <li data-country-code="JP"><img src="flags/jp.png" alt="Japan Flag"> Japan</li>
-            <li data-country-code="MY"><img src="flags/my.png" alt="Malaysia Flag"> Malaysia</li>
-            <li data-country-code="PH"><img src="flags/ph.png" alt="Philippines Flag"> Philippines</li>
-            <li data-country-code="HK"><img src="flags/hk.png" alt="Hong Kong Flag"> Hong Kong</li>
-            <li data-country-code="GB"><img src="flags/gb.png" alt="United Kingdom Flag"> United Kingdom</li>
-            <li data-country-code="CA"><img src="flags/ca.png" alt="Canada Flag"> Canada</li>
-        </ul>
-			<div class="notification-info" style="text-align: right; line-height: 1.3;">
-				<p>
-					You can switch the UI by pressing <span class="notification-key" data-key="[H]">[H]</span>,<br>
-					Pause by <span class="notification-key" data-key="[P]">[P]</span>,<br>
-					Play next by <span class="notification-key" data-key="[N]">[N]</span>,<br>
-					Switch the quality of audio by <span class="notification-key" data-key="[Q]">[Q]</span>,<br>
-					And volume by arrow keys.
-				</p>
+
+			<div class="country-items">
+				<li data-country-code="US"><img src="flags/us.png"> US</li>
+				<li data-country-code="UA"><img src="flags/ua.png"> UA</li>
+				<li data-country-code="PL"><img src="flags/pl.png"> PL</li>
+				<li data-country-code="KZ"><img src="flags/kz.png"> KZ</li>
+				<li data-country-code="KR"><img src="flags/kr.png"> KR</li>
+				<li data-country-code="BR"><img src="flags/br.png"> BR</li>
+				<li data-country-code="MX"><img src="flags/mx.png"> MX</li>
+				<li data-country-code="IN"><img src="flags/in.png"> IN</li>
+				<li data-country-code="UY"><img src="flags/uy.png"> UY</li>
+				<li data-country-code="KW"><img src="flags/kw.png"> KW</li>
+				<li data-country-code="ZA"><img src="flags/za.png"> ZA</li>
+				<li data-country-code="CR"><img src="flags/cr.png"> CR</li>
+				<li data-country-code="CO"><img src="flags/co.png"> CO</li>
+				<li data-country-code="NO"><img src="flags/no.png"> NO</li>
+				<li data-country-code="CL"><img src="flags/cl.png"> CL</li>
+				<li data-country-code="VN"><img src="flags/vn.png"> VN</li>
+				<li data-country-code="TH"><img src="flags/th.png"> TH</li>
+				<li data-country-code="IL"><img src="flags/il.png"> IL</li>
+				<li data-country-code="SG"><img src="flags/sg.png"> SG</li>
+				<li data-country-code="PE"><img src="flags/pe.png"> PE</li>
+				<li data-country-code="EU"><img src="flags/eu.png"> EU</li>
+				<li data-country-code="CH"><img src="flags/ch.png"> CH</li>
+				<li data-country-code="JP"><img src="flags/jp.png"> JP</li>
+				<li data-country-code="MY"><img src="flags/my.png"> MY</li>
+				<li data-country-code="PH"><img src="flags/ph.png"> PH</li>
+				<li data-country-code="HK"><img src="flags/hk.png"> HK</li>
+				<li data-country-code="GB"><img src="flags/gb.png"> GB</li>
+				<li data-country-code="CA"><img src="flags/ca.png"> CA</li>
 			</div>
 
+        </ul>
+        <div class="notification-info" style="text-align: right; line-height: 1.3;">
+            <p>
+                You can switch the UI by pressing <span class="notification-key" data-key="[H]">[H]</span>,<br>
+                Pause by <span class="notification-key" data-key="[P]">[P]</span>,<br>
+                Play next by <span class="notification-key" data-key="[N]">[N]</span>,<br>
+                Switch the quality of audio by <span class="notification-key" data-key="[Q]">[Q]</span>,<br>
+                And volume by arrow keys.
+            </p>
         </div>
     </div>
 </div>
@@ -950,23 +986,23 @@ function getPriceDataFallback(countryCode) {
 
 
 
-
 document.getElementById('Settings').addEventListener('click', function() {
-	const modal = document.getElementById('countryModal');
-	modal.style.display = "block";
+    const modal = document.getElementById('countryModal');
+    modal.classList.add('show');
 });
 
 document.querySelector('.close').addEventListener('click', function() {
-	const modal = document.getElementById('countryModal');
-	modal.style.display = "none";
+    const modal = document.getElementById('countryModal');
+    modal.classList.remove('show');
 });
 
 window.addEventListener('click', function(event) {
-	const modal = document.getElementById('countryModal');
-	if (event.target == modal) {
-		modal.style.display = "none";
-	}
+    const modal = document.getElementById('countryModal');
+    if (event.target == modal) {
+        modal.classList.remove('show');
+    }
 });
+
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -1557,7 +1593,9 @@ document.querySelectorAll('.country-list li').forEach(item => {
         const flagSrc = item.querySelector('img').src;
         document.getElementById('countryFlag').src = flagSrc;
         document.getElementById('countryFlag').setAttribute('data-country-code', selectedCountryCode);
-        document.getElementById('countryModal').style.display = "none";
+        const modal = document.getElementById('countryModal');
+        modal.classList.remove('show'); 
+
         document.cookie = `selectedCountryCode=${selectedCountryCode}; path=/; max-age=31536000`;
 
         await updatePrice(selectedCountryCode);
@@ -1794,7 +1832,6 @@ document.addEventListener('keydown', async (event) => {
 function toggleVisibility() {
     const elementsToToggle = [
         document.querySelector('.container'),
-        document.getElementById('countryFlag'),
         document.getElementById('Settings')
     ];
 
@@ -1831,11 +1868,9 @@ function updatePriceDisplay() {
             showPurchaseButtons();
         } else {
             priceElement.innerHTML = '';
-            hidePurchaseButtons();
         }
     } else {
         priceElement.innerHTML = '';
-        hidePurchaseButtons();
     }
 }
 
@@ -1851,6 +1886,7 @@ function hidePurchaseButtons() {
     });
 
     setTimeout(() => {
+        buttons.forEach(button => button.classList.remove('hide')); 
         buttonsContainer.innerHTML = '';
         buttonsShown = false; 
     }, 300);

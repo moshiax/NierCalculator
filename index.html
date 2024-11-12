@@ -101,7 +101,6 @@ h2 {
 
 /*====================================================================*/
 
-
 .container {
   width: 80vw;
   height: 18vh;
@@ -201,7 +200,6 @@ label {
   pointer-events: none;
   color: rgba(255,255,255,.5);
   font-size: 1.5rem
-  margin-left: 5px
 }
 
 /*====================================================================*/
@@ -436,7 +434,6 @@ label {
   z-index: 9999
 }
 
-
 #play-icon {
   width: 40px;
   height: 40px;
@@ -450,7 +447,36 @@ label {
   animation: rotate 2s linear infinite;
 }
 
+.volumeBar-in {
+    animation: volumeBarIn 0.5s forwards;
+}
 
+.volumeBar-out {
+    animation: volumeBarOut 0.5s forwards;
+}
+
+@keyframes volumeBarIn {
+    from { opacity: 0; }
+    to { opacity: 0.5; }
+}
+
+@keyframes volumeBarOut {
+    from { opacity: 0.5; }
+    to { opacity: 0; }
+}
+
+#volume-bar {
+    position: fixed;
+    bottom: 5vh;
+    right: 10px;
+    width: 10px;
+    background: linear-gradient(to top, #fff, #d5d5d5);
+    max-height: calc(100vh - 12%);
+    background-color: #4caf50;
+    opacity: 0.5; 
+    border-radius: 5px; 
+    transition: height 0.3s ease, opacity 0.5s ease, border-radius 0.3s ease;
+}
 
 @keyframes rotate {
     from {
@@ -464,6 +490,7 @@ label {
 
 .audio-toggle-btn {
 	display: block; 
+	margin-top: 20px;
 	margin: 10px 0; 
 	padding: 10px 20px;
 	font-size: 16px;
@@ -687,6 +714,74 @@ label {
     opacity: 1
   }
 }
+#volume-bar-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    position: relative;
+}
+
+#volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 100;
+    border-radius: 5px;
+    border: 1px solid #ffffffaa;
+    outline: none;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 10px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+#volume-slider:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 25px;
+    background: #fff;
+    opacity: 50%;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+#volume-slider::-webkit-slider-thumb:hover {
+    opacity: 65%;
+}
+
+#volume-bar-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    position: relative;
+}
+
+#volume-bar-container span {
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    color: #ffffffaa;
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+#notification p {
+    line-height: 1.3;
+}
+
+@media (pointer: coarse) {
+	.notification-info, #volume-bar-container {
+		display: none;
+	}
+}
 
 
     </style>
@@ -721,46 +816,55 @@ label {
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Region & Settings</h2>
-		<ul class="country-list">
-		<img id="countryFlag" src="" alt="" style="display: block; margin: 10px auto 0 auto;" />
+        <ul class="country-list">
+            <img id="countryFlag" src="" alt="" style="display: block; margin: 10px auto 0 auto;" />
+            <button class="audio-toggle-btn" onclick="toggleAudioFormat()" id="audioToggleBtn"></button>
+            <div id="volume-bar-container">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7" />
+            </div>
+            <li data-country-code="US"><img src="flags/us.png" alt="USA Flag"> United States</li>
+            <li data-country-code="UA"><img src="flags/ua.png" alt="Ukraine Flag"> Ukraine</li>
+            <li data-country-code="RU"><img src="flags/ru.png" alt="Russia Flag"> Russia</li>
+            <li data-country-code="PL"><img src="flags/pl.png" alt="Poland Flag"> Poland</li>
+            <li data-country-code="KZ"><img src="flags/kz.png" alt="Kazakhstan Flag"> Kazakhstan</li>
+            <li data-country-code="KR"><img src="flags/kr.png" alt="South Korea Flag"> South Korea</li>
+            <li data-country-code="BR"><img src="flags/br.png" alt="Brazil Flag"> Brazil</li>
+            <li data-country-code="MX"><img src="flags/mx.png" alt="Mexico Flag"> Mexico</li>
+            <li data-country-code="IN"><img src="flags/in.png" alt="India Flag"> India</li>
+            <li data-country-code="UY"><img src="flags/uy.png" alt="Uruguay Flag"> Uruguay</li>
+            <li data-country-code="KW"><img src="flags/kw.png" alt="Kuwait Flag"> Kuwait</li>
+            <li data-country-code="ZA"><img src="flags/za.png" alt="South Africa Flag"> South Africa</li>
+            <li data-country-code="CR"><img src="flags/cr.png" alt="Costa Rica Flag"> Costa Rica</li>
+            <li data-country-code="CO"><img src="flags/co.png" alt="Colombia Flag"> Colombia</li>
+            <li data-country-code="NO"><img src="flags/no.png" alt="Norway Flag"> Norway</li>
+            <li data-country-code="CL"><img src="flags/cl.png" alt="Chile Flag"> Chile</li>
+            <li data-country-code="VN"><img src="flags/vn.png" alt="Vietnam Flag"> Vietnam</li>
+            <li data-country-code="TH"><img src="flags/th.png" alt="Thailand Flag"> Thailand</li>
+            <li data-country-code="IL"><img src="flags/il.png" alt="Israel Flag"> Israel</li>
+            <li data-country-code="SG"><img src="flags/sg.png" alt="Singapore Flag"> Singapore</li>
+            <li data-country-code="PE"><img src="flags/pe.png" alt="Peru Flag"> Peru</li>
+            <li data-country-code="EU"><img src="flags/eu.png" alt="Euro Flag"> Eurozone</li>
+            <li data-country-code="CH"><img src="flags/ch.png" alt="Switzerland Flag"> Switzerland</li>
+            <li data-country-code="JP"><img src="flags/jp.png" alt="Japan Flag"> Japan</li>
+            <li data-country-code="MY"><img src="flags/my.png" alt="Malaysia Flag"> Malaysia</li>
+            <li data-country-code="PH"><img src="flags/ph.png" alt="Philippines Flag"> Philippines</li>
+            <li data-country-code="HK"><img src="flags/hk.png" alt="Hong Kong Flag"> Hong Kong</li>
+            <li data-country-code="GB"><img src="flags/gb.png" alt="United Kingdom Flag"> United Kingdom</li>
+            <li data-country-code="CA"><img src="flags/ca.png" alt="Canada Flag"> Canada</li>
+        </ul>
+			<div class="notification-info" style="text-align: right; line-height: 1.3;">
+				<p>
+					You can switch the UI by pressing <span class="notification-key" data-key="[H]">[H]</span>,<br>
+					Pause by <span class="notification-key" data-key="[P]">[P]</span>,<br>
+					Play next by <span class="notification-key" data-key="[N]">[N]</span>,<br>
+					Switch the quality of audio by <span class="notification-key" data-key="[Q]">[Q]</span>,<br>
+					And volume by arrow keys.
+				</p>
+			</div>
 
-
-		<button class="audio-toggle-btn" onclick="toggleAudioFormat()" id="audioToggleBtn"></button>
-		<li data-country-code="US"><img src="flags/us.png" alt="USA Flag"> United States</li>
-		<li data-country-code="UA"><img src="flags/ua.png" alt="Ukraine Flag"> Ukraine</li>
-		<li data-country-code="RU"><img src="flags/ru.png" alt="Russia Flag"> Russia</li>
-		<li data-country-code="PL"><img src="flags/pl.png" alt="Poland Flag"> Poland</li>
-		<li data-country-code="KZ"><img src="flags/kz.png" alt="Kazakhstan Flag"> Kazakhstan</li>
-		<li data-country-code="KR"><img src="flags/kr.png" alt="South Korea Flag"> South Korea</li>
-		<li data-country-code="BR"><img src="flags/br.png" alt="Brazil Flag"> Brazil</li>
-		<li data-country-code="MX"><img src="flags/mx.png" alt="Mexico Flag"> Mexico</li>
-		<li data-country-code="IN"><img src="flags/in.png" alt="India Flag"> India</li>
-		<li data-country-code="UY"><img src="flags/uy.png" alt="Uruguay Flag"> Uruguay</li>
-		<li data-country-code="KW"><img src="flags/kw.png" alt="Kuwait Flag"> Kuwait</li>
-		<li data-country-code="ZA"><img src="flags/za.png" alt="South Africa Flag"> South Africa</li>
-		<li data-country-code="CR"><img src="flags/cr.png" alt="Costa Rica Flag"> Costa Rica</li>
-		<li data-country-code="CO"><img src="flags/co.png" alt="Colombia Flag"> Colombia</li>
-		<li data-country-code="NO"><img src="flags/no.png" alt="Norway Flag"> Norway</li>
-		<li data-country-code="CL"><img src="flags/cl.png" alt="Chile Flag"> Chile</li>
-		<li data-country-code="VN"><img src="flags/vn.png" alt="Vietnam Flag"> Vietnam</li>
-		<li data-country-code="TH"><img src="flags/th.png" alt="Thailand Flag"> Thailand</li>
-		<li data-country-code="IL"><img src="flags/il.png" alt="Israel Flag"> Israel</li>
-		<li data-country-code="SG"><img src="flags/sg.png" alt="Singapore Flag"> Singapore</li>
-		<li data-country-code="PE"><img src="flags/pe.png" alt="Peru Flag"> Peru</li>
-		<li data-country-code="EU"><img src="flags/eu.png" alt="Euro Flag"> Eurozone</li>
-		<li data-country-code="CH"><img src="flags/ch.png" alt="Switzerland Flag"> Switzerland</li>
-		<li data-country-code="JP"><img src="flags/jp.png" alt="Japan Flag"> Japan</li>
-		<li data-country-code="MY"><img src="flags/my.png" alt="Malaysia Flag"> Malaysia</li>
-		<li data-country-code="PH"><img src="flags/ph.png" alt="Philippines Flag"> Philippines</li>
-		<li data-country-code="HK"><img src="flags/hk.png" alt="Hong Kong Flag"> Hong Kong</li>
-		<li data-country-code="GB"><img src="flags/gb.png" alt="United Kingdom Flag"> United Kingdom</li>
-		<li data-country-code="CA"><img src="flags/ca.png" alt="Canada Flag"> Canada</li>
-
-
-		</ul>
+        </div>
     </div>
 </div>
-
 
     <script>
 !function(t,r){"object"==typeof exports&&"undefined"!=typeof module?module.exports=r():"function"==typeof define&&define.amd?define(r):t.ColorThief=r()}(this,function(){if(!t)var t={map:function(t,r){var n={};return r?t.map(function(t,o){return n.index=o,r.call(n,t)}):t.slice()},naturalOrder:function(t,r){return t<r?-1:t>r?1:0},sum:function(t,r){var n={};return t.reduce(r?function(t,o,e){return n.index=e,t+r.call(n,o)}:function(t,r){return t+r},0)},max:function(r,n){return Math.max.apply(null,n?t.map(r,n):r)}};var r=function(){var r=5,n=8-r,o=1e3;function e(t,n,o){return(t<<2*r)+(n<<r)+o}function i(t){var r=[],n=!1;function o(){r.sort(t),n=!0}return{push:function(t){r.push(t),n=!1},peek:function(t){return n||o(),void 0===t&&(t=r.length-1),r[t]},pop:function(){return n||o(),r.pop()},size:function(){return r.length},map:function(t){return r.map(t)},debug:function(){return n||o(),r}}}function u(t,r,n,o,e,i,u){this.r1=t,this.r2=r,this.g1=n,this.g2=o,this.b1=e,this.b2=i,this.histo=u}function a(){this.vboxes=new i(function(r,n){return t.naturalOrder(r.vbox.count()*r.vbox.volume(),n.vbox.count()*n.vbox.volume())})}function s(r,n){if(n.count()){var o=n.r2-n.r1+1,i=n.g2-n.g1+1,u=t.max([o,i,n.b2-n.b1+1]);if(1==n.count())return[n.copy()];var a,s,h,c,f=0,v=[],l=[];if(u==o)for(a=n.r1;a<=n.r2;a++){for(c=0,s=n.g1;s<=n.g2;s++)for(h=n.b1;h<=n.b2;h++)c+=r[e(a,s,h)]||0;v[a]=f+=c}else if(u==i)for(a=n.g1;a<=n.g2;a++){for(c=0,s=n.r1;s<=n.r2;s++)for(h=n.b1;h<=n.b2;h++)c+=r[e(s,a,h)]||0;v[a]=f+=c}else for(a=n.b1;a<=n.b2;a++){for(c=0,s=n.r1;s<=n.r2;s++)for(h=n.g1;h<=n.g2;h++)c+=r[e(s,h,a)]||0;v[a]=f+=c}return v.forEach(function(t,r){l[r]=f-t}),function(t){var r,o,e,i,u,s=t+"1",h=t+"2",c=0;for(a=n[s];a<=n[h];a++)if(v[a]>f/2){for(e=n.copy(),i=n.copy(),u=(r=a-n[s])<=(o=n[h]-a)?Math.min(n[h]-1,~~(a+o/2)):Math.max(n[s],~~(a-1-r/2));!v[u];)u++;for(c=l[u];!c&&v[u-1];)c=l[--u];return e[h]=u,i[s]=e[h]+1,[e,i]}}(u==o?"r":u==i?"g":"b")}}return u.prototype={volume:function(t){return this._volume&&!t||(this._volume=(this.r2-this.r1+1)*(this.g2-this.g1+1)*(this.b2-this.b1+1)),this._volume},count:function(t){var r=this.histo;if(!this._count_set||t){var n,o,i,u=0;for(n=this.r1;n<=this.r2;n++)for(o=this.g1;o<=this.g2;o++)for(i=this.b1;i<=this.b2;i++)u+=r[e(n,o,i)]||0;this._count=u,this._count_set=!0}return this._count},copy:function(){return new u(this.r1,this.r2,this.g1,this.g2,this.b1,this.b2,this.histo)},avg:function(t){var n=this.histo;if(!this._avg||t){var o,i,u,a,s=0,h=1<<8-r,c=0,f=0,v=0;for(i=this.r1;i<=this.r2;i++)for(u=this.g1;u<=this.g2;u++)for(a=this.b1;a<=this.b2;a++)s+=o=n[e(i,u,a)]||0,c+=o*(i+.5)*h,f+=o*(u+.5)*h,v+=o*(a+.5)*h;this._avg=s?[~~(c/s),~~(f/s),~~(v/s)]:[~~(h*(this.r1+this.r2+1)/2),~~(h*(this.g1+this.g2+1)/2),~~(h*(this.b1+this.b2+1)/2)]}return this._avg},contains:function(t){var r=t[0]>>n;return gval=t[1]>>n,bval=t[2]>>n,r>=this.r1&&r<=this.r2&&gval>=this.g1&&gval<=this.g2&&bval>=this.b1&&bval<=this.b2}},a.prototype={push:function(t){this.vboxes.push({vbox:t,color:t.avg()})},palette:function(){return this.vboxes.map(function(t){return t.color})},size:function(){return this.vboxes.size()},map:function(t){for(var r=this.vboxes,n=0;n<r.size();n++)if(r.peek(n).vbox.contains(t))return r.peek(n).color;return this.nearest(t)},nearest:function(t){for(var r,n,o,e=this.vboxes,i=0;i<e.size();i++)((n=Math.sqrt(Math.pow(t[0]-e.peek(i).color[0],2)+Math.pow(t[1]-e.peek(i).color[1],2)+Math.pow(t[2]-e.peek(i).color[2],2)))<r||void 0===r)&&(r=n,o=e.peek(i).color);return o},forcebw:function(){var r=this.vboxes;r.sort(function(r,n){return t.naturalOrder(t.sum(r.color),t.sum(n.color))});var n=r[0].color;n[0]<5&&n[1]<5&&n[2]<5&&(r[0].color=[0,0,0]);var o=r.length-1,e=r[o].color;e[0]>251&&e[1]>251&&e[2]>251&&(r[o].color=[255,255,255])}},{quantize:function(h,c){if(!h.length||c<2||c>256)return!1;var f=function(t){var o,i=new Array(1<<3*r);return t.forEach(function(t){o=e(t[0]>>n,t[1]>>n,t[2]>>n),i[o]=(i[o]||0)+1}),i}(h);f.forEach(function(){});var v=function(t,r){var o,e,i,a=1e6,s=0,h=1e6,c=0,f=1e6,v=0;return t.forEach(function(t){(o=t[0]>>n)<a?a=o:o>s&&(s=o),(e=t[1]>>n)<h?h=e:e>c&&(c=e),(i=t[2]>>n)<f?f=i:i>v&&(v=i)}),new u(a,s,h,c,f,v,r)}(h,f),l=new i(function(r,n){return t.naturalOrder(r.count(),n.count())});function g(t,r){for(var n,e=t.size(),i=0;i<o;){if(e>=r)return;if(i++>o)return;if((n=t.pop()).count()){var u=s(f,n),a=u[0],h=u[1];if(!a)return;t.push(a),h&&(t.push(h),e++)}else t.push(n),i++}}l.push(v),g(l,.75*c);for(var p=new i(function(r,n){return t.naturalOrder(r.count()*r.volume(),n.count()*n.volume())});l.size();)p.push(l.pop());g(p,c);for(var d=new a;p.size();)d.push(p.pop());return d}}}().quantize,n=function(t){this.canvas=document.createElement("canvas"),this.context=this.canvas.getContext("2d"),this.width=this.canvas.width=t.width,this.height=this.canvas.height=t.height,this.context.drawImage(t,0,0,this.width,this.height)};n.prototype.getImageData=function(){return this.context.getImageData(0,0,this.width,this.height)};var o=function(){};return o.prototype.getColor=function(t,r){return void 0===r&&(r=10),this.getPalette(t,5,r)[0]},o.prototype.getPalette=function(t,o,e){var i=function(t){var r=t.colorCount,n=t.quality;if(void 0!==r&&Number.isInteger(r)){if(1===r)throw new Error("colorCount should be between 2 and 20. To get one color, call getColor() instead of getPalette()");r=Math.max(r,2),r=Math.min(r,20)}else r=10;return void 0===n||Number.isInteger(n)?n=10:n<1&&(n=10),{colorCount:r,quality:n}}({colorCount:o,quality:e}),u=new n(t),a=function(t,r,n){for(var o=t,e=[],i=0,u=void 0,a=void 0,s=void 0,h=void 0,c=void 0;i<r;i+=n)a=o[0+(u=4*i)],s=o[u+1],h=o[u+2],(void 0===(c=o[u+3])||c>=125)&&(a>250&&s>250&&h>250||e.push([a,s,h]));return e}(u.getImageData().data,u.width*u.height,i.quality),s=r(a,i.colorCount);return s?s.palette():null},o.prototype.getColorFromUrl=function(t,r,n){var o=document.createElement("img"),e=this;o.addEventListener("load",function(){var i=e.getPalette(o,5,n);r(i[0],t)}),o.src=t},o.prototype.getImageData=function(t,r){var n=new XMLHttpRequest;n.open("GET",t,!0),n.responseType="arraybuffer",n.onload=function(){if(200==this.status){var t=new Uint8Array(this.response);o=t.length;for(var n=new Array(o),o=0;o<t.length;o++)n[o]=String.fromCharCode(t[o]);var e=n.join(""),i=window.btoa(e);r("data:image/png;base64,"+i)}},n.send()},o.prototype.getColorAsync=function(t,r,n){var o=this;this.getImageData(t,function(t){var e=document.createElement("img");e.addEventListener("load",function(){var t=o.getPalette(e,5,n);r(t[0],this)}),e.src=t})},o});
@@ -802,7 +906,7 @@ async function getGamePrice(countryCode) {
 
 	let attempts = 0;
 	const maxAttempts = 3;
-	const timeoutDuration = 1; 
+	const timeoutDuration = 0.3; 
 
 	while (attempts < maxAttempts) {
 		try {
@@ -864,7 +968,6 @@ window.addEventListener('click', function(event) {
 	}
 });
 
-
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -879,6 +982,17 @@ let canvas;
 let canvasCtx;
 let currentTrackAudioSrc = '';
 let audioFormatPreference = /mobile/i.test(navigator.userAgent) ? 1 : 0;
+let audioVolume = loadVolumeFromCookie();
+audioVolume = audioVolume !== null ? audioVolume : 0.7;
+console.log(audioVolume !== 0.7 
+    ? `Volume loaded from cookie: ${audioVolume}` 
+    : `Default volume set: ${audioVolume}`);
+
+let audio = null;
+let hideTimeout;
+
+document.getElementById('volume-slider').value = audioVolume;
+
 function saveAudioFormatPreferenceToCookie() {
     document.cookie = `audioFormatPreference=${audioFormatPreference}; path=/; max-age=31536000`; 
 }
@@ -965,6 +1079,7 @@ const phrases = {
 
 };
 
+
 async function fadeOutAudio(audio, duration = 1000) {
     if (!audio) return;
     let volume = audio.volume;
@@ -988,19 +1103,105 @@ async function fadeOutAudio(audio, duration = 1000) {
 
 function fadeInAudio(audio, duration = 1000) {
     let volume = 0;
-    const step = 1 / (duration / 50);
+    const targetVolume = audioVolume; 
+    const step = targetVolume / (duration / 50);
     audio.volume = 0;
     audio.play().catch(error => console.error('Error:', error));
 
     const fadeInInterval = setInterval(() => {
-        if (volume < 1) {
-            volume = Math.min(1, volume + step);
+        if (volume < targetVolume) {
+            volume = Math.min(targetVolume, volume + step);
             audio.volume = volume;
         } else {
             clearInterval(fadeInInterval);
         }
     }, 50);
 }
+
+function smoothSetSliderValue(slider, targetValue) {
+    const currentValue = parseFloat(slider.value);
+    const step = (targetValue - currentValue) / 15; 
+
+    let frame = 0;
+    function animate() {
+        if (frame < 15) {
+            slider.value = (currentValue + step * frame).toFixed(2);
+            frame++;
+            requestAnimationFrame(animate);
+        } else {
+            slider.value = targetValue.toFixed(2);
+        }
+    }
+
+    animate();
+}
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        audioVolume = event.key === 'ArrowUp'
+            ? Math.min(audioVolume + 0.05, 1)
+            : Math.max(audioVolume - 0.05, 0);
+
+        if (audio) {
+            audio.volume = audioVolume;
+        }
+
+        saveVolumeToCookie(audioVolume);
+        showVolumeBar(audioVolume);
+        smoothSetSliderValue(document.getElementById('volume-slider'), audioVolume);
+    }
+});
+
+
+document.getElementById('volume-slider').addEventListener('input', (event) => {
+    audioVolume = parseFloat(event.target.value);
+    if (audio) {
+        audio.volume = audioVolume;
+    }
+    saveVolumeToCookie(audioVolume);
+    showVolumeBar(audioVolume);
+});
+
+
+function saveVolumeToCookie(volume) {
+    document.cookie = `audioVolume=${volume}; path=/`; 
+}
+
+
+function loadVolumeFromCookie() {
+    const cookies = document.cookie.split('; ');
+    const volumeCookie = cookies.find(row => row.startsWith('audioVolume='));
+    return volumeCookie ? parseFloat(volumeCookie.split('=')[1]) : null;
+}
+
+
+const volumeText = document.createElement('span');
+volumeText.textContent = 'Volume'; 
+document.getElementById('volume-bar-container').appendChild(volumeText);
+
+
+function showVolumeBar(volume) {
+    let volumeBar = document.getElementById('volume-bar');
+    if (!volumeBar) {
+        volumeBar = document.createElement('div');
+        volumeBar.id = 'volume-bar';
+        document.body.appendChild(volumeBar);
+    }
+
+    volumeBar.style.height = `${volume * 100}%`;
+    volumeBar.classList.add('volumeBar-in');
+    volumeBar.style.visibility = 'visible';
+    clearTimeout(hideTimeout);
+
+    hideTimeout = setTimeout(() => {
+        volumeBar.classList.add('volumeBar-out');
+        setTimeout(() => {
+            volumeBar.style.visibility = 'hidden';
+            volumeBar.classList.remove('volumeBar-out');
+        }, 500);
+    }, 1000);
+}
+
 
 async function playMusic(trackName, isRandomPlay = false) {
     let format;
@@ -1021,25 +1222,24 @@ async function playMusic(trackName, isRandomPlay = false) {
     if (isPlaying && currentTrackAudioSrc === audioSrc) {
         return;
     }
-    
+
     if (isPlaying) {
         await fadeOutAudio(document.getElementById('current-audio'));
         stopMusic();
     }
 
-    const audio = new Audio(audioSrc);
+    audio = new Audio(audioSrc);
     audio.id = 'current-audio';
+    audio.volume = audioVolume; 
+    const aspectRatio = window.innerWidth / window.innerHeight;
 
-	const aspectRatio = window.innerWidth / window.innerHeight;
+    const backgroundSrc =
+        (Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9) &&
+            phrases[trackName].backgroundAndroid !== "backgrounds/!!!!!!!!!.jpg")
+            ? phrases[trackName].backgroundAndroid
+            : phrases[trackName].background;
 
-	const backgroundSrc = 
-		(Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9) &&
-		 phrases[trackName].backgroundAndroid !== "backgrounds/!!!!!!!!!.jpg")
-			? phrases[trackName].backgroundAndroid
-			: phrases[trackName].background;
-
-		
-    const artworkSrc = phrases[trackName].background; 
+    const artworkSrc = phrases[trackName].background;
 
     if (!audioContext) {
         createVisualizer();
@@ -1103,18 +1303,19 @@ async function playMusic(trackName, isRandomPlay = false) {
 
     const notificationKey = 'notificationCount';
     let notificationCount = loadNotificationCountFromCookie();
-	const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|mobile/i.test(navigator.userAgent);
+    const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|mobile/i.test(navigator.userAgent);
 
-	if (notificationCount < 3 && (!isMobile || isMobile)) {  
-		showNotification(
-			'You can switch the UI by pressing [H] on keyboard,\n' +
-			'Pause by [P],\n' +
-			'And play next by [N],\n' +
-			'Switch the quality of audio by [Q]'
-		);
-		notificationCount++;
-		saveNotificationCountToCookie(notificationCount);
-	}
+    if (notificationCount < 3 && (!isMobile || isMobile)) {
+        showNotification(
+            'You can switch the UI by pressing [H] on keyboard,\n' +
+            'Pause by [P],\n' +
+            'Play next by [N],\n' +
+            'Switch the quality of audio by [Q], \n' +
+			'And volume by arrowkeys'
+        );
+        notificationCount++;
+        saveNotificationCountToCookie(notificationCount);
+    }
     document.body.appendChild(audio);
     fadeInAudio(audio);
     updatePlayIcon();
@@ -1458,8 +1659,17 @@ document.getElementById('result').addEventListener('click', function() {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
+document.addEventListener('click', function(event) {
+    const target = event.target;
+    if (target.classList.contains('notification-key')) {
+        const key = target.getAttribute('data-key');
+        handleKeyAction(key);
+    }
+});
+
 function showNotification(message) {
     const formattedMessage = message
+        .replace(/\n/g, '<br>')
         .replace(/\[H\]/g, '<span class="notification-key" data-key="[H]">[H]</span>')
         .replace(/\[P\]/g, '<span class="notification-key" data-key="[P]">[P]</span>')
         .replace(/\[N\]/g, '<span class="notification-key" data-key="[N]">[N]</span>')
@@ -1469,14 +1679,6 @@ function showNotification(message) {
     notification.querySelector('p').innerHTML = formattedMessage;
     notification.style.display = 'block';
     notification.style.animation = 'fadeIn 0.5s ease-in-out';
-
-    notification.addEventListener('click', function(event) {
-        const target = event.target;
-        if (target.classList.contains('notification-key')) {
-            const key = target.getAttribute('data-key');
-            handleKeyAction(key);
-        }
-    });
 
     setTimeout(() => {
         notification.style.animation = 'fadeOut 0.5s ease-in-out';
@@ -1521,6 +1723,7 @@ function handleKeyAction(key) {
             break;
     }
 }
+
 
 function toggleAudioFormat() {
 	if (audioFormatPreference === 0 || audioFormatPreference === 2) {

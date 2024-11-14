@@ -962,13 +962,11 @@ async function getGamePrice(countryCode) {
 			const contents = JSON.parse(data.contents);
 			return contents; 
 		} catch (error) {
-			console.error('Error:', error);
 			attempts++;
 			if (attempts < maxAttempts) {
-				console.log(`${attempts} / ${maxAttempts} (origins)`);
-				await new Promise(resolve => setTimeout(resolve, 1000));
+				console.log(`${attempts} / ${maxAttempts} API attempts failed (origins)`);
+				await new Promise(resolve => setTimeout(resolve, 500));
 			} else {
-				console.error(':(');
 				return getPriceDataFallback(countryCode); 
 			}
 		}

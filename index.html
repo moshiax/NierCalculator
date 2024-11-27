@@ -932,7 +932,7 @@ async function getIpAndLocation() {
 
 async function getGamePrice(countryCode) {
 	const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-	const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+	const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
 	let attempts = 0;
 	const maxAttempts = 1;
 	const timeoutDuration = 1000;
@@ -949,7 +949,9 @@ async function getGamePrice(countryCode) {
 				throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
 			}
 
-			const data = await response.json();
+			const { contents } = await response.json();
+			const data = JSON.parse(contents);
+			console.log("Price fetched dynamically");
 			return data;
 		} catch (error) {
 			attempts++;
@@ -971,6 +973,8 @@ async function getGamePrice(countryCode) {
 		}
 	}
 }
+
+
 
 
 function getPriceDataFallback(countryCode) {
@@ -1939,8 +1943,6 @@ async function setRandomBackground() {
 window.addEventListener('load', async function() {
 
     const overlay = document.getElementById('loadingOverlay');
-    await setRandomBackground();
-    console.log("Background set");
     const cookies = document.cookie.split('; ');
     const savedCountryCode = cookies.find(cookie => cookie.startsWith('selectedCountryCode='));
     const countryCode = savedCountryCode ? savedCountryCode.split('=')[1] : null;
@@ -1960,6 +1962,9 @@ window.addEventListener('load', async function() {
     console.log(`Country flag set for code: ${finalCountryCode}`);
 
     updatePrice(finalCountryCode).then(() => console.log("Price updated")).catch(console.error);
+    await setRandomBackground();
+    console.log("Background set");
+
     await new Promise(resolve => setTimeout(resolve, 250));
     overlay.classList.add('hide');
     setTimeout(() => {

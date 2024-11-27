@@ -930,48 +930,81 @@ async function getIpAndLocation() {
         });
 }
 
+
+
+let globalDiscountPercent = null;
+
 async function getGamePrice(countryCode) {
-	const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-	const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-	let attempts = 0;
-	const maxAttempts = 1;
-	const timeoutDuration = 1000;
+    const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    let attempts = 0;
+    const maxAttempts = 1;
+    const timeoutDuration = 1000;
 
-	while (attempts < maxAttempts) {
-		try {
-			const controller = new AbortController();
-			const signal = controller.signal;
-			const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
-			const response = await fetch(proxyUrl, { signal });
-			clearTimeout(timeoutId);
+    while (attempts < maxAttempts) {
+        try {
+            const controller = new AbortController();
+            const signal = controller.signal;
+            const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+            console.log(`Attempt ${attempts + 1}: Fetching URL: ${proxyUrl}`);
+            const response = await fetch(proxyUrl, { signal });
+            clearTimeout(timeoutId);
 
-			if (!response.ok) {
-				throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
-			}
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
+            }
 
-			const { contents } = await response.json();
-			const data = JSON.parse(contents);
-			console.log("Price fetched dynamically");
-			return data;
-		} catch (error) {
-			attempts++;
-			if (error.name === 'AbortError') {
-				console.error(`Fetch attempt ${attempts} timed out after ${timeoutDuration}ms.`);
-			} else if (error.name === 'TypeError') {
-				console.error(`Fetch attempt ${attempts} failed due to a network issue: ${error.message}`);
-			} else {
-				console.error(`Fetch attempt ${attempts} encountered an error: ${error.message}`);
-				console.error('Error details:', error);
-			}
+            const { contents } = await response.json();
+            console.log("Received response from proxy");
 
-			if (attempts < maxAttempts) {
-				await new Promise(resolve => setTimeout(resolve, 500));
-			} else {
-				console.error('Error fetching prices. CORS proxy possible dead :(');
-				return getPriceDataFallback(countryCode);
-			}
-		}
-	}
+            const data = JSON.parse(contents);
+            console.log("Parsed response JSON");
+
+            if (data && data[steamAppId] && data[steamAppId].data) {
+                const gameData = data[steamAppId].data;
+                console.log("Game data found: ", gameData);
+                if (gameData.price_overview) {
+                    console.log("Price overview found:", gameData.price_overview);
+                    const discountPercent = gameData.price_overview.discount_percent;
+                    console.log("Discount percent:", discountPercent);
+                    if (discountPercent && discountPercent !== 0) {
+                        globalDiscountPercent = discountPercent; 
+                        console.log(`Discount available: ${discountPercent}% off`);
+                    } else {
+                        globalDiscountPercent = null;
+                        console.log("No discount available or discount is 0%");
+                    }
+                } else {
+                    console.log("No price overview data available.");
+                }
+            } else {
+                console.log(`No game data found for app ID: ${steamAppId}`);
+            }
+
+            console.log("Price fetched dynamically");
+            return data;
+
+        } catch (error) {
+            attempts++;
+            console.error(`Error during fetch attempt ${attempts}:`, error);
+
+            if (error.name === 'AbortError') {
+                console.error(`Fetch attempt ${attempts} timed out after ${timeoutDuration}ms.`);
+            } else if (error.name === 'TypeError') {
+                console.error(`Fetch attempt ${attempts} failed due to a network issue: ${error.message}`);
+            } else {
+                console.error(`Fetch attempt ${attempts} encountered an error: ${error.message}`);
+                console.error('Error details:', error);
+            }
+
+            if (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            } else {
+                console.error('Error fetching prices. CORS proxy possible dead :(');
+                return getPriceDataFallback(countryCode);
+            }
+        }
+    }
 }
 
 
@@ -1574,6 +1607,10 @@ async function updatePrice(countryCode) {
             });
 
             updatePriceDisplay();
+            if (globalDiscountPercent && globalDiscountPercent !== 0) {
+                showNotification(`NieR:Automata is on sale in ${countryCode}. Discount percent is ${globalDiscountPercent}%`);
+                console.log(`Discount detected: ${globalDiscountPercent}%`);
+            }
         } else {
             throw new Error('Price information not available');
         }
@@ -1701,9 +1738,19 @@ document.addEventListener('click', function(event) {
 });
 
 function showNotification(message) {
-    const formattedMessage = message.replace(/\n/g, '<br>').replace(/\[(H|P|N|Q)\]/g, match => 
+
+    let formattedMessage = message.replace(/\n/g, '<br>').replace(/\[(H|P|N|Q)\]/g, match => 
         `<span class="notification-key" data-key="${match}">${match}</span>`
     );
+
+    const discountPercentMatch = message.match(/Discount percent is (\d+)%/);
+    if (discountPercentMatch) {
+        const discountPercent = discountPercentMatch[1];
+        formattedMessage = formattedMessage.replace(
+            `Discount percent is ${discountPercent}%`, 
+            `<span class="discount-highlight">Discount percent is <b>${discountPercent}%</b></span>`
+        );
+    }
 
     const notification = document.getElementById('notification');
     notification.querySelector('p').innerHTML = formattedMessage;
@@ -1717,6 +1764,7 @@ function showNotification(message) {
         }, 500);
     }, 2300);
 }
+
 
 function handleKeyAction(key) {
     const actions = {
@@ -1941,7 +1989,6 @@ async function setRandomBackground() {
 
 
 window.addEventListener('load', async function() {
-
     const overlay = document.getElementById('loadingOverlay');
     const cookies = document.cookie.split('; ');
     const savedCountryCode = cookies.find(cookie => cookie.startsWith('selectedCountryCode='));
@@ -1970,9 +2017,13 @@ window.addEventListener('load', async function() {
     setTimeout(() => {
         overlay.style.display = 'none';
         console.log("Overlay hidden");
+        if (globalDiscountPercent && globalDiscountPercent !== 0) {
+            showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);
+        } else {
+            console.log("No discount available in your region.");
+        }
     }, 900); 
 });
-
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>

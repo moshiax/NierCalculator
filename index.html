@@ -930,13 +930,12 @@ async function getIpAndLocation() {
         });
 }
 
-
 async function getGamePrice(countryCode) {
 	const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
 	const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
 	let attempts = 0;
 	const maxAttempts = 1;
-	const timeoutDuration = 666;
+	const timeoutDuration = 1000;
 
 	while (attempts < maxAttempts) {
 		try {
@@ -947,17 +946,26 @@ async function getGamePrice(countryCode) {
 			clearTimeout(timeoutId);
 
 			if (!response.ok) {
-				throw new Error(`HTTP Error: ${response.status}`);
+				throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
 			}
 
 			const data = await response.json();
 			return data;
 		} catch (error) {
 			attempts++;
+			if (error.name === 'AbortError') {
+				console.error(`Fetch attempt ${attempts} timed out after ${timeoutDuration}ms.`);
+			} else if (error.name === 'TypeError') {
+				console.error(`Fetch attempt ${attempts} failed due to a network issue: ${error.message}`);
+			} else {
+				console.error(`Fetch attempt ${attempts} encountered an error: ${error.message}`);
+				console.error('Error details:', error);
+			}
+
 			if (attempts < maxAttempts) {
 				await new Promise(resolve => setTimeout(resolve, 500));
 			} else {
-				console.error('ERROR FETCHING GAME PRICES.');
+				console.error('Error fetching prices. CORS proxy possible dead :(');
 				return getPriceDataFallback(countryCode);
 			}
 		}

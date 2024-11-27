@@ -933,38 +933,37 @@ async function getIpAndLocation() {
 
 async function getGamePrice(countryCode) {
 	const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-	const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-
+	const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
 	let attempts = 0;
-	const maxAttempts = 3;
-	const timeoutDuration = 0.3; 
+	const maxAttempts = 1;
+	const timeoutDuration = 666;
 
 	while (attempts < maxAttempts) {
 		try {
 			const controller = new AbortController();
 			const signal = controller.signal;
 			const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
-
 			const response = await fetch(proxyUrl, { signal });
 			clearTimeout(timeoutId);
 
 			if (!response.ok) {
-				throw new Error(':(');
+				throw new Error(`HTTP Error: ${response.status}`);
 			}
+
 			const data = await response.json();
-			const contents = JSON.parse(data.contents);
-			return contents; 
+			return data;
 		} catch (error) {
 			attempts++;
 			if (attempts < maxAttempts) {
-				console.log(`${attempts} / ${maxAttempts} API attempts failed (origins)`);
 				await new Promise(resolve => setTimeout(resolve, 500));
 			} else {
-				return getPriceDataFallback(countryCode); 
+				console.error('ERROR FETCHING GAME PRICES.');
+				return getPriceDataFallback(countryCode);
 			}
 		}
 	}
 }
+
 
 function getPriceDataFallback(countryCode) {
 	const priceInfo = priceData.find(item => item.region === countryCode);

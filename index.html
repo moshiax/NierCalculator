@@ -930,8 +930,6 @@ async function getIpAndLocation() {
         });
 }
 
-
-
 let globalDiscountPercent = null;
 
 async function getGamePrice(countryCode) {
@@ -1007,9 +1005,6 @@ async function getGamePrice(countryCode) {
     }
 }
 
-
-
-
 function getPriceDataFallback(countryCode) {
 	const priceInfo = priceData.find(item => item.region === countryCode);
 	return {
@@ -1019,7 +1014,6 @@ function getPriceDataFallback(countryCode) {
 		},
 	};
 }
-
 
 const modal = document.getElementById('countryModal');
 const settingsButton = document.getElementById('Settings');
@@ -1034,8 +1028,6 @@ window.addEventListener('click', (event) => {
         modal.classList.remove('show');
     }
 });
-
-
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -1148,7 +1140,6 @@ const phrases = {
 
 };
 
-
 async function fadeOutAudio(audio, duration = 1000) {
     if (!audio) return;
     let volume = audio.volume;
@@ -1220,7 +1211,6 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-
 document.getElementById('volume-slider').addEventListener('input', (event) => {
     audioVolume = parseFloat(event.target.value);
     if (audio) {
@@ -1241,11 +1231,9 @@ function loadVolumeFromCookie() {
     return volumeCookie ? parseFloat(volumeCookie.split('=')[1]) : null;
 }
 
-
 const volumeText = document.createElement('span');
 volumeText.textContent = 'Volume'; 
 document.getElementById('volume-bar-container').appendChild(volumeText);
-
 
 function showVolumeBar(volume) {
     let volumeBar = document.getElementById('volume-bar');
@@ -1268,7 +1256,6 @@ function showVolumeBar(volume) {
         }, 500);
     }, 1000);
 }
-
 
 async function playMusic(trackName, isRandomPlay = false) {
     let format;
@@ -1405,8 +1392,6 @@ async function playMusic(trackName, isRandomPlay = false) {
     }
 }
 
-
-
 function isFlacSupported() {
     const audio = new Audio();
     return audio.canPlayType('audio/flac;') !== '';
@@ -1417,7 +1402,6 @@ function playRandomMusic() {
     const randomTrack = trackNames[Math.floor(Math.random() * trackNames.length)];
     playMusic(randomTrack, true); 
 }
-
 
 function stopMusic() {
     const currentAudio = document.getElementById('current-audio');
@@ -1440,7 +1424,6 @@ function stopMusic() {
     updatePlayIcon();
     currentTrackAudioSrc = '';
 }
-
 
 function updatePlayIcon() {
     const playIcon = document.getElementById('play-icon');
@@ -1468,7 +1451,6 @@ document.getElementById('play-button').addEventListener('click', async () => {
         }
     }
 });
-
 
 function createVisualizer() {
     if (!audioContext) {
@@ -1516,17 +1498,17 @@ function drawVisualizer() {
     }
 }
 
-
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 const getCurrencySymbol = (currencyCode) => ({ "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "RUB": "₽", "UAH": "₴", "BRL": "R$", "CAD": "C$", "AUD": "A$", "CHF": "Fr", "CNY": "¥", "KRW": "₩", "INR": "₹", "MXN": "Mex$", "PLN": "zł", "ZAR": "R", "TRY": "₺", "AED": "د.إ", "THB": "฿", "TWD": "NT$", "SAR": "ر.س", "QAR": "ر.ق", "KWD": "د.ك", "KZT": "₸", "MYR": "RM", "IDR": "Rp", "ILS": "₪", "COP": "$", "CRC": "₡", "PEN": "S/", "PHP": "₱", "VND": "₫", "CLP": "$", "GEL": "₾", "HRK": "kn", "HUF": "Ft", "LKR": "Rs", "MDL": "L", "NOK": "kr", "RON": "lei", "SEK": "kr", "UGX": "USh", "MNT": "₮", "TZS": "TSh", "NAD": "$", "ZWL": "$", "BAM": "KM", "GHS": "₵", "BND": "$", "SBD": "$", "MOP": "MOP$", "PGK": "K" })[currencyCode] || currencyCode;
 let priceData; 
+let salenotifications = 0;
 
 fetch('price_standalone.json')
     .then(response => response.ok ? response.json() : Promise.reject('Error: ' + response.statusText))
     .then(data => priceData = data)
-    .catch(console.error);
+    .catch(console.error); 
 
 async function updatePrice(countryCode) {
     try {
@@ -1607,10 +1589,13 @@ async function updatePrice(countryCode) {
             });
 
             updatePriceDisplay();
-            if (globalDiscountPercent && globalDiscountPercent !== 0) {
+            if (globalDiscountPercent && globalDiscountPercent !== 0 && salenotifications >= 1) {
                 showNotification(`NieR:Automata is on sale in ${countryCode}. Discount percent is ${globalDiscountPercent}%`);
                 console.log(`Discount detected: ${globalDiscountPercent}%`);
             }
+
+            salenotifications++;
+
         } else {
             throw new Error('Price information not available');
         }
@@ -1621,6 +1606,7 @@ async function updatePrice(countryCode) {
         await updatePrice('US');
     }
 }
+
 
 
 document.querySelectorAll('.country-list li').forEach(item => {
@@ -2008,21 +1994,23 @@ window.addEventListener('load', async function() {
     document.getElementById('countryFlag').setAttribute('data-country-code', finalCountryCode);
     console.log(`Country flag set for code: ${finalCountryCode}`);
 
-    updatePrice(finalCountryCode).then(() => console.log("Price updated")).catch(console.error);
-    await setRandomBackground();
-    console.log("Background set");
+    await Promise.all([
+        updatePrice(finalCountryCode),
+        setRandomBackground()
+    ]);
+
+    console.log("Background set and price updated");
 
     await new Promise(resolve => setTimeout(resolve, 250));
     overlay.classList.add('hide');
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        console.log("Overlay hidden");
-        if (globalDiscountPercent && globalDiscountPercent !== 0) {
-            showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);
-        } else {
-            console.log("No discount available in your region.");
-        }
-    }, 900); 
+    await new Promise(resolve => setTimeout(resolve, 900));
+    overlay.style.display = 'none';
+    console.log("Overlay hidden");
+    if (globalDiscountPercent && globalDiscountPercent !== 0) {
+        showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);
+    } else {
+        console.log("No discount available in your region.");
+    }
 });
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>

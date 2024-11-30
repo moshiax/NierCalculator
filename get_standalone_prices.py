@@ -1,6 +1,8 @@
 import aiohttp
 import asyncio
 import json
+import socket
+import time
 
 steam_app_id = '524220'
 regions = ['US', 'UA', 'RU', 'PL', 'KZ', 'KR', 'BR', 'MX', 'IN', 'UY', 'KW', 'ZA', 'CR', 'CO', 'NO', 'CL', 'VN', 'TH', 'IL', 'SG', 'PE', 'EU', 'CH', 'JP', 'MY', 'PH', 'HK', 'GB', 'CA', 'TR']
@@ -37,7 +39,19 @@ async def fetch_all_prices():
         results = await asyncio.gather(*tasks)
         return [result for result in results if result]
 
+def connect(timeout=666):
+    start_time = time.time()
+    while True:
+        try:
+            socket.create_connection(("1.1.1.1", 53), timeout=666)
+            return True
+        except OSError:
+            if time.time() - start_time > timeout:
+                pass
+            time.sleep(5)
+
 async def main():
+    connect()
     price_data = await fetch_all_prices()
     with open('price_standalone.json', 'w') as file:
         file.write('[\n')

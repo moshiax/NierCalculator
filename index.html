@@ -938,66 +938,45 @@ let globalDiscountPercent = null;
 
 async function getGamePrice(countryCode) {
     const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const proxyUrl = `https://api.cors.lol/?url=${encodeURIComponent(url)}`;
     let attempts = 0;
     const maxAttempts = 1;
-    const timeoutDuration = 1000;
+    const timeoutDuration = 2222;
 
     while (attempts < maxAttempts) {
         try {
             const controller = new AbortController();
             const signal = controller.signal;
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+
+            const startTime = performance.now();
             console.log(`Attempt ${attempts + 1}: Fetching URL: ${proxyUrl}`);
             const response = await fetch(proxyUrl, { signal });
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+
             clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
             }
 
-            const { contents } = await response.json();
-            console.log("Received response from proxy");
+            const contents = await response.text();
+            console.log(`Received response from proxy in ${duration}ms`);
 
             const data = JSON.parse(contents);
-            console.log("Parsed response JSON");
 
-            if (data && data[steamAppId] && data[steamAppId].data) {
-                const gameData = data[steamAppId].data;
-                console.log("Game data found: ", gameData);
-                if (gameData.price_overview) {
-                    console.log("Price overview found:", gameData.price_overview);
-                    const discountPercent = gameData.price_overview.discount_percent;
-                    console.log("Discount percent:", discountPercent);
-                    if (discountPercent && discountPercent !== 0) {
-                        globalDiscountPercent = discountPercent; 
-                        console.log(`Discount available: ${discountPercent}% off`);
-                    } else {
-                        globalDiscountPercent = null;
-                        console.log("No discount available or discount is 0%");
-                    }
-                } else {
-                    console.log("No price overview data available.");
-                }
-            } else {
-                console.log(`No game data found for app ID: ${steamAppId}`);
+            if (data[steamAppId]?.data?.price_overview) {
+                const discountPercent = data[steamAppId].data.price_overview.discount_percent;
+                globalDiscountPercent = discountPercent && discountPercent !== 0 ? discountPercent : null;
+                console.log(`Price fetched dynamically in ${duration}ms, discount: ${globalDiscountPercent || "no discount"}`);
             }
 
-            console.log("Price fetched dynamically");
             return data;
 
         } catch (error) {
             attempts++;
             console.error(`Error during fetch attempt ${attempts}:`, error);
-
-            if (error.name === 'AbortError') {
-                console.error(`Fetch attempt ${attempts} timed out after ${timeoutDuration}ms.`);
-            } else if (error.name === 'TypeError') {
-                console.error(`Fetch attempt ${attempts} failed due to a network issue: ${error.message}`);
-            } else {
-                console.error(`Fetch attempt ${attempts} encountered an error: ${error.message}`);
-                console.error('Error details:', error);
-            }
 
             if (attempts < maxAttempts) {
                 await new Promise(resolve => setTimeout(resolve, 500));
@@ -1008,6 +987,7 @@ async function getGamePrice(countryCode) {
         }
     }
 }
+
 
 function getPriceDataFallback(countryCode) {
 	const priceInfo = priceData.find(item => item.region === countryCode);

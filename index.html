@@ -81,22 +81,28 @@ body.fade-in::before {
     display: none;
 }
 
+/*====================================================================*/
+
 * {
-    cursor: url('cursors/select.png'), pointer;
+    cursor: var(--cursor-select);
 }
 
 input, textarea, select {
-    cursor: url('cursors/input.png'), text; !important
+    cursor: var(--cursor-input);
 }
 
 ::selection {
-    cursor: url('cursors/input.png'), auto; 
+    cursor: var(--cursor-input);
 }
 
-#Settings, #play-icon, .audio-toggle-btn, button, .notification-key {
-    cursor: url('cursors/button.png'), pointer;
+:root {
+    --cursor-button: url('cursors/button.png'), pointer;
+    --cursor-select: url('cursors/select.png'), pointer;
+    --cursor-input: url('cursors/input.png'), text;
+	--cursor-link: url('cursors/link.png'), pointer;
 }
 
+/*====================================================================*/
 
 h2 {
   margin: 0 auto;
@@ -311,7 +317,7 @@ label {
   float: right;
   font-size: 28px;
   font-weight: 700
-  cursor: url('cursors/link.png'), pointer !important;
+  cursor: var(--cursor-link);
 }
 
 .close:focus,
@@ -383,6 +389,7 @@ label {
   transition: background-color .3s ease,box-shadow .3s ease;
   font-family: 'Courier New',monospace;
   user-select: none;
+  cursor: var(--cursor-button);
 }
 
 .notification-key:hover {
@@ -423,18 +430,21 @@ label {
   position: fixed;
   top: 10px;
   left: 10px;
+  cursor: var(--cursor-button);
   z-index: 9999
 }
 
 #play-icon {
   width: 40px;
   opacity: .35;
+  cursor: var(--cursor-button);
 }
 
 #playing-icon {
   width: 40px;
   opacity: .20;
   animation: rotate 2s linear infinite;
+  cursor: var(--cursor-button);
 }
 
 .volumeBar-in {
@@ -486,6 +496,7 @@ label {
 	border: 1px solid #ffffffaa;
 	background-color: rgba(0, 0, 0, .45); 
 	color: #ffffffaa;
+    cursor: var(--cursor-button);
 	transition: background-color 0.3s;
 	overflow: hidden;
 	position: relative;
@@ -518,6 +529,7 @@ label {
 #Settings {
   position: absolute;
   top: 10px;
+  cursor: var(--cursor-button);
   right: 10px;
   width: 40px;
   height: 40px; 
@@ -553,7 +565,7 @@ label {
   margin: 0 auto;
   z-index: 3000;
   opacity: 0;
-  cursor: url('cursors/link.png'), auto; 
+  cursor: var(--cursor-link);
   transition: opacity 0.3s ease-in-out, transform 0.3s ease, box-shadow 0.3s ease;
   animation: fadeInModal 0.5s forwards;
 }
@@ -688,7 +700,7 @@ label {
     background: rgba(0, 0, 0, 0.45);
     opacity: 100;
     border-radius: 5px;
-    cursor: url('cursors/select.png'), pointer !important;
+    cursor: var(--cursor-select);
     border: 1px solid #ffffffaa;
     outline: none;
     font-family: 'Courier New', monospace;
@@ -710,7 +722,7 @@ label {
     opacity: 50%;
     border-radius: 3px;
     transition: background-color 0.3s ease, opacity 0.3s ease;
-    cursor: url('cursors/link.png'), pointer !important;
+    cursor: var(--cursor-link);
 }
 
 #volume-slider::-webkit-slider-thumb:hover {

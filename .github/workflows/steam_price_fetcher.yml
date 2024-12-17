@@ -1,26 +1,29 @@
 name: Fetch Steam Prices
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   fetch_prices:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
-        sparse-checkout: true
-        sparse-checkout-patterns: |
-          /fetch_steam_prices.py
+
+    - name: Enable sparse-checkout
+      run: |
+        git config core.sparseCheckout true
+        echo "/fetch_steam_prices.py" >> .git/info/sparse-checkout
+        git read-tree -mu HEAD
 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.9'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

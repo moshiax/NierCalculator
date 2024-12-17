@@ -17,6 +17,7 @@ jobs:
       run: |
         git config core.sparseCheckout true
         echo "/fetch_steam_prices.py" >> .git/info/sparse-checkout
+        echo "/price_standalone.json" >> .git/info/sparse-checkout
         git read-tree -mu HEAD
 
     - name: Set up Python
@@ -36,8 +37,8 @@ jobs:
     - name: Check if price_standalone.json has changed
       run: |
         if [ -f price_standalone.json ]; then
-          echo "File exists, comparing content..."
-          diff price_standalone.json price_standalone.json.bak || echo "No changes in prices"
+          echo "File exists, creating backup..."
+          cp price_standalone.json price_standalone.json.bak
         else
           echo "File does not exist, creating new file"
         fi

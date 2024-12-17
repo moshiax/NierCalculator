@@ -1,7 +1,7 @@
 name: Fetch Steam Prices
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   fetch_prices:
@@ -10,6 +10,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -23,12 +25,23 @@ jobs:
 
     - name: Run Steam price fetcher script
       run: |
-        python get_standalone_prices.py
+        python fetch_steam_prices.py
 
-    - name: Commit and push price_standalone.json
+    - name: Check if price_standalone.json has changed
+      run: |
+        if [ -f price_standalone.json ]; then
+          echo "File exists, comparing content..."
+          diff price_standalone.json price_standalone.json.bak || echo "No changes in prices"
+        else
+          echo "File does not exist, creating new file"
+        fi
+
+    - name: Commit and push price_standalone.json if changed
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@users.noreply.github.com"
         git add price_standalone.json
-        git commit -m "Update price_standalone.json with latest prices"
-        git push
+        git diff --cached --exit-code || (
+          git commit -m "Update price_standalone.json with latest prices"
+          git push
+        )

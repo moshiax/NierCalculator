@@ -82,8 +82,21 @@ body.fade-in::before {
 }
 
 * {
-    scrollbar-width: none; 
+    cursor: url('cursors/select.png'), pointer;
 }
+
+input, textarea, select {
+    cursor: url('cursors/input.png'), text; !important
+}
+
+::selection {
+    cursor: url('cursors/input.png'), auto; 
+}
+
+#Settings, #play-icon, .audio-toggle-btn, button, .notification-key {
+    cursor: url('cursors/button.png'), pointer;
+}
+
 
 h2 {
   margin: 0 auto;
@@ -180,7 +193,6 @@ label {
   position: fixed;
   top: 20px;
   right: 20px;
-  cursor: pointer;
   transition: transform .2s
 }
 
@@ -195,7 +207,6 @@ label {
   text-align: center;
   margin-top: 30px;
   color: #fff;
-  cursor: pointer;
   background: linear-gradient(45deg, #fff, #fff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -300,13 +311,13 @@ label {
   float: right;
   font-size: 28px;
   font-weight: 700
+  cursor: url('cursors/link.png'), pointer !important;
 }
 
 .close:focus,
 .close:hover {
   color: #fff;
   text-decoration: none;
-  cursor: pointer
 }
 
 .notification {
@@ -372,7 +383,6 @@ label {
   transition: background-color .3s ease,box-shadow .3s ease;
   font-family: 'Courier New',monospace;
   user-select: none;
-  cursor: pointer
 }
 
 .notification-key:hover {
@@ -476,7 +486,6 @@ label {
 	border: 1px solid #ffffffaa;
 	background-color: rgba(0, 0, 0, .45); 
 	color: #ffffffaa;
-	cursor: pointer;
 	transition: background-color 0.3s;
 	overflow: hidden;
 	position: relative;
@@ -541,10 +550,10 @@ label {
   height: 6.5vh;
   border-radius: 50%;
   background-color: transparent;
-  cursor: pointer;
   margin: 0 auto;
   z-index: 3000;
   opacity: 0;
+  cursor: url('cursors/link.png'), auto; 
   transition: opacity 0.3s ease-in-out, transform 0.3s ease, box-shadow 0.3s ease;
   animation: fadeInModal 0.5s forwards;
 }
@@ -679,12 +688,14 @@ label {
     background: rgba(0, 0, 0, 0.45);
     opacity: 100;
     border-radius: 5px;
+    cursor: url('cursors/select.png'), pointer !important;
     border: 1px solid #ffffffaa;
     outline: none;
     font-family: 'Courier New', monospace;
     margin-bottom: 10px;
     transition: background 0.3s ease, border-color 0.3s ease;
 }
+
 
 #volume-slider:hover {
     background: rgba(0, 0, 0, 0.6);
@@ -698,8 +709,8 @@ label {
     background: #fff;
     opacity: 50%;
     border-radius: 3px;
-    cursor: pointer;
     transition: background-color 0.3s ease, opacity 0.3s ease;
+    cursor: url('cursors/link.png'), pointer !important;
 }
 
 #volume-slider::-webkit-slider-thumb:hover {

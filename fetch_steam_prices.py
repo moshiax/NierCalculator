@@ -40,13 +40,13 @@ async def fetch_all_prices():
         return [result for result in results if result]
 
 def connect(timeout=666):
-    start_time = time.time()
     while True:
         try:
             socket.create_connection(("1.1.1.1", 53), timeout=timeout)
             return True
         except OSError:
             time.sleep(5)
+            
 async def main():
     connect()
     price_data = await fetch_all_prices()

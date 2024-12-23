@@ -43,13 +43,10 @@ def connect(timeout=666):
     start_time = time.time()
     while True:
         try:
-            socket.create_connection(("1.1.1.1", 53), timeout=666)
+            socket.create_connection(("1.1.1.1", 53), timeout=timeout)
             return True
         except OSError:
-            if time.time() - start_time > timeout:
-                pass
             time.sleep(5)
-
 async def main():
     connect()
     price_data = await fetch_all_prices()

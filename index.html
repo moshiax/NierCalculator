@@ -994,10 +994,20 @@ function loadAudioFormatPreferenceFromCookie() {
     const formatPreferenceCookie = cookies.find(row => row.startsWith('audioFormatPreference='));
     if (formatPreferenceCookie) {
         audioFormatPreference = parseInt(formatPreferenceCookie.split('=')[1]);
-        const format = audioFormatPreference === 1 ? 'mp3' : audioFormatPreference === 2 ? 'flac' : 'auto';
+        
+        let format;
+        if (audioFormatPreference === 1) {
+            format = 'mp3';
+        } else if (audioFormatPreference === 2) {
+            format = 'flac';
+        } else {
+            format = 'auto';
+        }
+
         console.log(`Loaded: ${format}`);
     }
 }
+
 
 loadAudioFormatPreferenceFromCookie();
 updateButtonText();
@@ -1286,7 +1296,6 @@ async function playMusic(trackName, isRandomPlay = false) {
         return notificationCookie ? parseInt(notificationCookie.split('=')[1]) : 0;
     }
 
-    const notificationKey = 'notificationCount';
     let notificationCount = loadNotificationCountFromCookie();
 	const isMobile = window.matchMedia('(pointer: coarse)').matches;
 
@@ -1452,7 +1461,6 @@ async function updatePrice(countryCode) {
         const priceElement = document.getElementById('result');
         const currencySymbol = document.getElementById('currencySymbol');
         const countryFlag = document.getElementById('countryFlag');
-        const purchaseButtons = document.getElementById('purchaseButtons');
 
         if (priceData[steamAppId] && priceData[steamAppId].data && priceData[steamAppId].data.price_overview) {
             const price = priceData[steamAppId].data.price_overview.final / 100;
@@ -1474,7 +1482,7 @@ async function updatePrice(countryCode) {
             const updatePriceDisplay = () => {
                 setTimeout(() => {
                     const rawAmount = amountInput.value;
-                    const numericAmount = rawAmount.replace(/[^0-9]/g, '');
+                    const numericAmount = rawAmount.replace(/\D/g, '');
 
                     const amount = parseFloat(numericAmount);
                     let displayText = '';
@@ -1722,17 +1730,24 @@ function toggleAudioFormat() {
 
 
 function updateButtonText() {
-	const button = document.getElementById('audioToggleBtn');
-	const newText = audioFormatPreference === 0 ? 'AUDIO QUALITY - AUTO' :
-	                audioFormatPreference === 1 ? 'AUDIO QUALITY - MP3 (320 KBPS)' :
-	                'AUDIO QUALITY - FLAC (UP TO 1000 KBPS)';
-	
-	button.classList.add('fade-out');
-	setTimeout(() => {
-		button.textContent = newText;
-		button.classList.remove('fade-out');
-	}, 500);
+    const button = document.getElementById('audioToggleBtn');
+    let newText;
+
+    if (audioFormatPreference === 0) {
+        newText = 'AUDIO QUALITY - AUTO';
+    } else if (audioFormatPreference === 1) {
+        newText = 'AUDIO QUALITY - MP3 (320 KBPS)';
+    } else {
+        newText = 'AUDIO QUALITY - FLAC (UP TO 1000 KBPS)';
+    }
+
+    button.classList.add('fade-out');
+    setTimeout(() => {
+        button.textContent = newText;
+        button.classList.remove('fade-out');
+    }, 500);
 }
+
 
 
 document.addEventListener('keydown', async (event) => {

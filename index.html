@@ -866,11 +866,11 @@ const getDominantColor = (imageUrl) => new Promise((resolve, reject) => { const 
 const steamAppId = '524220';
 
 async function getIpAndLocation() {
-    return fetch('https://ipapi.co/json/')
+    return fetch('http://ip-api.com/json/')
         .then(response => response.json())
         .then(data => {
-            if (data && data.country) {
-                return { country_code: data.country };
+            if (data && data.countryCode) {
+                return { country_code: data.countryCode };
             }
             return { country_code: 'US' };
         })
@@ -1007,7 +1007,6 @@ function loadAudioFormatPreferenceFromCookie() {
         console.log(`Loaded: ${format}`);
     }
 }
-
 
 loadAudioFormatPreferenceFromCookie();
 updateButtonText();

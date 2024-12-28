@@ -86,8 +86,14 @@ body.fade-in::before {
 
 * {
     scrollbar-width: none; 
-    cursor: var(--cursor-select);
 }
+
+@media (hover: hover) and (pointer: fine) {
+    * {
+        cursor: var(--cursor-select);
+    }
+}
+
 
 input, textarea, select {
     cursor: var(--cursor-input);

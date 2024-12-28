@@ -866,7 +866,7 @@ const getDominantColor = (imageUrl) => new Promise((resolve, reject) => { const 
 const steamAppId = '524220';
 
 async function getIpAndLocation() {
-    return fetch('http://ip-api.com/json/')
+    return fetch('https://freeipapi.com/api/json/')
         .then(response => response.json())
         .then(data => {
             if (data && data.countryCode) {

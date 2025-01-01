@@ -1625,40 +1625,37 @@ function containsAllWords(inputText, phraseKey) {
 async function changeBackground(imageUrl) {
     const body = document.body;
     imageUrl = weburl + imageUrl;
-    const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
 
+    const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
     if (currentBackground === imageUrl) return;
 
     body.classList.add('fade-in');
 
     try {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = imageUrl;
+        await new Promise((resolve, reject) => {
+            const tempDiv = document.createElement('div');
+            tempDiv.style.backgroundImage = `url(${imageUrl})`;
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px'; 
+            document.body.appendChild(tempDiv);
 
-        img.onload = async () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.src = imageUrl;
 
-            canvas.width = img.width;
-            canvas.height = 10;
-            ctx.drawImage(img, 0, img.height - 10, img.width, 10, 0, 0, img.width, 10);
+            img.onload = () => {
+                resolve();
+                document.body.removeChild(tempDiv);
+            };
+            img.onerror = () => {
+                reject(new Error('Image failed to load'));
+                document.body.removeChild(tempDiv);
+            };
+        });
 
-            const dominantColor = await extractDominantColor(canvas);
-
-            body.style.backgroundColor = `rgb(${dominantColor.join(', ')})`;
-
-            setTimeout(() => {
-                body.style.backgroundImage = `url(${imageUrl})`;
-            }, 200);
-
-            setTimeout(() => {
-                body.classList.remove('fade-in');
-            }, 1000);
-        };
-
-        img.onerror = () => {
-        };
+        body.style.backgroundImage = `url(${imageUrl})`;
+        setTimeout(() => {
+            body.classList.remove('fade-in');
+        }, 1000);
     } catch (error) {
         console.error('Error:', error);
     }
@@ -1989,9 +1986,10 @@ window.addEventListener('load', async function() {
 
     await new Promise(resolve => setTimeout(resolve, 250));
     overlay.classList.add('hide');
-    await new Promise(resolve => setTimeout(resolve, 900));
-    overlay.style.display = 'none';
-    console.log("Overlay hidden");
+	await new Promise(resolve => setTimeout(resolve, 900));
+	overlay.style.display = 'none';
+	console.log("Overlay hidden");
+
     if (globalDiscountPercent && globalDiscountPercent !== 0) {
         showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);
     } else {

@@ -1987,8 +1987,7 @@ window.addEventListener('load', async function() {
 
     console.log("Background set and price updated");
 
-	await new Promise(resolve => setTimeout(resolve, location.protocol === "file:" ? 550 : 250));
-
+    await new Promise(resolve => setTimeout(resolve, 250));
     overlay.classList.add('hide');
     await new Promise(resolve => setTimeout(resolve, 900));
     overlay.style.display = 'none';

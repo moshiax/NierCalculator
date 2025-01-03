@@ -1145,7 +1145,6 @@ async function fadeOutAudio(audio, duration = 1000) {
             } else {
                 clearInterval(fadeOutInterval);
                 audio.pause();
-                audio.currentTime = 0;
                 resolve();
             }
         }, 50);
@@ -1741,7 +1740,7 @@ function handleKeyAction(key) {
             const currentAudio = document.getElementById('current-audio');
             if (currentAudio) {
                 if (currentAudio.paused) {
-					currentAudio.play()
+					fadeOutAudio(currentAudio)
                     isPlaying = true;
                 } else {
                     fadeOutAudio(currentAudio).then(() => {

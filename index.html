@@ -1187,6 +1187,8 @@ function smoothSetSliderValue(slider, targetValue) {
 }
 
 document.addEventListener('keydown', (event) => {
+    const isTyping = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
+    if (isTyping) return; 
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
         audioVolume = event.key === 'ArrowUp'
             ? Math.min(audioVolume + 0.05, 1)

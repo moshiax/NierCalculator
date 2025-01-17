@@ -829,6 +829,7 @@ label {
                 Pause by <span class="notification-key" data-key="[P]">[P]</span>,<br>
                 Play next by <span class="notification-key" data-key="[N]">[N]</span>,<br>
                 Switch the quality of audio by <span class="notification-key" data-key="[Q]">[Q]</span>,<br>
+				Loop current song by <span class="notification-key" data-key="[L]">[L]</span>,<br>
                 And volume by arrow keys.
             </p>
         </div>
@@ -1014,7 +1015,7 @@ window.addEventListener('click', (event) => {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
-
+let loop = false;
 let isPlaying = false; 
 let currentTrack = '';
 let audioContext;
@@ -1311,22 +1312,24 @@ async function playMusic(trackName, isRandomPlay = false) {
     img.crossOrigin = 'anonymous';
     img.src = artworkSrc;
 
-    audio.onended = () => {
-        isPlaying = false;
-        currentTrackAudioSrc = '';
-        if (canvas) document.body.removeChild(canvas);
-        if (audioContext) {
-            audioContext.close();
-            audioContext = null;
-        }
-        updatePlayIcon();
+	audio.onended = () => {
+		isPlaying = false;
+		currentTrackAudioSrc = '';
+		if (canvas) document.body.removeChild(canvas);
+		if (audioContext) {
+			audioContext.close();
+			audioContext = null;
+		}
+		updatePlayIcon();
 
-        if (isRandomPlay) {
-            playRandomMusic();
-        } else {
-            toggleVisibility();
-        }
-    };
+		if (loop) {
+			playMusic(trackName, isRandomPlay);
+		} else if (isRandomPlay) {
+			playRandomMusic();
+		} else {
+			toggleVisibility();
+		}
+	};
 
     isPlaying = true;
     currentTrackAudioSrc = audioSrc;
@@ -1353,21 +1356,12 @@ async function playMusic(trackName, isRandomPlay = false) {
     let notificationCount = loadNotificationCountFromCookie();
 	const isMobile = window.matchMedia('(pointer: coarse)').matches;
 
-	if (notificationCount < 3 && !isMobile) {
-		showNotification(
-			'You can switch the UI by pressing [H] on keyboard,\n' +
-			'Pause by [P],\n' +
-			'Play next by [N],\n' +
-			'Switch the quality of audio by [Q], \n' +
-			'And volume by arrowkeys'
-		);
-		notificationCount++;
-		saveNotificationCountToCookie(notificationCount);
-	}
 
     document.body.appendChild(audio);
     fadeInAudio(audio);
     updatePlayIcon();
+	showNotification(`${phrases[trackName].title}\n${phrases[trackName].artist}`);
+
     img.onload = () => {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata.artwork = [
@@ -1743,31 +1737,6 @@ function showNotification(message) {
 }
 
 
-function handleKeyAction(key) {
-    const actions = {
-        '[H]': toggleVisibility,
-        '[P]': () => {
-            const currentAudio = document.getElementById('current-audio');
-            if (currentAudio) {
-                if (currentAudio.paused) {
-					fadeOutAudio(currentAudio)
-                    isPlaying = true;
-                } else {
-                    fadeOutAudio(currentAudio).then(() => {
-                        currentAudio.pause();
-                        isPlaying = false;
-                    });
-                }
-                updatePlayIcon();
-            }
-        },
-        '[N]': () => isPlaying && playRandomMusic(),
-        '[Q]': toggleAudioFormat,
-    };
-
-    (actions[key] || (() => console.log('Unknown key')))();
-}
-
 function toggleAudioFormat() {
 	if (audioFormatPreference === 0 || audioFormatPreference === 2) {
 		audioFormatPreference = 1;
@@ -1799,43 +1768,52 @@ function updateButtonText() {
     }, 500);
 }
 
-document.addEventListener('keydown', async (event) => {
-    const isTyping = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
-    if (isTyping) return; 
-
-    if (event.code === 'KeyH') {
-        event.preventDefault();
-        toggleVisibility();
-    }
-
-    if (event.code === 'KeyP') {
-        event.preventDefault();
-        const currentAudio = document.getElementById('current-audio');
-        if (currentAudio) {
-            if (currentAudio.paused) {
-                fadeInAudio(currentAudio); 
-                isPlaying = true;
-                updatePlayIcon();
-            } else {
-                await fadeOutAudio(currentAudio);
-                currentAudio.pause();
-                isPlaying = false;
+function handleKeyAction(key) {
+    const actions = {
+        '[H]': toggleVisibility,
+        '[P]': async () => {
+            const currentAudio = document.getElementById('current-audio');
+            if (currentAudio) {
+                if (currentAudio.paused) {
+                    fadeInAudio(currentAudio);
+                    isPlaying = true;
+                } else {
+                    await fadeOutAudio(currentAudio);
+                    currentAudio.pause();
+                    isPlaying = false;
+                }
                 updatePlayIcon();
             }
-        }
-    }
+        },
+        '[N]': () => isPlaying && playRandomMusic(),
+        '[Q]': toggleAudioFormat,
+        '[L]': () => {
+            loop = !loop;
+            showNotification(`Current song now will ${loop ? '' : 'not '}be looped infinitely`);
+        },
+    };
 
-    if (event.code === 'KeyN' && isPlaying) {
-        event.preventDefault();
-        playRandomMusic();
-    }
+    (actions[key] || (() => console.log('Unknown key')))();
+}
 
-    if (event.code === 'KeyQ') {
+document.addEventListener('keydown', async (event) => {
+    const isTyping = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
+    if (isTyping) return;
+
+    const keyMap = {
+        'KeyH': '[H]',
+        'KeyP': '[P]',
+        'KeyN': '[N]',
+        'ArrowRight': '[N]',
+        'KeyQ': '[Q]',
+        'KeyL': '[L]',
+    };
+
+    if (keyMap[event.code]) {
         event.preventDefault();
-        toggleAudioFormat();
+        await handleKeyAction(keyMap[event.code]);
     }
 });
-
 
 function toggleVisibility() {
     const elementsToToggle = [

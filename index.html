@@ -1815,25 +1815,33 @@ document.addEventListener('keydown', async (event) => {
     }
 });
 
+let isVisible = false;
+
 function toggleVisibility() {
     const elementsToToggle = [
         document.querySelector('.container'),
         document.getElementById('Settings')
     ];
 
+    isVisible = !isVisible;
+
     elementsToToggle.forEach(element => {
-        if (window.getComputedStyle(element).display === 'none') {
+        if (isVisible) {
             element.style.display = '';
-            setTimeout(() => {
-                element.style.transition = 'opacity 0.5s';
+            element.style.transition = 'opacity 0.5s';
+            requestAnimationFrame(() => {
                 element.style.opacity = 1;
-            }, 10);
+            });
         } else {
             element.style.transition = 'opacity 0.5s';
             element.style.opacity = 0;
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 500);
+
+            element.addEventListener('transitionend', function handler() {
+                if (!isVisible) {
+                    element.style.display = 'none';
+                }
+                element.removeEventListener('transitionend', handler);
+            });
         }
     });
 }

@@ -1829,8 +1829,11 @@ function toggleVisibility() {
         if (isVisible) {
             element.style.display = '';
             element.style.transition = 'opacity 0.5s';
+            element.style.opacity = 0;
             requestAnimationFrame(() => {
-                element.style.opacity = 1;
+                requestAnimationFrame(() => {
+                    element.style.opacity = 1;
+                });
             });
         } else {
             element.style.transition = 'opacity 0.5s';
@@ -1846,6 +1849,7 @@ function toggleVisibility() {
     });
 }
 
+toggleVisibility();
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>

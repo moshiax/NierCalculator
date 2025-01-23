@@ -1265,11 +1265,7 @@ async function playMusic(trackName, isRandomPlay = false) {
         console.log(`Auto: ${format === '.flac' ? 'flac' : 'mp3'}`);
     }
 
-	const audioSrc = weburl + phrases[trackName].audio + format;
-	
-    if (isPlaying && currentTrackAudioSrc === audioSrc) {
-        return;
-    }
+    const audioSrc = weburl + phrases[trackName].audio + format;
 
     if (isPlaying) {
         await fadeOutAudio(document.getElementById('current-audio'));
@@ -1288,7 +1284,6 @@ async function playMusic(trackName, isRandomPlay = false) {
             ? phrases[trackName].backgroundAndroid
             : phrases[trackName].background;
 
-	
     if (!audioContext) {
         createVisualizer();
     }
@@ -1308,28 +1303,28 @@ async function playMusic(trackName, isRandomPlay = false) {
     }
 
     const img = new Image();
-	const artworkSrc = weburl + phrases[trackName].background;
+    const artworkSrc = weburl + phrases[trackName].background;
     img.crossOrigin = 'anonymous';
     img.src = artworkSrc;
 
-	audio.onended = () => {
-		isPlaying = false;
-		currentTrackAudioSrc = '';
-		if (canvas) document.body.removeChild(canvas);
-		if (audioContext) {
-			audioContext.close();
-			audioContext = null;
-		}
-		updatePlayIcon();
+    audio.onended = () => {
+        isPlaying = false;
+        currentTrackAudioSrc = '';
+        if (canvas) document.body.removeChild(canvas);
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+        updatePlayIcon();
 
-		if (loop) {
-			playMusic(trackName, isRandomPlay);
-		} else if (isRandomPlay) {
-			playRandomMusic();
-		} else {
-			toggleVisibility();
-		}
-	};
+        if (loop) {
+            playMusic(trackName, isRandomPlay);
+        } else if (isRandomPlay) {
+            playRandomMusic();
+        } else {
+            toggleVisibility();
+        }
+    };
 
     isPlaying = true;
     currentTrackAudioSrc = audioSrc;
@@ -1343,24 +1338,15 @@ async function playMusic(trackName, isRandomPlay = false) {
         toggleVisibility();
     }
 
-	function saveNotificationCountToCookie(count) {
-		document.cookie = `notificationCount=${count}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
-	}
-
-    function loadNotificationCountFromCookie() {
-        const cookies = document.cookie.split('; ');
-        const notificationCookie = cookies.find(row => row.startsWith('notificationCount='));
-        return notificationCookie ? parseInt(notificationCookie.split('=')[1]) : 0;
-    }
-
-    let notificationCount = loadNotificationCountFromCookie();
-	const isMobile = window.matchMedia('(pointer: coarse)').matches;
-
+    const isMobile = window.matchMedia('(pointer: coarse)').matches;
 
     document.body.appendChild(audio);
     fadeInAudio(audio);
     updatePlayIcon();
-	showNotification(`${phrases[trackName].title}\n${phrases[trackName].artist}`);
+
+	if (!isMobile) {
+		showNotification(`${phrases[trackName].title}\n${phrases[trackName].artist}`);
+	}
 
     img.onload = () => {
         if ('mediaSession' in navigator) {
@@ -1492,6 +1478,7 @@ function drawVisualizer() {
 const getCurrencySymbol = (currencyCode) => ({ "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "RUB": "₽", "UAH": "₴", "BRL": "R$", "CAD": "C$", "AUD": "A$", "CHF": "Fr", "CNY": "¥", "KRW": "₩", "INR": "₹", "MXN": "Mex$", "PLN": "zł", "ZAR": "R", "TRY": "₺", "AED": "د.إ", "THB": "฿", "TWD": "NT$", "SAR": "ر.س", "QAR": "ر.ق", "KWD": "د.ك", "KZT": "₸", "MYR": "RM", "IDR": "Rp", "ILS": "₪", "COP": "$", "CRC": "₡", "PEN": "S/", "PHP": "₱", "VND": "₫", "CLP": "$", "GEL": "₾", "HRK": "kn", "HUF": "Ft", "LKR": "Rs", "MDL": "L", "NOK": "kr", "RON": "lei", "SEK": "kr", "UGX": "USh", "MNT": "₮", "TZS": "TSh", "NAD": "$", "ZWL": "$", "BAM": "KM", "GHS": "₵", "BND": "$", "SBD": "$", "MOP": "MOP$", "PGK": "K" })[currencyCode] || currencyCode;
 let priceData; 
 let salenotifications = 0;
+const amountInput = document.getElementById('amount');
 
 fetch(weburl + 'price_standalone.json')
     .then(response => response.ok ? response.json() : Promise.reject('Error: ' + response.statusText))
@@ -1505,7 +1492,6 @@ async function updatePrice(countryCode) {
         const priceData = await getGamePrice(countryCode);
         console.log(`Fetched price data: `, priceData);
 
-        const amountInput = document.getElementById('amount');
         const priceElement = document.getElementById('result');
         const currencySymbol = document.getElementById('currencySymbol');
         const countryFlag = document.getElementById('countryFlag');
@@ -1562,7 +1548,6 @@ async function updatePrice(countryCode) {
             };
 
             amountInput.addEventListener('input', updatePriceDisplay);
-            console.log('Added event listener for amount input.');
 
             amountInput.addEventListener('input', () => {
                 const inputText = amountInput.value.trim().toLowerCase();

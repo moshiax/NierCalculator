@@ -1216,13 +1216,14 @@ document.getElementById('volume-slider').addEventListener('input', (event) => {
 
 
 function saveVolumeToCookie(volume) {
-    document.cookie = `audioVolume=${volume}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
+    const roundedVolume = parseFloat(volume.toFixed(2));
+    document.cookie = `audioVolume=${roundedVolume}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
 }
 
 function loadVolumeFromCookie() {
     const cookies = document.cookie.split('; ');
     const volumeCookie = cookies.find(row => row.startsWith('audioVolume='));
-    return volumeCookie ? parseFloat(volumeCookie.split('=')[1]) : null;
+    return volumeCookie ? parseFloat(parseFloat(volumeCookie.split('=')[1]).toFixed(2)) : null;
 }
 
 const volumeText = document.createElement('span');

@@ -1296,12 +1296,15 @@ async function playMusic(trackName, isRandomPlay = false) {
     await changeBackground(backgroundSrc);
     drawVisualizer();
 
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: phrases[trackName].title,
-            artist: phrases[trackName].artist,
-        });
-    }
+	if ('mediaSession' in navigator) {
+		navigator.mediaSession.metadata = new MediaMetadata({
+			title: phrases[trackName].title,
+			artist: phrases[trackName].artist,
+		});
+
+		navigator.mediaSession.setActionHandler('play', () => handleKeyAction('[P]'));
+		navigator.mediaSession.setActionHandler('nexttrack', playRandomMusic);
+	}
 
     const img = new Image();
     const artworkSrc = weburl + phrases[trackName].background;

@@ -1398,6 +1398,11 @@ function stopMusic() {
         canvas = null;
     }
 
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.playbackState = 'none';
+    }
+
     isPlaying = false;
     updatePlayIcon();
     currentTrackAudioSrc = '';

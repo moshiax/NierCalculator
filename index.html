@@ -1302,7 +1302,7 @@ async function playMusic(trackName, isRandomPlay = false) {
 			artist: phrases[trackName].artist,
 		});
 
-		navigator.mediaSession.setActionHandler('loop', () => handleKeyAction('[L]'));
+		navigator.mediaSession.setActionHandler('previoustrack', () => handleKeyAction('[L]'));
 		navigator.mediaSession.setActionHandler('play', () => handleKeyAction('[P]'));
 		navigator.mediaSession.setActionHandler('nexttrack', playRandomMusic);
 	}

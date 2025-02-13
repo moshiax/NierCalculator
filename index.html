@@ -999,10 +999,10 @@ let canvas;
 let canvasCtx;
 let currentTrackAudioSrc = '';
 let audioFormatPreference = /mobile/i.test(navigator.userAgent) ? 1 : 0;
-let audioVolume = loadVolumeFromCookie();
+let audioVolume = loadVolumeFromLocalStorage();
 audioVolume = audioVolume !== null ? audioVolume : 0.7;
 console.log(audioVolume !== 0.7 
-    ? `Volume loaded from cookie: ${audioVolume}` 
+    ? `Volume loaded from localStorage: ${audioVolume}` 
     : `Default volume set: ${audioVolume}`);
 
 let audio = null;
@@ -1010,16 +1010,16 @@ let hideTimeout;
 
 document.getElementById('volume-slider').value = audioVolume;
 
-function saveAudioFormatPreferenceToCookie() {
-    document.cookie = `audioFormatPreference=${audioFormatPreference}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
+function saveAudioFormatPreferenceToLocalStorage() {
+    localStorage.setItem('audioFormatPreference', audioFormatPreference);
 }
 
-function loadAudioFormatPreferenceFromCookie() {
-    const cookies = document.cookie.split('; ');
-    const formatPreferenceCookie = cookies.find(row => row.startsWith('audioFormatPreference='));
-    if (formatPreferenceCookie) {
-        audioFormatPreference = parseInt(formatPreferenceCookie.split('=')[1]);
-        
+function loadAudioFormatPreferenceFromLocalStorage() {
+    const storedPreference = localStorage.getItem('audioFormatPreference');
+
+    if (storedPreference !== null) {
+        audioFormatPreference = parseInt(storedPreference);
+
         let format;
         if (audioFormatPreference === 1) {
             format = 'mp3';
@@ -1033,8 +1033,8 @@ function loadAudioFormatPreferenceFromCookie() {
     }
 }
 
+loadAudioFormatPreferenceFromLocalStorage();
 
-loadAudioFormatPreferenceFromCookie();
 updateButtonText();
 
 const phrases = {
@@ -1172,7 +1172,7 @@ document.addEventListener('keydown', (event) => {
             audio.volume = audioVolume;
         }
 
-        saveVolumeToCookie(audioVolume);
+        saveVolumeToLocalStorage(audioVolume);
         showVolumeBar(audioVolume);
         smoothSetSliderValue(document.getElementById('volume-slider'), audioVolume);
     }
@@ -1183,20 +1183,17 @@ document.getElementById('volume-slider').addEventListener('input', (event) => {
     if (audio) {
         audio.volume = audioVolume;
     }
-    saveVolumeToCookie(audioVolume);
+    saveVolumeToLocalStorage(audioVolume);
     showVolumeBar(audioVolume);
 });
 
-
-function saveVolumeToCookie(volume) {
+function saveVolumeToLocalStorage(volume) {
     const roundedVolume = parseFloat(volume.toFixed(2));
-    document.cookie = `audioVolume=${roundedVolume}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
+    localStorage.setItem('audioVolume', roundedVolume);
 }
-
-function loadVolumeFromCookie() {
-    const cookies = document.cookie.split('; ');
-    const volumeCookie = cookies.find(row => row.startsWith('audioVolume='));
-    return volumeCookie ? parseFloat(parseFloat(volumeCookie.split('=')[1]).toFixed(2)) : null;
+function loadVolumeFromLocalStorage() {
+    const storedVolume = localStorage.getItem('audioVolume');
+    return storedVolume !== null ? parseFloat(parseFloat(storedVolume).toFixed(2)) : null;
 }
 
 const volumeText = document.createElement('span');
@@ -1562,8 +1559,6 @@ async function updatePrice(countryCode) {
     }
 }
 
-
-
 document.querySelectorAll('.country-list li').forEach(item => {
     item.addEventListener('click', async () => {
         const selectedCountryCode = item.dataset.countryCode;
@@ -1573,12 +1568,11 @@ document.querySelectorAll('.country-list li').forEach(item => {
         countryFlag.dataset.countryCode = selectedCountryCode;
 
         document.getElementById('countryModal').classList.remove('show');
-        document.cookie = `selectedCountryCode=${selectedCountryCode}; path=/; expires=Sun, 31 Dec 11944 23:59:59 GMT`;
+        localStorage.setItem('selectedCountryCode', selectedCountryCode);
+        
         await updatePrice(selectedCountryCode);
     });
 });
-
-
 
 function containsAllWords(inputText, phraseKey) {
     const words = phraseKey.split(' ');
@@ -1714,7 +1708,7 @@ function toggleAudioFormat() {
 		showNotification('Format changed to flac - up to 1000 kbps');
 	}
 	updateButtonText(); 
-	saveAudioFormatPreferenceToCookie(); 
+	saveAudioFormatPreferenceToLocalStorage(); 
 }
 
 function updateButtonText() {
@@ -1926,21 +1920,20 @@ async function setRandomBackground() {
 
 window.addEventListener('load', async function() {
     const overlay = document.getElementById('loadingOverlay');
-    const cookies = document.cookie.split('; ');
-    const savedCountryCode = cookies.find(cookie => cookie.startsWith('selectedCountryCode='));
-    const countryCode = savedCountryCode ? savedCountryCode.split('=')[1] : null;
-
+    const savedCountryCode = localStorage.getItem('selectedCountryCode');
     let finalCountryCode;
-    if (countryCode) {
-        finalCountryCode = countryCode;
-        console.log(`Loaded country code from cookie: ${finalCountryCode}`);
+
+    if (savedCountryCode) {
+        finalCountryCode = savedCountryCode;
+        console.log(`Loaded country code from localStorage: ${finalCountryCode}`);
     } else {
         const locationData = await getIpAndLocation();
         finalCountryCode = locationData.country_code;
+        localStorage.setItem('selectedCountryCode', finalCountryCode);
         console.log(`Determined country code by IP: ${finalCountryCode}`);
     }
 
-	document.getElementById('countryFlag').src = `${weburl}flags/${finalCountryCode.toLowerCase()}.png`;
+    document.getElementById('countryFlag').src = `${weburl}flags/${finalCountryCode.toLowerCase()}.png`;
     document.getElementById('countryFlag').setAttribute('data-country-code', finalCountryCode);
     console.log(`Country flag set for code: ${finalCountryCode}`);
 
@@ -1953,9 +1946,9 @@ window.addEventListener('load', async function() {
 
     await new Promise(resolve => setTimeout(resolve, 250));
     overlay.classList.add('hide');
-	await new Promise(resolve => setTimeout(resolve, 900));
-	overlay.style.display = 'none';
-	console.log("Overlay hidden");
+    await new Promise(resolve => setTimeout(resolve, 900));
+    overlay.style.display = 'none';
+    console.log("Overlay hidden");
 
     if (globalDiscountPercent && globalDiscountPercent !== 0) {
         showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);

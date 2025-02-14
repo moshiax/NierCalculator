@@ -1000,8 +1000,8 @@ let canvasCtx;
 let currentTrackAudioSrc = '';
 let audioFormatPreference = /mobile/i.test(navigator.userAgent) ? 1 : 0;
 let audioVolume = loadVolumeFromLocalStorage();
-audioVolume = audioVolume !== null ? audioVolume : 0.7;
-console.log(audioVolume !== 0.7 
+audioVolume = audioVolume !== null ? audioVolume : 0.5;
+console.log(audioVolume !== 0.5 
     ? `Volume loaded from localStorage: ${audioVolume}` 
     : `Default volume set: ${audioVolume}`);
 

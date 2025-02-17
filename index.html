@@ -323,7 +323,7 @@ label {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 20px;
+  padding: 0px 2%;
   background-color: rgba(0, 0, 0, .8);
   color: #fff;
   border-radius: 10px;
@@ -374,19 +374,19 @@ label {
 .notification-key {
   font-weight: 700;
   color: #fff;
-  background-color: #4a4a4a;
-  border-radius: 4px;
+  background-color: rgb(115 117 112 / 59%);
+  border-radius: 6px;
   padding: 2px 6px;
   margin: 0 2px;
-  box-shadow: 0 0 5px rgba(255, 255, 255, .6);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
   transition: background-color .3s ease, box-shadow .3s ease;
   font-family: 'Courier New', monospace;
   user-select: none;
   cursor: var(--cursor-button);
 
   &:hover {
-    background-color: #6a6a6a;
-    box-shadow: 0 0 10px #fff;
+	box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+	background-color: rgba(182, 189, 174, 0.8);
   }
 }
 
@@ -1202,6 +1202,7 @@ async function playMusic(trackName, isRandomPlay = false) {
         : phrases[trackName].backgroundAndroid;
 
     const artAuthor = chosenBackground[backgroundSrc]?.author;
+    const artLink = chosenBackground[backgroundSrc]?.link;
 
     if (!audioContext) {
         createVisualizer();
@@ -1267,21 +1268,24 @@ async function playMusic(trackName, isRandomPlay = false) {
     fadeInAudio(audio);
     updatePlayIcon();
 
-	const trackInfo = {
-		track: phrases[trackName].audio.title,
-		artist: phrases[trackName].audio.artist,
-		background: backgroundSrc,
-		artAuthor: artAuthor || 'Unknown',
-	};
+    const trackInfo = {
+        track: phrases[trackName].audio.title,
+        artist: phrases[trackName].audio.artist,
+        background: backgroundSrc,
+        artAuthor: artAuthor || 'Unknown',
+        artLink: artLink || ''
+    };
 
-	console.log(trackInfo);
+    console.log(trackInfo);
 
 	if (!isMobile) {
+		let message = `${phrases[trackName].audio.title}\n${phrases[trackName].audio.artist}`;
+
 		if (artAuthor && artAuthor !== 'Square Enix') {
-			showNotification(`${phrases[trackName].audio.title}\n${phrases[trackName].audio.artist}\nArt: ${artAuthor || 'Unknown'}`);
-		} else {
-			showNotification(`${phrases[trackName].audio.title}\n${phrases[trackName].audio.artist}`);
+			message += `<br>Art: <span class="notification-key" data-key="LINK=${artLink}">${artAuthor}</span>`;
 		}
+
+		showNotification(message);
 	}
 
     img.onload = () => {
@@ -1652,6 +1656,12 @@ function showNotification(message) {
     notification.style.display = 'block';
     notification.style.animation = 'fadeIn 0.5s ease-in-out';
 
+    const notificationObj = {
+        message: formattedMessage,
+        timestamp: new Date().toISOString()
+    };
+    console.log('Notification:', notificationObj);
+
     setTimeout(() => {
         notification.style.animation = 'fadeOut 0.5s ease-in-out';
         setTimeout(() => {
@@ -1715,9 +1725,20 @@ function handleKeyAction(key) {
             loop = !loop;
             showNotification(`Current song now will ${loop ? '' : 'not '}be looped infinitely`);
         },
+        'LINK': (link) => {
+            if (link) {
+                window.open(link, '_blank');
+            }
+        }
     };
 
-    (actions[key] || (() => console.log('Unknown key')))();
+    const match = key.match(/^LINK=(.+)$/);
+    if (match) {
+        const link = match[1];
+        (actions['LINK'] || (() => console.log(`Unknown LINK key`)))(link);
+    } else {
+        (actions[key] || (() => console.log(`Unknown key: ${key}`)))();
+    }
 }
 
 document.addEventListener('keydown', async (event) => {

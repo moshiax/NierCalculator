@@ -1885,12 +1885,12 @@ function showPurchaseButtons() {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+const date = new Date();
+const month = date.getMonth();
+const day = date.getDate();
+console.log(date);
 
 async function setRandomBackground() {
-    const d = new Date();
-    const month = d.getMonth();
-    const day = d.getDate();
-
     const aspectRatio = window.innerWidth / window.innerHeight;
     console.log(`aspectRatio: ${aspectRatio}`);
 

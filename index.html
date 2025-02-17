@@ -934,8 +934,6 @@ async function getGamePrice(countryCode) {
             }
 
             const contents = await response.text();
-            console.log(`Received response from proxy in ${duration}ms`);
-
             const data = JSON.parse(contents);
 
             if (data[steamAppId]?.data?.price_overview) {
@@ -1037,74 +1035,19 @@ loadAudioFormatPreferenceFromLocalStorage();
 
 updateButtonText();
 
-const phrases = {
-	// "Weight of the World"
-	'end of yorha': { audio: 'music/Weight of the World the End of YoRHa', background: 'backgrounds/background01.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Weight of the World the End of YoRHa', artist: 'Keiichi Okabe, Vocals & Chorus: YoRHa' },
-	'weight world': { audio: 'music/Weight of the World⧸English Version', background: 'backgrounds/background02.jpg', backgroundAndroid: 'backgrounds/android1.jpg', title: 'Weight of the World English Version', artist: 'Keiichi Okabe, Vocals: J\'Nique Nicole' },
-	'jap': { audio: 'music/Weight of the World Japanese', background: 'backgrounds/background02.jpg', backgroundAndroid: 'backgrounds/android1.jpg', title: 'Weight of the World Kowaretasekainouta', artist: 'Keiichi Okabe, Vocals: Marina Kawano' },
-	'fr': { audio: 'music/Weight of the World French', background: 'backgrounds/background02.jpg', backgroundAndroid: 'backgrounds/android1.jpg', title: 'Weight of the World Nouveau - FR Version', artist: 'Keiichi Okabe, Vocals: Emi Evans' },
+const xhr = new XMLHttpRequest();
+xhr.open('GET', weburl + 'songs.js', false);
+xhr.send();
 
-	// "Voice of no Return"
-	'voice return': { audio: 'music/Voice of no Return - Guitar', background: 'backgrounds/background11.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Voice of No Return - Guitar', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-	'normal': { audio: 'music/Voice of no Return - Normal', background: 'backgrounds/background11.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Voice of No Return - Normal', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
+if (xhr.status === 200) {
+  const script = document.createElement('script');
+  script.textContent = xhr.responseText;
+  document.head.appendChild(script);
+} else {
+  console.error('Err:', xhr.status);
+}
 
-	// "Song of the Ancients"
-	'atonement': { audio: 'music/Song of the Ancients - Atonement', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Song of the Ancients - Atonement', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-	'song ancients': { audio: 'music/Song of the Ancients - Atonement', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Song of the Ancients - Atonement', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-
-	// "Wretched Weaponry"
-	'dynamic': { audio: 'music/Wretched Weaponry Dynamic', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Wretched Weaponry: Medium/Dynamic', artist: 'Keiichi Okabe, Vocals?: Emi Evans, Nami Nakagawa' },
-	'quiet': { audio: 'music/Wretched Weaponry Quiet', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Wretched Weaponry: Quiet', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-	'wretched weaponry': { audio: 'music/Wretched Weaponry Dynamic', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Wretched Weaponry: Medium/Dynamic', artist: 'Keiichi Okabe, Vocals?: Emi Evans, Nami Nakagawa' },
-
-
-	// Fights
-	'bipolar nightmare': { audio: 'music/Bipolar Nightmare', background: 'backgrounds/background03.jpg', backgroundAndroid: 'backgrounds/android03.jpg', title: 'Bipolar Nightmare', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa, NieR:Automata Choir' },
-	'significance': { audio: 'music/Significance', background: 'backgrounds/background04.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Significance', artist: 'Keiichi Okabe, Vocals?: Marina Kawano, Emi Evans' },
-	'beautiful song': { audio: 'music/Beautiful Song', background: 'backgrounds/background10.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'A Beautiful Song', artist: 'Keigo Hoashi, Vocals?: Emi Evans, J\'Nique Nicole, NieR:Automata Choir' },
-	'dark colossus': { audio: 'music/Dark Colossus - Kaiju', background: 'backgrounds/darkcolossus.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Dark Colossus - Kaiju', artist: 'Keigo Hoashi & Keiichi Okabe, Vocals?: Emi Evans' },
-	'war war': { audio: 'music/War & War', background: 'backgrounds/background.jpg', backgroundAndroid: 'backgrounds/android2.jpg', title: 'War & War', artist: 'Keigo Hoashi & Keiichi Okabe, Vocals?: NieR:Automata Choir' },
-	'grandma destruction': { audio: 'music/Grandma - Destruction', background: 'backgrounds/background13.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Grandma - Destruction', artist: 'Kuniyuki Takahashi & Keiichi Okabe, Vocals?: NieR:Automata Choir' },
-
-	// Places
-	'rays light': { audio: 'music/City Ruins - Rays of Light', background: 'backgrounds/background05.jpg', backgroundAndroid: 'backgrounds/android05.jpg', title: 'City Ruins - Rays of Light', artist: 'Keiichi Okabe, Vocals?: J\'Nique Nicole' },
-	'shade': { audio: 'music/City Ruins - Shade', background: 'backgrounds/shade.jpg', backgroundAndroid: 'backgrounds/shade-android.jpg', title: 'City Ruins - Shade', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-	'copied city': { audio: 'music/Copied City', background: 'backgrounds/copiedcity.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Copied City', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa' },
-	'memories dust': { audio: 'music/Memories of Dust', background: 'backgrounds/background07.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Memories of Dust', artist: 'Kuniyuki Takahashi, Vocals?: J\'Nique Nicole' },
-	'forest kingdom': { audio: 'music/Forest Kingdom', background: 'backgrounds/background02.jpg', backgroundAndroid: 'backgrounds/android02.jpg', title: 'Forest Kingdom', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa' },
-	'pascal': { audio: 'music/Pascal', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Pascal', artist: 'Keiichi Okabe, Vocals?: Saki Ishii' },
-	'amusement park': { audio: 'music/Amusement Park', background: 'backgrounds/background09.jpg', backgroundAndroid: 'backgrounds/android4.jpg', title: 'Amusement Park', artist: 'Keigo Hoashi, Vocals?: Emi Evans' },
-	'tower': { audio: 'music/The Tower', background: 'backgrounds/backgroundtower.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'The Tower', artist: 'Keiichi Okabe, Vocals?: Emi Evans, J\'Nique Nicole' },
-	'sound end': { audio: 'music/The Sound of the End', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'The Sound of the End', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa' },
-	'alien': { audio: 'music/Alien Manifestation', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Alien Manifestation', artist: 'Keigo Hoashi & Keiichi Okabe, Vocals?: Nami Nakagawa' },
-
-	// Ambient
-	'peaceful sleep': { audio: 'music/Peaceful Sleep', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Peaceful Sleep', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-	'birth wish': { audio: 'music/Birth of a Wish', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Birth of a Wish', artist: 'Keiichi Okabe, Vocals?: NieR:Automata Choir' },
-	'dawn breeze': { audio: 'music/Faltering Prayer - Dawn Breeze', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Faltering Prayer - Dawn Breeze', artist: 'Keigo Hoashi & Keiichi Okabe, Vocals?: Emi Evans' },
-	'cold rain': { audio: 'music/Vague Hope - Cold Rain', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Vague Hope - Cold Rain', artist: 'Keigo Hoashi, Vocals?: Emi Evans' },
-	'spring rain': { audio: 'music/Vague Hope - Spring Rain', background: 'backgrounds/springrain.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Vague Hope - Spring Rain', artist: 'Keigo Hoashi, Vocals?: Emi Evans' },
-	'nothing': { audio: 'music/Significance - Nothing', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Significance - Nothing', artist: 'Keiichi Okabe, Vocals?: J\'Nique Nicole' },
-	'rebirth hope': { audio: 'music/Rebirth & Hope', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Rebirth & Hope', artist: 'Keigo Hoashi, Vocals?: Emi Evans, Nami Nakagawa, Marina Kawano' },
-	'treasured times': { audio: 'music/Treasured Times', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Treasured Times', artist: 'Keigo Hoashi, Vocals?: Saki Ishii' },
-	'end unknown': { audio: 'music/End of the Unknown', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'End of the Unknown', artist: 'Keiichi Okabe, Vocals?: NieR:Automata Choir' },
-	'starry sky': { audio: 'music/Starry Sky', background: 'backgrounds/starrysky.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Starry Sky', artist: 'Keigo Hoashi & Keiichi Okabe, Vocals?: Emi Evans' },
-
-	// Emil
-	'emil shop': { audio: 'music/Emils Shop', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Emil\'s Shop', artist: 'Kuniyuki Takahashi & Kakeru Ishihama, Vocals?: Mai Kadowaki' },
-	'emil despair': { audio: 'music/Emil - Despair', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Emil - Despair', artist: 'Keigo Hoashi & Kakeru Ishihama, Vocals?: Nami Nakagawa' },
-
-	// Other
-	'crumbling lies': { audio: 'music/Crumbling Lies', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Crumbling Lies', artist: 'Keigo Hoashi, Vocals?: NieR:Automata Choir' },
-	'fortress lies': { audio: 'music/Fortress of Lies', background: 'backgrounds/fortressoflies.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Fortress of Lies', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
-	'widespread illness': { audio: 'music/Widespread Illness', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Widespread Illness', artist: 'Keigo Hoashi' },
-	'blissful death': { audio: 'music/Blissful Death', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Blissful Death', artist: 'Keiichi Okabe' },
-	'mourning': { audio: 'music/Mourning', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Mourning', artist: 'Keiichi Okabe, Vocals?: NieR:Automata Choir' },
-	'dependent weakling': { audio: 'music/Dependent Weakling', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Dependent Weakling', artist: 'Kuniyuki Takahashi, Vocals?: NieR:Automata Choir' },
-	'possessed disease': { audio: 'music/Possessed by Disease', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Possessed by Disease', artist: 'Keiichi Okabe, Vocals?: Nami Nakagawa' },
-	'broken heart': { audio: 'music/Broken Heart', background: 'backgrounds/!!!!!!!!!.jpg', backgroundAndroid: 'backgrounds/!!!!!!!!!.jpg', title: 'Broken Heart', artist: 'Keigo Hoashi, Vocals?: Emi Evans' },
-
-};
+console.log(phrases);
 
 async function fadeOutAudio(audio, duration = 1000) {
     if (!audio) return;
@@ -1236,7 +1179,7 @@ async function playMusic(trackName, isRandomPlay = false) {
         console.log(`Auto: ${format === '.flac' ? 'flac' : 'mp3'}`);
     }
 
-    const audioSrc = weburl + phrases[trackName].audio + format;
+    const audioSrc = weburl + phrases[trackName].audio.src + format;
 
     if (isPlaying) {
         await fadeOutAudio(document.getElementById('current-audio'));
@@ -1249,11 +1192,19 @@ async function playMusic(trackName, isRandomPlay = false) {
     audio.volume = audioVolume;
     const aspectRatio = window.innerWidth / window.innerHeight;
 
+    const getBackgroundSrc = (bgObj) => Object.keys(bgObj)[0];
+
     const backgroundSrc =
         (Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9) &&
-            phrases[trackName].backgroundAndroid !== "backgrounds/!!!!!!!!!.jpg")
-            ? phrases[trackName].backgroundAndroid
-            : phrases[trackName].background;
+            getBackgroundSrc(phrases[trackName].backgroundAndroid) !== "backgrounds/!!!!!!!!!.jpg")
+            ? getBackgroundSrc(phrases[trackName].backgroundAndroid)
+            : getBackgroundSrc(phrases[trackName].background);
+
+    const chosenBackground = backgroundSrc === getBackgroundSrc(phrases[trackName].background)
+        ? phrases[trackName].background
+        : phrases[trackName].backgroundAndroid;
+
+    const artAuthor = chosenBackground[backgroundSrc]?.author;
 
     if (!audioContext) {
         createVisualizer();
@@ -1266,19 +1217,19 @@ async function playMusic(trackName, isRandomPlay = false) {
     await changeBackground(backgroundSrc);
     drawVisualizer();
 
-	if ('mediaSession' in navigator) {
-		navigator.mediaSession.metadata = new MediaMetadata({
-			title: phrases[trackName].title,
-			artist: phrases[trackName].artist,
-		});
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: phrases[trackName].audio.title,
+            artist: phrases[trackName].audio.artist,
+        });
 
-		navigator.mediaSession.setActionHandler('previoustrack', () => handleKeyAction('[L]'));
-		navigator.mediaSession.setActionHandler('play', () => handleKeyAction('[P]'));
-		navigator.mediaSession.setActionHandler('nexttrack', playRandomMusic);
-	}
+        navigator.mediaSession.setActionHandler('previoustrack', () => handleKeyAction('[L]'));
+        navigator.mediaSession.setActionHandler('play', () => handleKeyAction('[P]'));
+        navigator.mediaSession.setActionHandler('nexttrack', playRandomMusic);
+    }
 
     const img = new Image();
-    const artworkSrc = weburl + phrases[trackName].background;
+    const artworkSrc = weburl + getBackgroundSrc(phrases[trackName].background);
     img.crossOrigin = 'anonymous';
     img.src = artworkSrc;
 
@@ -1319,8 +1270,21 @@ async function playMusic(trackName, isRandomPlay = false) {
     fadeInAudio(audio);
     updatePlayIcon();
 
+	const trackInfo = {
+		track: phrases[trackName].audio.title,
+		artist: phrases[trackName].audio.artist,
+		background: backgroundSrc,
+		artAuthor: artAuthor || 'Unknown',
+	};
+
+	console.log(trackInfo);
+
 	if (!isMobile) {
-		showNotification(`${phrases[trackName].title}\n${phrases[trackName].artist}`);
+		if (artAuthor && artAuthor !== 'Square Enix') {
+			showNotification(`${phrases[trackName].audio.title}\n${phrases[trackName].audio.artist}\nArt: ${artAuthor || 'Unknown'}`);
+		} else {
+			showNotification(`${phrases[trackName].audio.title}\n${phrases[trackName].audio.artist}`);
+		}
 	}
 
     img.onload = () => {
@@ -1903,20 +1867,39 @@ function showPurchaseButtons() {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
-
 async function setRandomBackground() {
+    const d = new Date();
+    const month = d.getMonth();
+    const day = d.getDate();
+
     const aspectRatio = window.innerWidth / window.innerHeight;
     console.log(`aspectRatio: ${aspectRatio}`);
 
-    const backgrounds = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9) 
-        ? ['backgrounds/android1.jpg', 'backgrounds/android4.jpg'] 
-        : ['backgrounds/background.jpg', 'backgrounds/background02.jpg'];
+    const special = {
+        '11-25': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
+        '11-31': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
+        '0-1': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
+        '0-7': ['bonus/winter.jpg', 'bonus/winterpc.jpg']
+    };
 
-    const selectedBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+    const key = `${month}-${day}`;
+    let selectedBackground;
+
+    if (special[key]) {
+        selectedBackground = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)
+            ? special[key][0]
+            : special[key][1];
+    } else {
+        const backgrounds = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)
+            ? ['backgrounds/android01.jpg', 'backgrounds/android07.jpg', 'backgrounds/android06.jpg']
+            : ['backgrounds/background.jpg', 'backgrounds/background02.jpg'];
+
+        selectedBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+    }
+
     console.log(`Selected background: ${selectedBackground}`);
     await changeBackground(selectedBackground);
 }
-
 
 window.addEventListener('load', async function() {
     const overlay = document.getElementById('loadingOverlay');

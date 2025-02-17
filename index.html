@@ -69,11 +69,6 @@ body.fade-in::before {
     opacity: 1;
 }
 
-::selection {
-  background-color: rgba(163, 163, 163, 0.25);
-  color: #FFFFFF;
-}
-
 ::-moz-selection {
   background-color: rgba(163, 163, 163, 0.25);
   color: #FFFFFF; 
@@ -102,6 +97,8 @@ input, textarea, select {
 
 ::selection {
     cursor: var(--cursor-input);
+	background-color: rgba(163, 163, 163, 0.25);
+    color: #FFFFFF;
 }
 
 :root {
@@ -1298,6 +1295,7 @@ async function playMusic(trackName, isRandomPlay = false) {
             ];
         }
     };
+	console.log(navigator.mediaSession);
 
     const amountInput = document.getElementById('amount');
     if (amountInput) {
@@ -1891,7 +1889,7 @@ async function setRandomBackground() {
             : special[key][1];
     } else {
         const backgrounds = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)
-            ? ['backgrounds/android01.jpg', 'backgrounds/android07.jpg', 'backgrounds/android06.jpg']
+            ? ['backgrounds/android01.jpg', 'backgrounds/android09.jpg', 'backgrounds/android06.jpg']
             : ['backgrounds/background.jpg', 'backgrounds/background02.jpg'];
 
         selectedBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];

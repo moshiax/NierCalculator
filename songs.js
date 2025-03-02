@@ -20,7 +20,7 @@ const phrases = {
 
 	'fr': { 
 		audio: { src: 'music/Weight of the World French', artist: 'Keiichi Okabe, Vocals: Emi Evans', title: 'Weight of the World Nouveau - FR Version' }, 
-		background: { 'backgrounds/background02.jpg': {} }, 
+		background: { 'backgrounds/background02.jpg': { author: 'Square Enix', link: 'https://www.square-enix.com' } }
 		backgroundAndroid: { 'backgrounds/android01.jpg': {} }
 	},
 	// "Voice of no Return"
@@ -102,7 +102,7 @@ const phrases = {
 	'rays light': {
 		audio: { src: 'music/City Ruins - Rays of Light', title: 'City Ruins - Rays of Light', artist: 'Keiichi Okabe, Vocals?: J\'Nique Nicole' },
 		background: { 'backgrounds/background05.jpg': {} },
-		backgroundAndroid: { 'backgrounds/android05.jpg': {} }
+		backgroundAndroid: { 'backgrounds/android05.jpg': { author: 'redeyehare', link: 'https://redeyehare.artstation.com' } }
 	},
 	'shade': {
 		audio: { src: 'music/City Ruins - Shade', title: 'City Ruins - Shade', artist: 'Keiichi Okabe, Vocals?: Emi Evans' },
@@ -116,12 +116,12 @@ const phrases = {
 	},
 	'memories dust': {
 		audio: { src: 'music/Memories of Dust', title: 'Memories of Dust', artist: 'Kuniyuki Takahashi, Vocals?: J\'Nique Nicole' },
-		background: { 'backgrounds/background07.jpg': {} },
+		background: { 'backgrounds/background07.jpg': { author: 'Square Enix', link: 'https://www.square-enix.com' } }
 		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
 	},
 	'forest kingdom': {
 		audio: { src: 'music/Forest Kingdom', title: 'Forest Kingdom', artist: 'Keigo Hoashi, Vocals?: Nami Nakagawa' },
-		background: { 'backgrounds/background02.jpg': {} },
+		background: { 'backgrounds/background02.jpg': { author: 'Square Enix', link: 'https://www.square-enix.com' } }
 		backgroundAndroid: { 'backgrounds/android02.jpg': { author: 'SIRDINHOSAUR', link: 'https://sirdinhosaur.carrd.co' } }
 	},
 	'pascal': {

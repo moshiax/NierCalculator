@@ -1387,7 +1387,7 @@ function createVisualizer() {
         canvasCtx = canvas.getContext('2d');
 
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
+        analyser.fftSize = 512;
         bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
     }

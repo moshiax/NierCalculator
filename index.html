@@ -815,6 +815,11 @@ const weburl = location.protocol === "file:"
 console.log("Location Protocol:", location.protocol);
 console.log("Web URL:", weburl);
 
+class AspectRatio {
+    static get value() {
+        return window.innerWidth / window.innerHeight;
+    }
+}
 document.documentElement.style.setProperty('--cursor-button', `url('${weburl}cursors/button.png'), pointer`);
 document.documentElement.style.setProperty('--cursor-select', `url('${weburl}cursors/select.png'), pointer`);
 document.documentElement.style.setProperty('--cursor-input', `url('${weburl}cursors/input.png'), text`);
@@ -1187,12 +1192,10 @@ async function playMusic(trackName, isRandomPlay = false) {
     audio.crossOrigin = 'anonymous';
     audio.id = 'current-audio';
     audio.volume = audioVolume;
-    const aspectRatio = window.innerWidth / window.innerHeight;
-
     const getBackgroundSrc = (bgObj) => Object.keys(bgObj)[0];
 
     const backgroundSrc =
-        (Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9) &&
+        (Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9) &&
             getBackgroundSrc(phrases[trackName].backgroundAndroid) !== "backgrounds/!!!!!!!!!.jpg")
             ? getBackgroundSrc(phrases[trackName].backgroundAndroid)
             : getBackgroundSrc(phrases[trackName].background);
@@ -1387,7 +1390,7 @@ function createVisualizer() {
         canvasCtx = canvas.getContext('2d');
 
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = 512;
+        analyser.fftSize = Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9) ? 256 : 512;
         bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
     }
@@ -1891,9 +1894,6 @@ const day = date.getDate();
 console.log(date);
 
 async function setRandomBackground() {
-    const aspectRatio = window.innerWidth / window.innerHeight;
-    console.log(`aspectRatio: ${aspectRatio}`);
-
     const special = {
         '11-25': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
         '11-31': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
@@ -1905,11 +1905,11 @@ async function setRandomBackground() {
     let selectedBackground;
 
     if (special[key]) {
-        selectedBackground = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)
+        selectedBackground = Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9)
             ? special[key][0]
             : special[key][1];
     } else {
-        const backgrounds = Math.abs(aspectRatio - 9 / 16) < Math.abs(aspectRatio - 16 / 9)
+        const backgrounds = Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9)
             ? ['backgrounds/android01.jpg', 'backgrounds/android09.jpg', 'backgrounds/android06.jpg']
             : ['backgrounds/background.jpg', 'backgrounds/background02.jpg'];
 

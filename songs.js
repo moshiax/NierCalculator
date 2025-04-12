@@ -259,5 +259,10 @@ const phrases = {
 		audio: { src: 'music/Weight of the World Japanese', title: 'Weight of the World (Japanese)', artist: 'Keiichi Okabe, Vocals: Marina Kawano' },
 		background: { 'bonus/winterpc.jpg': { author: 'Square Enix', link: 'https://www.square-enix.com' } },
 		backgroundAndroid: { 'bonus/winter.jpg': { author: 'tricoliet', link: 'https://x.com/tricoliet' } }
-	}
+	},
+	'schmimmersion': {
+		audio: { src: 'music/Birth of a Wish ⧸ CEO (Duet)', title: 'Birth of a Wish ⧸ CEO (Duet)', artist: 'Keiichi Okabe, Yosuke Matsuda, Kenichi Sato' },
+		background: { 'bonus/3C3C1D119440927.jpg': { author: 'Square Enix', link: 'https://www.square-enix.com' } },
+		backgroundAndroid: { 'bonus/3C3C1D119440927.jpg': { author: 'Square Enix', link: 'https://www.square-enix.com' } }
+	},
 };

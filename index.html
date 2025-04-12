@@ -1497,17 +1497,20 @@ async function updatePrice(countryCode) {
             };
 
             amountInput.addEventListener('input', updatePriceDisplay);
-
-            amountInput.addEventListener('input', () => {
-                const inputText = amountInput.value.trim().toLowerCase();
-                for (const phraseKey in phrases) {
-                    if (containsAllWords(inputText, phraseKey)) {
-                        playMusic(phraseKey);
-                        console.log(`Playing music for phrase: ${phraseKey}`);
-                        break;
-                    }
-                }
-            });
+			amountInput.addEventListener('input', () => {
+				const inputText = amountInput.value.trim().toLowerCase();
+				for (const phraseKey in phrases) {
+					const triggers = phraseKey.split('|').map(p => p.trim());
+					for (const trigger of triggers) {
+						if (containsAllWords(inputText, trigger)) {
+							if (phrases[phraseKey]) {
+	                            console.log(`Playing music for phrase: ${phraseKey}`);
+								playMusic(phraseKey);
+								}
+						}
+					}
+				}
+			});
 
             updatePriceDisplay();
             if (globalDiscountPercent && globalDiscountPercent !== 0 && salenotifications >= 1) {

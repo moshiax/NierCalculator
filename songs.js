@@ -37,16 +37,11 @@ const phrases = {
 	},
 	
 	// "Song of the Ancients"
-	'atonement': { 
-		audio: { src: 'music/Song of the Ancients - Atonement', artist: 'Keiichi Okabe, Vocals?: Emi Evans', title: 'Song of the Ancients - Atonement' }, 
-		background: { 'backgrounds/!!!!!!!!!.jpg': {} }, 
-		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
-	},
 
-	'song ancients': { 
+	'song ancients | atonement': { 
 		audio: { src: 'music/Song of the Ancients - Atonement', artist: 'Keiichi Okabe, Vocals?: Emi Evans', title: 'Song of the Ancients - Atonement' }, 
-		background: { 'backgrounds/!!!!!!!!!.jpg': {} }, 
-		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
+		background: { 'backgrounds/background12.png': { author: 'Square Enix', link: 'https://www.square-enix.com' } },
+		backgroundAndroid: { 'backgrounds/android10.png': { author: 'Square Enix', link: 'https://www.square-enix.com' } }
 	},
 
 	// "Wretched Weaponry"
@@ -94,7 +89,7 @@ const phrases = {
 	},
 	'grandma destruction': {
 		audio: { src: 'music/Grandma - Destruction', title: 'Grandma - Destruction', artist: 'Kuniyuki Takahashi & Keiichi Okabe, Vocals?: NieR:Automata Choir' },
-		background: { 'backgrounds/background13.jpg': {} },
+		background: { 'backgrounds//!!!!!!!!!..jpg': {} },
 		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
 	},
 
@@ -173,8 +168,8 @@ const phrases = {
 	},
 	'spring rain': {
 		audio: { src: 'music/Vague Hope - Spring Rain', title: 'Vague Hope - Spring Rain', artist: 'Keigo Hoashi, Vocals?: Emi Evans' },
-		background: { 'backgrounds/springrain.jpg': { author: 'Square Enix', link: 'https://www.square-enix.com' } },
-		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
+		background: { 'backgrounds/background12.png': { author: 'Square Enix', link: 'https://www.square-enix.com' } },
+		backgroundAndroid: { 'backgrounds/android10.png': { author: 'Square Enix', link: 'https://www.square-enix.com' } }
 	},
 	'nothing': {
 		audio: { src: 'music/Significance - Nothing', title: 'Significance - Nothing', artist: 'Keiichi Okabe, Vocals?: J\'Nique Nicole' },

@@ -1642,7 +1642,17 @@ document.addEventListener('click', function(event) {
     }
 });
 
+let notificationShown = 0;
+
 function showNotification(message) {
+    if (notificationShown === 1) {
+        setTimeout(() => {
+            showNotification(message);
+        }, 100);
+        return;
+    }
+
+    notificationShown = 1;
 
     let formattedMessage = message.replace(/\n/g, '<br>').replace(/\[(H|P|N|Q)\]/g, match => 
         `<span class="notification-key" data-key="${match}">${match}</span>`
@@ -1672,10 +1682,10 @@ function showNotification(message) {
         notification.style.animation = 'fadeOut 0.5s ease-in-out';
         setTimeout(() => {
             notification.style.display = 'none';
+            notificationShown = 0;
         }, 500);
     }, 2300);
 }
-
 
 function toggleAudioFormat() {
 	if (audioFormatPreference === 0 || audioFormatPreference === 2) {
@@ -1891,26 +1901,47 @@ function showPurchaseButtons() {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
-const date = new Date();
-const month = date.getMonth();
-const day = date.getDate();
-console.log(date);
 
-async function setRandomBackground() {
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function setBackground() {
     const special = {
-        '11-25': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
-        '11-31': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
-        '0-1': ['bonus/winter.jpg', 'bonus/winterpc.jpg'],
-        '0-7': ['bonus/winter.jpg', 'bonus/winterpc.jpg']
+        'events': [
+            { 
+                dates: ['01-7', '12-25'], 
+                message: 'Merry Christmas!', 
+                backgrounds: ['bonus/winter.jpg', 'backgrounds/background03.jpg'] 
+            },
+            { 
+                dates: ['1-1', '12-31'], 
+                message: (now) => `Happy New ${now.getMonth() === 0 && now.getDate() === 1 ? now.getFullYear() : now.getFullYear() + 1} Year!`, 
+                backgrounds: ['bonus/winter.jpg', 'backgrounds/background03.jpg'] 
+            },
+            { 
+                dates: ['4-22'], 
+                message: `Happy ${new Date().getFullYear() - 2010} NieR Anniversary!`, 
+                backgrounds: ['bonus/nier_anniversary.png', 'bonus/nier_anniversary_pc.jpg'] 
+            },
+            { 
+                dates: ['2-23'], 
+                message: `Happy ${new Date().getFullYear() - 2017} NieR: Automata Anniversary!`, 
+                backgrounds: ['backgrounds/android09.jpg', 'bonus/automata_anniversary_pc.jpg'] 
+            }
+        ]
     };
 
-    const key = `${month}-${day}`;
+    let now = new Date();
+    const key = `${now.getMonth() + 1}-${now.getDate()}`;
     let selectedBackground;
+    
+    const event = special['events'].find(item => item.dates.includes(key));
 
-    if (special[key]) {
+    if (event) {
         selectedBackground = Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9)
-            ? special[key][0]
-            : special[key][1];
+            ? event.backgrounds[0]
+            : event.backgrounds[1];
+
     } else {
         const backgrounds = Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9)
             ? ['backgrounds/android01.jpg', 'backgrounds/android09.jpg', 'backgrounds/android06.jpg']
@@ -1919,12 +1950,27 @@ async function setRandomBackground() {
         selectedBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
     }
 
-    console.log(`Selected background: ${selectedBackground}`);
     await changeBackground(selectedBackground);
+    await hideLoadingOverlay();
+	const message = typeof event.message === 'function' ? event.message(now) : event.message;
+	showNotification(message);
+}
+
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    return new Promise(resolve => {
+        setTimeout(() => {
+            overlay.classList.add('hide');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                resolve();
+            }, 950);
+        }, 350);
+    });
 }
 
 window.addEventListener('load', async function() {
-    const overlay = document.getElementById('loadingOverlay');
+   
     const savedCountryCode = localStorage.getItem('selectedCountryCode');
     let finalCountryCode;
 
@@ -1944,16 +1990,10 @@ window.addEventListener('load', async function() {
 
     await Promise.all([
         updatePrice(finalCountryCode),
-        setRandomBackground()
+        setBackground()
     ]);
 
     console.log("Background set and price updated");
-
-    await new Promise(resolve => setTimeout(resolve, 250));
-    overlay.classList.add('hide');
-    await new Promise(resolve => setTimeout(resolve, 900));
-    overlay.style.display = 'none';
-    console.log("Overlay hidden");
 
     if (globalDiscountPercent && globalDiscountPercent !== 0) {
         showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);

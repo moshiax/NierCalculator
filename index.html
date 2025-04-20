@@ -1305,9 +1305,8 @@ async function playMusic(trackName, isRandomPlay = false) {
 	console.log(navigator.mediaSession);
 
     const amountInput = document.getElementById('amount');
-    if (amountInput) {
-        amountInput.value = '';
-    }
+	amountInput.value = '';
+	lastPhrase = '';
 }
 
 function isFlacSupported() {
@@ -1427,6 +1426,8 @@ function drawVisualizer() {
 const getCurrencySymbol = (currencyCode) => ({ "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "RUB": "₽", "UAH": "₴", "BRL": "R$", "CAD": "C$", "AUD": "A$", "CHF": "Fr", "CNY": "¥", "KRW": "₩", "INR": "₹", "MXN": "Mex$", "PLN": "zł", "ZAR": "R", "TRY": "₺", "AED": "د.إ", "THB": "฿", "TWD": "NT$", "SAR": "ر.س", "QAR": "ر.ق", "KWD": "د.ك", "KZT": "₸", "MYR": "RM", "IDR": "Rp", "ILS": "₪", "COP": "$", "CRC": "₡", "PEN": "S/", "PHP": "₱", "VND": "₫", "CLP": "$", "GEL": "₾", "HRK": "kn", "HUF": "Ft", "LKR": "Rs", "MDL": "L", "NOK": "kr", "RON": "lei", "SEK": "kr", "UGX": "USh", "MNT": "₮", "TZS": "TSh", "NAD": "$", "ZWL": "$", "BAM": "KM", "GHS": "₵", "BND": "$", "SBD": "$", "MOP": "MOP$", "PGK": "K" })[currencyCode] || currencyCode;
 let priceData; 
 let salenotifications = 0;
+let lastPhrase = '';
+
 const amountInput = document.getElementById('amount');
 
 fetch(weburl + 'price_standalone.json')
@@ -1496,20 +1497,23 @@ async function updatePrice(countryCode) {
                 }, 100);
             };
 
-            amountInput.addEventListener('input', updatePriceDisplay);
+			amountInput.addEventListener('input', updatePriceDisplay);
 			amountInput.addEventListener('input', () => {
-				const inputText = amountInput.value.trim().toLowerCase();
-				for (const phraseKey in phrases) {
-					const triggers = phraseKey.split('|').map(p => p.trim());
-					for (const trigger of triggers) {
-						if (containsAllWords(inputText, trigger)) {
-							if (phrases[phraseKey]) {
-	                            console.log(`Playing music for phrase: ${phraseKey}`);
-								playMusic(phraseKey);
-								}
-						}
+			  const inputText = amountInput.value.trim().toLowerCase();
+
+			  for (const phraseKey in phrases) {
+				const triggers = phraseKey.split('|').map(p => p.trim());
+				for (const trigger of triggers) {
+				  if (containsAllWords(inputText, trigger)) {
+					if (phrases[phraseKey] && phraseKey !== lastPhrase) {
+					  lastPhrase = phraseKey;
+					  console.log(`Playing music for phrase: ${phraseKey}`);
+					  playMusic(phraseKey);
+					  return;
 					}
+				  }
 				}
+			  }
 			});
 
             updatePriceDisplay();

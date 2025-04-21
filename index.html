@@ -1956,8 +1956,10 @@ async function setBackground() {
 
     await changeBackground(selectedBackground);
     await hideLoadingOverlay();
-	const message = typeof event.message === 'function' ? event.message(now) : event.message;
-	showNotification(message);
+    if (event) {
+        const message = typeof event.message === 'function' ? event.message(now) : event.message;
+        showNotification(message);
+    }
 }
 
 function hideLoadingOverlay() {

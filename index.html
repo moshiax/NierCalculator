@@ -427,13 +427,13 @@ label {
 
 #play-icon {
   width: 40px;
-  opacity: .35;
+  opacity: .40;
   cursor: var(--cursor-button);
 }
 
 #playing-icon {
   width: 40px;
-  opacity: .20;
+  opacity: .25;
   animation: rotate 2s linear infinite;
   cursor: var(--cursor-button);
 }
@@ -1783,9 +1783,9 @@ document.addEventListener('keydown', async (event) => {
 let isVisible = false;
 
 function toggleVisibility() {
+    console.log('togglecalled')
     const elementsToToggle = [
         document.querySelector('.container'),
-        document.getElementById('Settings')
     ];
 
     isVisible = !isVisible;
@@ -1814,7 +1814,6 @@ function toggleVisibility() {
     });
 }
 
-toggleVisibility();
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -1958,6 +1957,7 @@ async function setBackground() {
     await hideLoadingOverlay();
     if (event) {
         const message = typeof event.message === 'function' ? event.message(now) : event.message;
+		toggleVisibility();
         showNotification(message);
     }
 }
@@ -1976,7 +1976,7 @@ function hideLoadingOverlay() {
 }
 
 window.addEventListener('load', async function() {
-   
+	toggleVisibility();
     const savedCountryCode = localStorage.getItem('selectedCountryCode');
     let finalCountryCode;
 

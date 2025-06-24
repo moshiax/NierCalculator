@@ -795,12 +795,14 @@ label {
         </ul>
         <div class="notification-info" style="text-align: right; line-height: 1.3;">
             <p>
-                You can switch the UI by pressing <span class="notification-key" data-key="[H]">[H]</span>,<br>
-                Pause by <span class="notification-key" data-key="[P]">[P]</span>,<br>
-                Play next by <span class="notification-key" data-key="[N]">[N]</span>,<br>
-                Switch the quality of audio by <span class="notification-key" data-key="[Q]">[Q]</span>,<br>
+				You can switch the UI by pressing <span class="notification-key" data-key="[H]">[H]</span>,<br>
+				Pause by <span class="notification-key" data-key="[P]">[P]</span>,<br>
+				Play next random by <span class="notification-key" data-key="[N]">[N]</span>,<br>
+				Switch the quality of audio by <span class="notification-key" data-key="[Q]">[Q]</span>,<br>
 				Loop current song by <span class="notification-key" data-key="[L]">[L]</span>,<br>
-                And volume by arrow keys.
+				Go to previous song by <span class="notification-key" data-key="[B]">[B]</span> / <span class="notification-key" data-key="[B]">←</span>,<br>
+				Go to next song by <span class="notification-key" data-key="[F]">[F]</span> / <span class="notification-key" data-key="[F]">→</span>,<br>
+				And change volume by arrow keys.
             </p>
         </div>
     </div>
@@ -991,6 +993,9 @@ window.addEventListener('click', (event) => {
 let loop = false;
 let isPlaying = false; 
 let currentTrack = '';
+let playedTracks = [];
+let playIndex = 0;
+let currentHistoryIndex = -1;
 let audioContext;
 let analyser;
 let bufferLength;
@@ -1167,7 +1172,15 @@ function showVolumeBar(volume) {
     }, 1000);
 }
 
-async function playMusic(trackName, isRandomPlay = false) {
+async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
+    if (!skipHistory) {
+        if (currentHistoryIndex < playedTracks.length - 1) {
+            playedTracks = playedTracks.slice(0, currentHistoryIndex + 1);
+        }
+
+        playedTracks.push({ index: playIndex++, trackName });
+        currentHistoryIndex = playedTracks.length - 1;
+    }
     let format;
 
     if (audioFormatPreference === 1) {
@@ -1739,11 +1752,33 @@ function handleKeyAction(key) {
                 updatePlayIcon();
             }
         },
-        '[N]': () => isPlaying && playRandomMusic(),
+        '[N]': () => {
+            if (isPlaying) {
+                playRandomMusic();
+            }
+        },
         '[Q]': toggleAudioFormat,
         '[L]': () => {
             loop = !loop;
             showNotification(`Current song now will ${loop ? '' : 'not '}be looped infinitely`);
+        },
+        '[B]': async () => {
+            if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                const prevTrack = playedTracks[currentHistoryIndex];
+                await playMusic(prevTrack.trackName, false, true);
+            } else {
+          //      showNotification('No previous song');
+            }
+        },
+        '[F]': async () => {
+            if (currentHistoryIndex < playedTracks.length - 1) {
+                currentHistoryIndex++;
+                const nextTrack = playedTracks[currentHistoryIndex];
+                await playMusic(nextTrack.trackName, false, true);
+            } else {
+           //     showNotification('No next song');
+            }
         },
         'LINK': (link) => {
             if (link) {
@@ -1766,12 +1801,15 @@ document.addEventListener('keydown', async (event) => {
     if (isTyping) return;
 
     const keyMap = {
-        'KeyH': '[H]',
-        'KeyP': '[P]',
-        'KeyN': '[N]',
-        'ArrowRight': '[N]',
-        'KeyQ': '[Q]',
-        'KeyL': '[L]',
+        'KeyH': '[H]', // Hide ui
+        'KeyP': '[P]', // Pause
+        'KeyN': '[N]', // Next random song
+        'KeyQ': '[Q]', // Quality
+        'KeyL': '[L]', // Loop
+        'ArrowLeft': '[B]', // Previous song from history
+        'KeyB': '[B]', // Previous song from history
+        'ArrowRight': '[F]', // Next song from history
+        'KeyF': '[F]' // Next song from history
     };
 
     if (keyMap[event.code]) {

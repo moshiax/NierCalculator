@@ -996,6 +996,7 @@ let currentTrack = '';
 let playedTracks = [];
 let playIndex = 0;
 let currentHistoryIndex = -1;
+let max_history = 10000;
 let audioContext;
 let analyser;
 let bufferLength;
@@ -1180,6 +1181,10 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 
         playedTracks.push({ index: playIndex++, trackName });
         currentHistoryIndex = playedTracks.length - 1;
+        if (playedTracks.length > max_history) {
+            playedTracks.shift();
+            currentHistoryIndex--;
+        }
     }
     let format;
 

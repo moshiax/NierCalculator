@@ -419,20 +419,22 @@ label {
 
 #play-button {
   position: fixed;
-  top: 10px;
-  left: 10px;
+  top: 0.5%;
+  left: 0.5%;
   cursor: var(--cursor-button);
   z-index: 9999
 }
 
 #play-icon {
-  width: 40px;
+  width: clamp(48px, 2.5vmax, 256px);
+  height: clamp(48px, 2.5vmax, 256px);
   opacity: .40;
   cursor: var(--cursor-button);
 }
 
 #playing-icon {
-  width: 40px;
+  width: clamp(48px, 2.5vmax, 256px);
+  height: clamp(48px, 2.5vmax, 256px);
   opacity: .25;
   animation: rotate 2s linear infinite;
   cursor: var(--cursor-button);
@@ -501,11 +503,11 @@ label {
 
 #Settings {
   position: absolute;
-  top: 10px;
+  top: 0.5%;
+  right: 0.5%;
   cursor: var(--cursor-button);
-  right: 10px;
-  width: 40px;
-  height: 40px;
+  width: clamp(48px, 2.5vmax, 256px);
+  height: clamp(48px, 2.5vmax, 256px);
   opacity: 0.35;
   z-index: 9999;
 

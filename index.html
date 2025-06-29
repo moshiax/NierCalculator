@@ -395,7 +395,7 @@ label {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 150px;
+  height: 14%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -992,7 +992,6 @@ window.addEventListener('click', (event) => {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 let loop = false;
 let isPlaying = false; 
-let currentTrack = '';
 let playedTracks = [];
 let playIndex = 0;
 let currentHistoryIndex = -1;
@@ -1247,10 +1246,14 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
         navigator.mediaSession.setActionHandler('nexttrack', playRandomMusic);
     }
 
-    const img = new Image();
-    const artworkSrc = weburl + getBackgroundSrc(phrases[trackName].background);
-    img.crossOrigin = 'anonymous';
-    img.src = artworkSrc;
+	const img = new Image();
+	const artworkSrcRaw = getBackgroundSrc(phrases[trackName].background);
+	const artworkSrc = weburl + artworkSrcRaw;
+	img.crossOrigin = 'anonymous';
+
+	if ((artworkSrcRaw.match(/!/g) || []).length <= 3) {
+		img.src = artworkSrc;
+	}
 
     audio.onended = () => {
         isPlaying = false;
@@ -1273,6 +1276,7 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 
     isPlaying = true;
     currentTrackAudioSrc = audioSrc;
+	currentTrackName = trackName;
 
     const container = document.querySelector('.container');
     const countryFlag = document.getElementById('countryFlag');
@@ -1379,16 +1383,14 @@ function updatePlayIcon() {
 }
 
 document.getElementById('play-button').addEventListener('click', async () => {
+    const audio = document.getElementById('current-audio');
+
     if (isPlaying) {
-        await fadeOutAudio(document.getElementById('current-audio'));
+        await fadeOutAudio(audio);
         stopMusic();
-		toggleVisibility();
+        toggleVisibility();
     } else {
-        if (currentTrack) {
-            playMusic(currentTrack);
-        } else {
-            playRandomMusic(); 
-        }
+        playRandomMusic();
     }
 });
 
@@ -1400,14 +1402,14 @@ function createVisualizer() {
         canvas.style.bottom = '0';
         canvas.style.left = '0';
         canvas.style.width = '100%';
-        canvas.style.height = '150px';
+        canvas.style.height = '14%';
         canvas.style.pointerEvents = 'none';
         document.body.appendChild(canvas);
 
         canvasCtx = canvas.getContext('2d');
 
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9) ? 256 : 512;
+        analyser.fftSize = 512
         bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
     }
@@ -1425,16 +1427,15 @@ function drawVisualizer() {
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
     const barWidth = (canvas.width / bufferLength) * 2.5;
-    let barHeight;
     let x = 0;
 
     for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i];
+        const barHeight = dataArray[i];
 
-        canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        canvasCtx.fillStyle = 'rgba(240, 235, 220, 0.95)';
         canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
 
-        x += barWidth + 1;
+        x += barWidth + gap;
     }
 }
 
@@ -1574,6 +1575,9 @@ function containsAllWords(inputText, phraseKey) {
 }
 
 async function changeBackground(imageUrl) {
+    if ((imageUrl.match(/!/g) || []).length > 4) {
+        return;
+    }
     const body = document.body;
 	imageUrl = weburl + imageUrl;
 
@@ -1621,32 +1625,43 @@ function loadImage(imageUrl) {
 }
 
 function updateBackgroundBasedOnOrientation() {
-    const orientation = window.innerWidth / window.innerHeight > 1 ? 'landscape' : 'portrait';
     const body = document.body;
-    const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+    const rawBackground = body.style.backgroundImage;
+    const currentBackground = rawBackground
+        .replace(/url\((['"])?(.*?)\1\)/gi, '$2')
+        .replace(/^.*?backgrounds\//, 'backgrounds/')
+        .replace(/^.*?bonus\//, 'bonus/');
 
-    const trackName = Object.keys(phrases).find(key => {
-        const trackBackground = phrases[key];
-        return (
-            trackBackground.background === currentBackground || 
-            trackBackground.backgroundAndroid === currentBackground
-        );
-    });
+    const track = phrases[currentTrackName];
+    const bg = Object.keys(track.background || {})[0] || '';
+    const bgAndroid = Object.keys(track.backgroundAndroid || {})[0] || '';
 
-    if (trackName) {
-        const targetBackground =
-            orientation === 'portrait' && phrases[trackName].backgroundAndroid !== 'backgrounds/!!!!!!!!!.jpg'
-                ? phrases[trackName].backgroundAndroid
-                : phrases[trackName].background;
+    const targetBackground = orientation === 'portrait' && bgAndroid !== 'backgrounds/!!!!!!!!!.jpg'
+        ? bgAndroid
+        : bg;
 
-        if (currentBackground !== targetBackground) {
-            changeBackground(targetBackground);
-        }
-    }
+	if (currentBackground !== targetBackground && targetBackground !== 'backgrounds/!!!!!!!!!.jpg') {
+		changeBackground(targetBackground);
+	}
 }
 
-window.addEventListener('resize', updateBackgroundBasedOnOrientation);
-document.addEventListener('DOMContentLoaded', updateBackgroundBasedOnOrientation);
+let orientation;
+let gap
+
+function updateOrientation() {
+    orientation = window.innerWidth / window.innerHeight > 1 ? 'landscape' : 'portrait';
+	gap = orientation === 'portrait' ? 4 : 2;
+}
+
+function onResize() {
+    updateOrientation();
+    updateBackgroundBasedOnOrientation();
+}
+
+window.addEventListener('resize', onResize);
+document.addEventListener('DOMContentLoaded', () => {
+    updateOrientation();
+});
 
 document.getElementById('result').addEventListener('click', function() {
     window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
@@ -1995,7 +2010,18 @@ async function setBackground() {
 
         selectedBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
     }
+    const matchingTracks = Object.keys(phrases).filter(key => {
+        const track = phrases[key];
+        const bg = Object.keys(track.background || {})[0] || '';
+        const bgAndroid = Object.keys(track.backgroundAndroid || {})[0] || '';
+        return bg === selectedBackground || bgAndroid === selectedBackground;
+    });
 
+    if (matchingTracks.length > 0) {
+        currentTrackName = matchingTracks[Math.floor(Math.random() * matchingTracks.length)];
+    } else {
+        currentTrackName = '';
+    }
     await changeBackground(selectedBackground);
     await hideLoadingOverlay();
     if (event) {

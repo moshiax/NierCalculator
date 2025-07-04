@@ -4,6 +4,7 @@
 <head>
 
 	<title>NieR:Calculator</title>
+	<script src="songs.js"></script>
 	<meta name="title" content="NieR:Calculator" />
 	<meta name="description" content="Convert your money into NieR:Automata copies" />
 	<meta property="og:type" content="website" />
@@ -1044,20 +1045,6 @@ loadAudioFormatPreferenceFromLocalStorage();
 
 updateButtonText();
 
-const xhr = new XMLHttpRequest();
-xhr.open('GET', weburl + 'songs.js', false);
-xhr.send();
-
-if (xhr.status === 200) {
-  const script = document.createElement('script');
-  script.textContent = xhr.responseText;
-  document.head.appendChild(script);
-} else {
-  console.error('Err:', xhr.status);
-}
-
-console.log(phrases);
-
 async function fadeOutAudio(audio, duration = 1000) {
     if (!audio) return;
     let volume = audio.volume;
@@ -1417,6 +1404,8 @@ function createVisualizer() {
     }
 }
 
+let visualizerColor = 'rgba(240, 235, 220, 0.95)';
+
 function drawVisualizer() {
     if (!canvas || !canvasCtx || !analyser) {
         return;
@@ -1431,10 +1420,10 @@ function drawVisualizer() {
     const barWidth = (canvas.width / bufferLength) * 2.5;
     let x = 0;
 
+    canvasCtx.fillStyle = visualizerColor;
     for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i];
 
-        canvasCtx.fillStyle = 'rgba(240, 235, 220, 0.95)';
         canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
 
         x += barWidth + gap;

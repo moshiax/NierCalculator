@@ -170,15 +170,15 @@ const phrases = {
 		background: { 'backgrounds/!!!!!!!!!.jpg': {} },
 		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
 	},
-	// Voice of no Return - Guitar
+	// Voice of No Return - Guitar
 	'voice return': { 
-		audio: { src: 'music/Voice of no Return - Guitar', artist: 'Keiichi Okabe, Vocals?: Emi Evans', title: 'Voice of No Return - Guitar' }, 
+		audio: { src: 'music/Voice of No Return - Guitar', artist: 'Keiichi Okabe, Vocals?: Emi Evans', title: 'Voice of No Return - Guitar' }, 
 		background: { 'backgrounds/background11.jpg': {} }, 
 		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
 	},
-	// Voice of no Return - Normal
+	// Voice of No Return - Normal
 	'normal': { 
-		audio: { src: 'music/Voice of no Return - Normal', artist: 'Keiichi Okabe, Vocals?: Emi Evans', title: 'Voice of No Return - Normal' }, 
+		audio: { src: 'music/Voice of No Return - Normal', artist: 'Keiichi Okabe, Vocals?: Emi Evans', title: 'Voice of No Return - Normal' }, 
 		background: { 'backgrounds/background11.jpg': {} }, 
 		backgroundAndroid: { 'backgrounds/!!!!!!!!!.jpg': {} }
 	},

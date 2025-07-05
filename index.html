@@ -1369,8 +1369,7 @@ VisualizerConfigLinear = { // This is an example, to apply - modify VisualizerCo
         lineWidth: 2,                                  // Line thickness in circle mode
         radiusRatio: 0.25,                             // Circle radius ratio relative to canvas size in circle mode
         barWidthMultiplier: 2.5,                       // Multiplier for bar width in linear mode
-        barHeightDivider: 2,                           // Divides bar height in linear mode (higher means shorter bars)
-        barLengthDivider: 2,                           // Divides bar length in circle mode
+        barLengthDivider: 2,                           // Divides bar length
 		gap: undefined  // Gap between bars in linear mode; undefined means autogap (let gap) from updateOrientation()
     },
     static: { // Supports css, needs to be updated manually by  updateCanvasFromConfig();
@@ -1396,7 +1395,6 @@ VisualizerConfigCircle = {
         lineWidth: 2,
         radiusRatio: 0.25,
         barWidthMultiplier: 2.5,
-        barHeightDivider: 2,
         barLengthDivider: 2,
 		gap: undefined
     },
@@ -1503,12 +1501,12 @@ function drawVisualizer() {
         canvasCtx.fillStyle = VisualizerConfig.dynamic.visualizerColor;
 
         for (let i = 0; i < bufferLength; i++) {
-            const barHeight = dataArray[i];
+            const barHeight = dataArray[i] / VisualizerConfig.dynamic.barLengthDivider;
             canvasCtx.fillRect(
                 x,
-                canvas.height - barHeight / VisualizerConfig.dynamic.barHeightDivider,
+                canvas.height - barHeight,
                 barWidth,
-                barHeight / VisualizerConfig.dynamic.barHeightDivider
+                barHeight
             );
 			if (VisualizerConfig.dynamic.gap !== undefined) {
 				x += barWidth + VisualizerConfig.dynamic.gap;
@@ -1528,14 +1526,13 @@ function drawVisualizer() {
         canvasCtx.lineWidth = VisualizerConfig.dynamic.lineWidth;
 
         for (let i = 0; i < bars; i++) {
-            const value = dataArray[i];
-            const barLength = value / VisualizerConfig.dynamic.barLengthDivider;
+            const barHeight = dataArray[i] / VisualizerConfig.dynamic.barLengthDivider;
             const angle = i * angleStep;
 
             const x1 = centerX + Math.cos(angle) * radius;
             const y1 = centerY + Math.sin(angle) * radius;
-            const x2 = centerX + Math.cos(angle) * (radius + barLength);
-            const y2 = centerY + Math.sin(angle) * (radius + barLength);
+            const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+            const y2 = centerY + Math.sin(angle) * (radius + barHeight);
 
             canvasCtx.beginPath();
             canvasCtx.moveTo(x1, y1);

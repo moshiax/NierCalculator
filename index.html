@@ -391,29 +391,25 @@ label {
   }
 }
 
-#waveform {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+.toggle-btn {
+  display: block;
+  margin-top: 17px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ffffffaa;
+  background-color: rgba(0, 0, 0, .45);
+  color: #ffffffaa;
+  cursor: var(--cursor-button);
+  transition: background-color 0.3s;
+  overflow: hidden;
+  position: relative;
+  font-family: 'Courier New', monospace;
   width: 100%;
-  height: 14%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2999;
-}
 
-.waveform-bar {
-  background: linear-gradient(to top,#00f,#0ff);
-  border-radius: 2px;
-  height: 100%;
-  width: 2px;
-  transform: scaleY(1);
-  transition: transform .1s
-}
-
-.waveform-bar.active {
-  transform: scaleY(2)
+  &:hover {
+    background-color: rgba(0, 0, 0, .6);
+  }
 }
 
 /*====================================================================*/
@@ -481,7 +477,7 @@ label {
     }
 }
 
-.audio-toggle-btn {
+.toggle-btn {
   display: block;
   margin-top: 17px;
   padding: 10px 20px;
@@ -773,9 +769,6 @@ label {
     <div id="result"></div>
     <div id="purchaseButtons" style="display: flex;"></div>
 </div>
-
-<canvas id="waveform" width="100%" height="100"></canvas>
-
 <div id="notification" class="notification">
     <p>NieR:Automata is not available in your country in Steam. Switched to the USA.</p>
 </div>
@@ -786,7 +779,8 @@ label {
         <h2>Region & Settings</h2>
         <ul class="country-list">
             <img id="countryFlag" src="" alt="" style="display: block; margin: 10px auto 0 auto;" />
-            <button class="audio-toggle-btn" onclick="toggleAudioFormat()" id="audioToggleBtn"></button>
+            <button class="toggle-btn" onclick="toggleAudioFormat()" id="audioToggleBtn"></button>
+			<button class="toggle-btn" onclick="toggleVisualizerConfig()" id="visualizerToggleBtn" oncontextmenu="event.preventDefault(); confirm('Do you want to reset the visualizer to the default configuration?') && (VisualizerConfig = VisualizerConfigLinear, updateCanvasFromConfig(), showNotification('Visualizer has been reset to Linear'), updateVisualizerButtonText())"></button>
             <div id="volume-bar-container">
                 <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7" />
             </div>
@@ -1383,33 +1377,140 @@ document.getElementById('play-button').addEventListener('click', async () => {
     }
 });
 
-function createVisualizer() {
-    if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        canvas = document.createElement('canvas');
-        canvas.style.position = 'fixed';
-        canvas.style.bottom = '0';
-        canvas.style.left = '0';
-        canvas.style.width = '100%';
-        canvas.style.height = '14%';
-        canvas.style.pointerEvents = 'none';
-        document.body.appendChild(canvas);
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 
-        canvasCtx = canvas.getContext('2d');
+let gap;
 
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 512
+VisualizerConfigLinear = { // This is an example, to apply - modify VisualizerConfig
+    dynamic: {
+        rendererType: 'linear',                        // Visualization type: 'linear' or 'circle'
+        visualizerColor: 'rgba(240, 235, 220, 0.95)',
+        lineWidth: 2,                                  // Line thickness in circle mode
+        radiusRatio: 0.25,                             // Circle radius ratio relative to canvas size in circle mode
+        barWidthMultiplier: 2.5,                       // Multiplier for bar width in linear mode
+        barHeightDivider: 2,                           // Divides bar height in linear mode (higher means shorter bars)
+        barLengthDivider: 2,                           // Divides bar length in circle mode
+		gap: undefined  // Gap between bars in linear mode; undefined means autogap (let gap) from updateOrientation()
+    },
+    static: { // Supports css, needs to be updated manually by  updateCanvasFromConfig();
+        fftSize: 512,                                  // FFT size, controls spectrum detail
+        canvas: {
+            width: '100%',                             // CSS width of canvas element (can be %, px, etc.)
+            height: '14%',                             // CSS height of canvas element
+            renderWidth: 300,                          // Rendering canvas width
+            renderHeight: 150,                         // Rendering canvas height
+            position: 'fixed',
+            bottom: '0',
+            left: '0',
+            pointerEvents: 'none',
+            zIndex: '0',
+        }
+    }
+};
+
+VisualizerConfigCircle = {
+    dynamic: {
+        rendererType: 'circle',
+        visualizerColor: 'rgba(240, 235, 220, 0.95)',
+        lineWidth: 2,
+        radiusRatio: 0.25,
+        barWidthMultiplier: 2.5,
+        barHeightDivider: 2,
+        barLengthDivider: 2,
+		gap: undefined
+    },
+    static: {
+        fftSize: 512,
+        canvas: {
+            width: '100%',
+            height: '100%',
+            renderWidth: '100%',
+            renderHeight: '100%',
+            position: 'fixed',
+            bottom: '0',
+            left: '0',
+            pointerEvents: 'none',
+            zIndex: '0',
+        }
+    }
+};
+
+function saveVisualizerConfigToLocalStorage() {
+    localStorage.setItem('VisualizerConfig', JSON.stringify(VisualizerConfig));
+}
+
+function loadVisualizerConfigFromLocalStorage() {
+    const storedPreference = localStorage.getItem('VisualizerConfig');
+
+    if (storedPreference !== null) {
+        VisualizerConfig = JSON.parse(storedPreference);
+        console.log('Loaded visualizer config:', VisualizerConfig);
+    } else {
+        VisualizerConfig = VisualizerConfigLinear;
+        console.log('Loaded default visualizer config:', VisualizerConfig);
+    }
+}
+
+loadVisualizerConfigFromLocalStorage();
+
+function updateCanvasFromConfig(cfg = VisualizerConfig) {
+	saveVisualizerConfigToLocalStorage()
+    if (!canvas) return;
+
+    for (const [k, v] of Object.entries(cfg.static.canvas)) {
+        if (k in canvas.style) {
+            canvas.style[k] = v ?? '';
+        }
+    }
+
+    if (typeof cfg.static.canvas.renderWidth === 'string' && cfg.static.canvas.renderWidth.includes('%')) {
+        canvas.width = (innerWidth * parseFloat(cfg.static.canvas.renderWidth) / 100);
+    } else {
+        canvas.width = parseInt(cfg.static.canvas.renderWidth, 10);
+    }
+
+    if (typeof cfg.static.canvas.renderHeight === 'string' && cfg.static.canvas.renderHeight.includes('%')) {
+        canvas.height = (innerHeight * parseFloat(cfg.static.canvas.renderHeight) / 100);
+    } else {
+        canvas.height = parseInt(cfg.static.canvas.renderHeight, 10);
+    }
+
+    if (analyser) {
+        analyser.fftSize = cfg.static.fftSize;
         bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
     }
 }
 
-let visualizerColor = 'rgba(240, 235, 220, 0.95)';
+function createVisualizer() {
+    if (!audioContext) {
+        audioContext = new (AudioContext || webkitAudioContext)();
+
+        canvas = document.createElement('canvas');
+        canvas.style.position = VisualizerConfig.static.canvas.position;
+        canvas.style.bottom = VisualizerConfig.static.canvas.bottom;
+        canvas.style.left = VisualizerConfig.static.canvas.left;
+        canvas.style.width = VisualizerConfig.static.canvas.width;
+        canvas.style.height = VisualizerConfig.static.canvas.height;
+        canvas.style.pointerEvents = VisualizerConfig.static.canvas.pointerEvents;
+        canvas.style.zIndex = VisualizerConfig.static.canvas.zIndex;
+
+        document.body.appendChild(canvas);
+
+        canvasCtx = canvas.getContext('2d');
+
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = VisualizerConfig.static.fftSize;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        updateCanvasFromConfig(VisualizerConfig);
+    }
+}
 
 function drawVisualizer() {
-    if (!canvas || !canvasCtx || !analyser) {
-        return;
-    }
+    if (!canvas || !canvasCtx || !analyser) return;
 
     requestAnimationFrame(drawVisualizer);
 
@@ -1417,22 +1518,98 @@ function drawVisualizer() {
 
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const barWidth = (canvas.width / bufferLength) * 2.5;
-    let x = 0;
+    if (VisualizerConfig.dynamic.rendererType === 'linear') {
+        const barWidth = (canvas.width / bufferLength) * VisualizerConfig.dynamic.barWidthMultiplier;
+        let x = 0;
+        canvasCtx.fillStyle = VisualizerConfig.dynamic.visualizerColor;
 
-    canvasCtx.fillStyle = visualizerColor;
-    for (let i = 0; i < bufferLength; i++) {
-        const barHeight = dataArray[i];
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = dataArray[i];
+            canvasCtx.fillRect(
+                x,
+                canvas.height - barHeight / VisualizerConfig.dynamic.barHeightDivider,
+                barWidth,
+                barHeight / VisualizerConfig.dynamic.barHeightDivider
+            );
+			if (VisualizerConfig.dynamic.gap !== undefined) {
+				x += barWidth + VisualizerConfig.dynamic.gap;
+			} else {
+				x += barWidth + gap;
+			}
 
-        canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+        }
+    } else if (VisualizerConfig.dynamic.rendererType === 'circle') {
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(canvas.width, canvas.height) * VisualizerConfig.dynamic.radiusRatio;
+        const bars = bufferLength;
+        const angleStep = (2 * Math.PI) / bars;
 
-        x += barWidth + gap;
+        canvasCtx.strokeStyle = VisualizerConfig.dynamic.visualizerColor;
+        canvasCtx.lineWidth = VisualizerConfig.dynamic.lineWidth;
+
+        for (let i = 0; i < bars; i++) {
+            const value = dataArray[i];
+            const barLength = value / VisualizerConfig.dynamic.barLengthDivider;
+            const angle = i * angleStep;
+
+            const x1 = centerX + Math.cos(angle) * radius;
+            const y1 = centerY + Math.sin(angle) * radius;
+            const x2 = centerX + Math.cos(angle) * (radius + barLength);
+            const y2 = centerY + Math.sin(angle) * (radius + barLength);
+
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(x1, y1);
+            canvasCtx.lineTo(x2, y2);
+            canvasCtx.stroke();
+        }
     }
 }
 
+function updateVisualizerButtonText() {
+    const button = document.getElementById('visualizerToggleBtn');
+    let newText;
+
+    if (JSON.stringify(VisualizerConfig) === JSON.stringify(VisualizerConfigLinear)) {
+        newText = 'Linear Visualizer';
+    } else if (JSON.stringify(VisualizerConfig) === JSON.stringify(VisualizerConfigCircle)) {
+        newText = 'Circle Visualizer';
+    } else {
+        newText = 'Custom Visualizer';
+    }
+
+    button.classList.add('fade-out');
+    setTimeout(() => {
+        button.textContent = newText;
+        button.classList.remove('fade-out');
+    }, 500);
+}
+
+function toggleVisualizerConfig() {
+    if (JSON.stringify(VisualizerConfig) === JSON.stringify(VisualizerConfigLinear)) {
+        VisualizerConfig = VisualizerConfigCircle;
+        updateCanvasFromConfig();
+        showNotification('Visualizer changed to Circle');
+    } else if (JSON.stringify(VisualizerConfig) === JSON.stringify(VisualizerConfigCircle)) {
+        VisualizerConfig = VisualizerConfigLinear;
+        updateCanvasFromConfig();
+        showNotification('Visualizer changed to Linear');
+    } else {
+        const configString = `VisualizerConfig = ${JSON.stringify(VisualizerConfig, null, 4)};`;
+        navigator.clipboard.writeText(configString)
+            .then(() => showNotification('Custom visualizer config copied to clipboard'))
+            .catch(() => showNotification('Failed to copy custom visualizer config'));
+    }
+
+    updateVisualizerButtonText();
+}
+
+updateVisualizerButtonText();
+
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
+
 const getCurrencySymbol = (currencyCode) => ({ "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "RUB": "₽", "UAH": "₴", "BRL": "R$", "CAD": "C$", "AUD": "A$", "CHF": "Fr", "CNY": "¥", "KRW": "₩", "INR": "₹", "MXN": "Mex$", "PLN": "zł", "ZAR": "R", "TRY": "₺", "AED": "د.إ", "THB": "฿", "TWD": "NT$", "SAR": "ر.س", "QAR": "ر.ق", "KWD": "د.ك", "KZT": "₸", "MYR": "RM", "IDR": "Rp", "ILS": "₪", "COP": "$", "CRC": "₡", "PEN": "S/", "PHP": "₱", "VND": "₫", "CLP": "$", "GEL": "₾", "HRK": "kn", "HUF": "Ft", "LKR": "Rs", "MDL": "L", "NOK": "kr", "RON": "lei", "SEK": "kr", "UGX": "USh", "MNT": "₮", "TZS": "TSh", "NAD": "$", "ZWL": "$", "BAM": "KM", "GHS": "₵", "BND": "$", "SBD": "$", "MOP": "MOP$", "PGK": "K" })[currencyCode] || currencyCode;
 let priceData; 
 let salenotifications = 0;
@@ -1637,11 +1814,16 @@ function updateBackgroundBasedOnOrientation() {
 }
 
 let orientation;
-let gap
 
 function updateOrientation() {
-    orientation = window.innerWidth / window.innerHeight > 1 ? 'landscape' : 'portrait';
-	gap = orientation === 'portrait' ? 4 : 2;
+    orientation = innerWidth / innerHeight > 1 ? 'landscape' : 'portrait';
+
+    if (orientation === 'portrait' && (gap === 2 || gap === undefined)) {
+        gap = 4;
+    } else if (orientation === 'landscape' && (gap === 4 || gap === undefined)) {
+        gap = 2;
+    }
+	updateCanvasFromConfig(cfg = VisualizerConfig) 
 }
 
 function onResize() {

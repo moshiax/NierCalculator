@@ -2154,7 +2154,7 @@ async function setBackground() {
 
     } else {
         const backgrounds = Math.abs(AspectRatio.value - 9 / 16) < Math.abs(AspectRatio.value - 16 / 9)
-            ? ['backgrounds/android01.jpg', 'backgrounds/android09.jpg', 'backgrounds/android06.jpg']
+            ? ['backgrounds/android01.jpg', 'backgrounds/android09.jpg']
             : ['backgrounds/background.jpg', 'backgrounds/background02.jpg'];
 
         selectedBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];

@@ -1769,6 +1769,7 @@ function loadImage(imageUrl) {
 }
 
 function updateBackgroundBasedOnOrientation() {
+	if (typeof currentTrackName === "undefined") return;
     const body = document.body;
     const rawBackground = body.style.backgroundImage;
     const currentBackground = rawBackground

@@ -978,9 +978,9 @@ let bufferLength;
 let dataArray;
 let canvas;
 let canvasCtx;
-let currentTrackAudioSrc = '';
 let audioFormatPreference = /mobile/i.test(navigator.userAgent) ? 1 : 0;
 let audioVolume = loadVolumeFromLocalStorage();
+let currentTrackInfo = {};
 audioVolume = audioVolume !== null ? audioVolume : 0.5;
 console.log(audioVolume !== 0.5 
     ? `Volume loaded from localStorage: ${audioVolume}` 
@@ -1203,8 +1203,9 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
             artist: phrases[trackName].audio.artist,
         });
 
-        navigator.mediaSession.setActionHandler('previoustrack', () => handleKeyAction('[L]'));
-        navigator.mediaSession.setActionHandler('play', () => handleKeyAction('[P]'));
+        navigator.mediaSession.setActionHandler('previoustrack', () => handleKeyAction('[B]'));
+		navigator.mediaSession.setActionHandler('play', () => handleKeyAction('[P]'));
+		navigator.mediaSession.setActionHandler('pause', () => handleKeyAction('[P]'));
         navigator.mediaSession.setActionHandler('nexttrack', playRandomMusic);
     }
 
@@ -1219,7 +1220,7 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 
     audio.onended = () => {
         isPlaying = false;
-        currentTrackAudioSrc = '';
+        currentTrackInfo.currentTrackAudioSrc = '';
         if (canvas) document.body.removeChild(canvas);
         if (audioContext) {
             audioContext.close();
@@ -1237,8 +1238,6 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
     };
 
     isPlaying = true;
-    currentTrackAudioSrc = audioSrc;
-	currentTrackName = trackName;
 
     const container = document.querySelector('.container');
     const countryFlag = document.getElementById('countryFlag');
@@ -1255,15 +1254,17 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
     fadeInAudio(audio);
     updatePlayIcon();
 
-    const trackInfo = {
-        track: phrases[trackName].audio.title,
-        artist: phrases[trackName].audio.artist,
-        background: backgroundSrc,
-        artAuthor: artAuthor || 'Unknown',
-        artLink: artLink || ''
-    };
+	currentTrackInfo = {
+		track: phrases[trackName].audio.title,
+		artist: phrases[trackName].audio.artist,
+		background: backgroundSrc,
+		artAuthor: artAuthor || 'Unknown',
+        artLink: artLink || '',
+		currentTrackAudioSrc: audioSrc,
+		currentTrackKeywords: trackName
+	};
 
-    console.log(trackInfo);
+    console.log(currentTrackInfo);
 
 	if (!isMobile) {
 		let message = `${phrases[trackName].audio.title}\n${phrases[trackName].audio.artist}`;
@@ -1328,7 +1329,7 @@ function stopMusic() {
 
     isPlaying = false;
     updatePlayIcon();
-    currentTrackAudioSrc = '';
+    currentTrackInfo.currentTrackAudioSrc = '';
 }
 
 function updatePlayIcon() {
@@ -1769,7 +1770,7 @@ function loadImage(imageUrl) {
 }
 
 function updateBackgroundBasedOnOrientation() {
-	if (typeof currentTrackName === "undefined") return;
+	if (typeof currentTrackInfo.currentTrackKeywords === "undefined") return;
     const body = document.body;
     const rawBackground = body.style.backgroundImage;
     const currentBackground = rawBackground
@@ -1777,7 +1778,7 @@ function updateBackgroundBasedOnOrientation() {
         .replace(/^.*?backgrounds\//, 'backgrounds/')
         .replace(/^.*?bonus\//, 'bonus/');
 
-    const track = phrases[currentTrackName];
+    const track = phrases[currentTrackInfo.currentTrackKeywords];
     const bg = Object.keys(track.background || {})[0] || '';
     const bgAndroid = Object.keys(track.backgroundAndroid || {})[0] || '';
 
@@ -2168,9 +2169,9 @@ async function setBackground() {
     });
 
     if (matchingTracks.length > 0) {
-        currentTrackName = matchingTracks[Math.floor(Math.random() * matchingTracks.length)];
+        currentTrackInfo.currentTrackKeywords = matchingTracks[Math.floor(Math.random() * matchingTracks.length)];
     } else {
-        currentTrackName = '';
+        currentTrackInfo.currentTrackKeywords = '';
     }
     await changeBackground(selectedBackground);
     await hideLoadingOverlay();

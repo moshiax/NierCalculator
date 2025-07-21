@@ -1367,8 +1367,6 @@ VisualizerConfigLinear = { // This is an example, to apply - modify VisualizerCo
     dynamic: {
         rendererType: 'linear',                        // Visualization type: 'linear' or 'circle'
         visualizerColor: 'rgba(240, 235, 220, 0.95)',
-        lineWidth: 2,                                  // Line thickness in circle mode
-        radiusRatio: 0.25,                             // Circle radius ratio relative to canvas size in circle mode
         barWidthMultiplier: 2.5,                       // Multiplier for bar width in linear mode
         barLengthDivider: 2,                           // Divides bar length
 		gap: undefined  // Gap between bars in linear mode; undefined means autogap (let gap) from updateOrientation()
@@ -1393,11 +1391,10 @@ VisualizerConfigCircle = {
     dynamic: {
         rendererType: 'circle',
         visualizerColor: 'rgba(240, 235, 220, 0.95)',
-        lineWidth: 2,
-        radiusRatio: 0.25,
-        barWidthMultiplier: 2.5,
+        lineWidth: 2,                                  // Line thickness in circle mode
+        radiusRatio: 0.25,                             // Circle radius ratio relative to canvas size in circle mode
         barLengthDivider: 2,
-		gap: undefined
+        rotationSpeed: 0
     },
     static: {
         fftSize: 512,
@@ -1493,42 +1490,38 @@ function drawVisualizer() {
     requestAnimationFrame(drawVisualizer);
 
     analyser.getByteFrequencyData(dataArray);
-
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (VisualizerConfig.dynamic.rendererType === 'linear') {
         const barWidth = (canvas.width / bufferLength) * VisualizerConfig.dynamic.barWidthMultiplier;
+        const spacing = VisualizerConfig.dynamic.gap !== undefined ? VisualizerConfig.dynamic.gap : gap;
+
         let x = 0;
         canvasCtx.fillStyle = VisualizerConfig.dynamic.visualizerColor;
 
         for (let i = 0; i < bufferLength; i++) {
             const barHeight = dataArray[i] / VisualizerConfig.dynamic.barLengthDivider;
-            canvasCtx.fillRect(
-                x,
-                canvas.height - barHeight,
-                barWidth,
-                barHeight
-            );
-			if (VisualizerConfig.dynamic.gap !== undefined) {
-				x += barWidth + VisualizerConfig.dynamic.gap;
-			} else {
-				x += barWidth + gap;
-			}
-
+            canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+            x += barWidth + spacing;
         }
+
     } else if (VisualizerConfig.dynamic.rendererType === 'circle') {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         const radius = Math.min(canvas.width, canvas.height) * VisualizerConfig.dynamic.radiusRatio;
-        const bars = bufferLength;
-        const angleStep = (2 * Math.PI) / bars;
+        const angleStep = (2 * Math.PI) / bufferLength;
+
+        const rotationSpeed = VisualizerConfig.dynamic.rotationSpeed;
+        const rotation = (rotationSpeed && rotationSpeed > 0)
+            ? (performance.now() * rotationSpeed) % (2 * Math.PI)
+            : 0;
 
         canvasCtx.strokeStyle = VisualizerConfig.dynamic.visualizerColor;
         canvasCtx.lineWidth = VisualizerConfig.dynamic.lineWidth;
 
-        for (let i = 0; i < bars; i++) {
+        for (let i = 0; i < bufferLength; i++) {
             const barHeight = dataArray[i] / VisualizerConfig.dynamic.barLengthDivider;
-            const angle = i * angleStep;
+            const angle = i * angleStep + rotation;
 
             const x1 = centerX + Math.cos(angle) * radius;
             const y1 = centerY + Math.sin(angle) * radius;

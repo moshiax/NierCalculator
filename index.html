@@ -223,6 +223,20 @@ label {
     margin-top: 0.5em;
 }
 
+.result-container {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.result-container.show {
+    opacity: 1;
+}
+
+.result-container.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
 /*====================================================================*/
 
 .erase {
@@ -745,8 +759,11 @@ label {
         <input type="text" id="amount" placeholder="Amount" autocomplete="off" spellcheck="false">
         <span class="currency-symbol" id="currencySymbol"></span>
     </div>
-    <div id="result"></div>
-    <div id="purchaseButtons" style="display: flex;"></div>
+
+    <div id="resultContainer" class="result-container hide">
+        <div id="result">You can buy<br><span id="copyCount" class="typewriter"></span><br>copies of NieR:Automata</div>
+        <div id="purchaseButtons" style="display: flex;"></div>
+    </div>
 </div>
 <div id="notification" class="notification">
     <p>NieR:Automata is not available in your country in Steam. Switched to the USA.</p>
@@ -787,7 +804,7 @@ label {
     <script>
 
 const weburl = location.protocol === "file:" 
-    ? "https://moshiax.github.io/priceinautomata/" 
+    ? "https://moshiax.github.io/NierCalculator/" 
     : "";
 
 console.log("Location Protocol:", location.protocol);
@@ -1591,104 +1608,137 @@ fetch(weburl + 'price_standalone.json')
     .then(response => response.ok ? response.json() : Promise.reject('Error: ' + response.statusText))
     .then(data => priceData = data)
     .catch(console.error);
-	
+
+let purchaseButtonVisible = false;
+let lastConvertedAmount = null;
+
 async function updatePrice(countryCode) {
     try {
-        console.log(`Updating price for country: ${countryCode}`);
-        
         const priceData = await getGamePrice(countryCode);
-        console.log(`Fetched price data: `, priceData);
 
-        const priceElement = document.getElementById('result');
         const currencySymbol = document.getElementById('currencySymbol');
         const countryFlag = document.getElementById('countryFlag');
 
-        if (priceData[steamAppId] && priceData[steamAppId].data && priceData[steamAppId].data.price_overview) {
-            const price = priceData[steamAppId].data.price_overview.final / 100;
-            console.log(`Price: ${price}`);
-            
-            let currencyCode = priceData[steamAppId].data.price_overview.currency;
-            console.log(`Currency code before check: ${currencyCode}`);
-            
-            if (countryFlag.getAttribute('data-country-code') === 'EU') {
-                currencyCode = 'EUR';
-                console.log(`Currency code adjusted for EU region: ${currencyCode}`);
-            }
-
-            currencySymbol.textContent = getCurrencySymbol(currencyCode);
-            console.log(`Set currency symbol: ${currencySymbol.textContent}`);
-
-            let previousDisplayText = '';
-
-            const updatePriceDisplay = () => {
-                setTimeout(() => {
-                    const rawAmount = amountInput.value;
-                    const numericAmount = rawAmount.replace(/\D/g, '');
-
-                    const amount = parseFloat(numericAmount);
-                    let displayText = '';
-
-                    if (!isNaN(amount)) {
-                        const convertedAmount = Math.floor(amount / price);
-
-                        if (convertedAmount > 0) {
-                            if (convertedAmount.toString().includes('e')) {
-                                displayText = `You can buy<br><span id="animated-text" class="animated-text">a lot but not enough</span> <br>copies of NieR:Automata.`;
-                            } else {
-                                displayText = `You can buy<br><span id="copyCount" class="typewriter">${convertedAmount}</span> <br>copies of NieR:Automata.`;
-                            }
-
-                            if (displayText !== previousDisplayText) {
-                                previousDisplayText = displayText; 
-                                priceElement.innerHTML = displayText;
-                                showPurchaseButtons();
-                            }
-                        } else {
-                            priceElement.innerHTML = '';
-                            hidePurchaseButtons();
-                        }
-                    } else {
-                        priceElement.innerHTML = '';
-                        hidePurchaseButtons();
-                    }
-                }, 100);
-            };
-
-			amountInput.addEventListener('input', updatePriceDisplay);
-			amountInput.addEventListener('input', () => {
-			  const inputText = amountInput.value.trim().toLowerCase();
-
-			  for (const phraseKey in phrases) {
-				const triggers = phraseKey.split('|').map(p => p.trim());
-				for (const trigger of triggers) {
-				  if (containsAllWords(inputText, trigger)) {
-					if (phrases[phraseKey] && phraseKey !== lastPhrase) {
-					  lastPhrase = phraseKey;
-					  console.log(`Playing music for phrase: ${phraseKey}`);
-					  playMusic(phraseKey);
-					  return;
-					}
-				  }
-				}
-			  }
-			});
-
-            updatePriceDisplay();
-            if (globalDiscountPercent && globalDiscountPercent !== 0 && salenotifications >= 1) {
-                showNotification(`NieR:Automata is on sale in ${countryCode}. Discount percent is ${globalDiscountPercent}%`);
-                console.log(`Discount detected: ${globalDiscountPercent}%`);
-            }
-
-            salenotifications++;
-
-        } else {
+        const overview = priceData[steamAppId]?.data?.price_overview;
+        if (!overview) {
             throw new Error('Price information not available');
         }
+
+        const price = overview.final / 100;
+        let currencyCode = overview.currency;
+        if (countryFlag.getAttribute('data-country-code') === 'EU') {
+            currencyCode = 'EUR';
+        }
+        currencySymbol.textContent = getCurrencySymbol(currencyCode);
+
+        const updatePriceDisplay = () => {
+            setTimeout(() => {
+                const raw = amountInput.value;
+                const num = parseFloat(raw.replace(/\D/g, ''));
+
+                const convertedAmount = (!isNaN(num) && price > 0)
+                    ? Math.floor(num / price)
+                    : 0;
+
+                updatePurchaseUI(convertedAmount);
+            }, 100);
+        };
+
+        amountInput.removeEventListener('input', updatePriceDisplay);
+        amountInput.addEventListener('input', updatePriceDisplay);
+
+        updatePriceDisplay();
+
+        if (globalDiscountPercent && globalDiscountPercent !== 0 && salenotifications >= 1) {
+            showNotification(`NieR:Automata is on sale in ${countryCode}. Discount is ${globalDiscountPercent}%`);
+        }
+        salenotifications++;
+
     } catch (error) {
         console.error('Error:', error);
         showNotification('NieR:Automata is not available in your country. Switched to the USA.');
         document.getElementById('countryFlag').src = 'flags/us.png';
         await updatePrice('US');
+    }
+}
+
+const purchaseOptions = [
+    {
+        id: 'xboxButton',
+        icon: `${weburl}icons/xbox.png`,
+        alt: 'Xbox',
+        url: 'https://www.xbox.com/games/store/nier-automata-become-as-gods-edition/bppzvt8bz15n'
+    },
+    {
+        id: 'steamButton',
+        icon: `${weburl}icons/steam.png`,
+        alt: 'Steam',
+        url: 'https://store.steampowered.com/app/524220/NieRAutomata/'
+    },
+    {
+        id: 'walmartButton',
+        icon: `${weburl}icons/walmart.png`,
+        alt: 'Walmart',
+        url: 'https://www.walmart.com/ip/Nier-Automata-Game-of-The-Yorha-Edition-Square-Enix-PlayStation-4-662248922225/339689531'
+    }
+];
+
+function updatePurchaseUI(convertedAmount) {
+    const container = document.getElementById('resultContainer');
+    const priceEl = document.getElementById('result');
+    const buttons = document.getElementById('purchaseButtons');
+    const isVisible = container.classList.contains('show');
+
+    if (convertedAmount >= 1) {
+        if (isVisible && convertedAmount === lastConvertedAmount) {
+            return;
+        }
+
+        lastConvertedAmount = convertedAmount;
+
+        const textHTML = convertedAmount.toString().includes('e')
+            ? `You can buy<br><span id="animated-text" class="animated-text">a lot but not enough</span><br>copies of NieR:Automata`
+            : `You can buy<br><span id="copyCount" class="typewriter">${convertedAmount}</span><br>copies of NieR:Automata`;
+
+        priceEl.innerHTML = textHTML;
+
+        if (!buttons.hasChildNodes()) {
+            purchaseOptions.forEach(({ id, url, icon }) => {
+                const btn = document.createElement('div');
+                btn.className = 'purchase-button';
+                btn.id = id;
+
+                const img = document.createElement('img');
+                img.src = icon;
+                img.alt = id;
+                btn.appendChild(img);
+
+                btn.onclick = () => window.open(url, '_blank');
+
+                buttons.appendChild(btn);
+
+                getDominantColor(icon)
+                    .then(color => {
+                        btn.style.filter = `drop-shadow(0 0 10px ${color}) brightness(1.2)`;
+                    })
+                    .catch(() => {});
+            });
+        }
+
+        if (!isVisible) {
+            container.classList.remove('hide');
+            container.classList.add('show');
+        }
+
+        purchaseButtonVisible = true;
+
+    } else {
+        if (!isVisible) return;
+
+        container.classList.remove('show');
+        container.classList.add('hide');
+        purchaseButtonVisible = false;
+        lastConvertedAmount = null;
     }
 }
 
@@ -1805,10 +1855,6 @@ function onResize() {
 window.addEventListener('resize', onResize);
 document.addEventListener('DOMContentLoaded', () => {
     updateOrientation();
-});
-
-document.getElementById('result').addEventListener('click', function() {
-    window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
 });
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
@@ -2014,93 +2060,6 @@ function toggleVisibility() {
             });
         }
     });
-}
-
-<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
-<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
-<!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
-
-
-let buttonsShown = false; 
-
-function updatePriceDisplay() {
-    const amount = parseFloat(amountInput.value);
-    if (!isNaN(amount)) {
-        const convertedAmount = Math.floor(amount / price);
-        if (convertedAmount > 0) {
-            priceElement.innerHTML = `You can buy <span class="typing-animation">${convertedAmount}</span> copies of NieR:Automata.`;
-            showPurchaseButtons();
-        } else {
-            priceElement.innerHTML = '';
-        }
-    } else {
-        priceElement.innerHTML = '';
-    }
-}
-
-function hidePurchaseButtons() {
-    if (!buttonsShown) return;
-
-    const buttonsContainer = document.getElementById('purchaseButtons');
-    const buttons = buttonsContainer.querySelectorAll('.purchase-button');
-
-    buttons.forEach(button => {
-        button.classList.remove('show');
-        button.classList.add('hide');
-    });
-
-    setTimeout(() => {
-        buttons.forEach(button => button.classList.remove('hide')); 
-        buttonsContainer.innerHTML = '';
-        buttonsShown = false; 
-    }, 300);
-}
-
-
-function showPurchaseButtons() {
-    if (buttonsShown) return; 
-    const buttonsContainer = document.getElementById('purchaseButtons');
-    buttonsContainer.innerHTML = `
-        <div class="purchase-button" id="xboxButton">
-            <img src="${weburl}icons/xbox.png" alt="Xbox">
-        </div>
-        <div class="purchase-button" id="steamButton">
-            <img src="${weburl}icons/steam.png" alt="Steam">
-        </div>
-        <div class="purchase-button" id="walmartButton">
-            <img src="${weburl}icons/walmart.png" alt="Walmart">
-        </div>
-    `;
-
-    const buttonImages = document.querySelectorAll('.purchase-button img');
-    buttonImages.forEach(async (img) => {
-        try {
-            const dominantColor = await getDominantColor(img.src);
-            img.parentElement.style.filter = `drop-shadow(0 0 10px ${dominantColor}) brightness(1.2)`;
-        } catch (error) {
-            console.error('Error getting dominant color:', error);
-        }
-    });
-
-    document.getElementById('xboxButton').addEventListener('click', () => {
-        window.open('https://www.xbox.com/games/store/nier-automata-become-as-gods-edition/bppzvt8bz15n', '_blank');
-    });
-
-    document.getElementById('steamButton').addEventListener('click', () => {
-        window.open('https://store.steampowered.com/app/524220/NieRAutomata/', '_blank');
-    });
-
-    document.getElementById('walmartButton').addEventListener('click', () => {
-        window.open('https://weblet.square-enix.com/elink.php?doc=NIERAUTO&code=WEBSITE&lang=us&id=STORE19&store=Walmart&platform=PS4&edition=Game+of+the+Yorha+Edition&_gl=1*jxvhee*_gcl_au*MTQ3MzMzODA2Ny4xNzI0OTEwMTg2&_ga=2.174762210.1729472430.1724910187-1926933269.1724910187', '_blank');
-    });
-
-    const buttons = buttonsContainer.querySelectorAll('.purchase-button');
-    buttons.forEach(button => {
-        button.classList.remove('hide');
-        button.classList.add('show');
-    });
-
-    buttonsShown = true; 
 }
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>

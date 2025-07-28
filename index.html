@@ -1612,6 +1612,23 @@ fetch(weburl + 'price_standalone.json')
 let purchaseButtonVisible = false;
 let lastConvertedAmount = null;
 
+amountInput.addEventListener('input', () => {
+  const inputText = amountInput.value.trim().toLowerCase();
+
+  for (const phraseKey in phrases) {
+	const triggers = phraseKey.split('|').map(p => p.trim());
+	for (const trigger of triggers) {
+	  if (containsAllWords(inputText, trigger)) {
+		if (phrases[phraseKey] && phraseKey !== lastPhrase) {
+		  lastPhrase = phraseKey;
+		  console.log(`Playing music for phrase: ${phraseKey}`);
+		  playMusic(phraseKey);
+		  return;
+		}
+	  }
+	}
+  }
+});
 async function updatePrice(countryCode) {
     try {
         const priceData = await getGamePrice(countryCode);

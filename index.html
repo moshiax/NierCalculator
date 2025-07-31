@@ -4,23 +4,22 @@
 <head>
 
 	<title>NieR:Calculator</title>
-	<script src="songs.js"></script>
 	<meta name="title" content="NieR:Calculator" />
 	<meta name="description" content="Convert your money into NieR:Automata copies" />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://moshiax.github.io/priceinautomata/" />
+	<meta property="og:url" content="https://moshiax.github.io/NierCalculator/" />
 	<meta property="og:title" content="NieR:Calculator " />
 	<meta property="og:description" content="Convert your money into NieR:Automata copies" />
-	<meta property="og:image" content="https://raw.githubusercontent.com/moshiax/priceinautomata/refs/heads/main/icons/meta.png" />
+	<meta property="og:image" content="https://raw.githubusercontent.com/moshiax/NierCalculator/refs/heads/main/icons/meta.png" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 	<meta name="google-site-verification" content="o9KnKTL1pgRSckXmShW5N8Out0HkFHkA8vl8rA8tgIA" />
 	<meta property="twitter:card" content="summary_large_image" />
-	<meta property="twitter:url" content="https://moshiax.github.io/priceinautomata/" />
+	<meta property="twitter:url" content="https://moshiax.github.io/NierCalculator/" />
 	<meta property="twitter:title" content="NieR:Calculator " />
 	<meta property="twitter:description" content="Convert your money into NieR:Automata copies" />
-	<meta property="twitter:image" content="https://raw.githubusercontent.com/moshiax/priceinautomata/refs/heads/main/icons/meta.png" />
+	<meta property="twitter:image" content="https://raw.githubusercontent.com/moshiax/NierCalculator/refs/heads/main/icons/meta.png" />
 
-    <link rel="icon" type="image/png" href="https://moshiax.github.io/priceinautomata/icons/logo.png">
+    <link rel="icon" type="image/png" href="https://moshiax.github.io/NierCalculator/icons/logo.png">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -805,9 +804,11 @@ label {
 
     <script>
 
-const weburl = location.protocol === "file:" 
-    ? "https://moshiax.github.io/NierCalculator/" 
-    : "";
+const protocols = ['http:', 'https:', 'ws:', 'wss:'];
+
+const weburl = protocols.includes(location.protocol)
+  ? ''
+  : 'https://moshiax.github.io/NierCalculator/';
 
 console.log("Location Protocol:", location.protocol);
 console.log("Web URL:", weburl);
@@ -2167,6 +2168,21 @@ function hideLoadingOverlay() {
 }
 
 window.addEventListener('load', async function() {
+
+	await new Promise((resolve, reject) => {
+		const script = document.createElement('script');
+		script.src = weburl + 'songs.js';
+		script.onload = () => {
+			console.log(`songs.js loaded from: ${script.src}`);
+			resolve();
+		};
+		script.onerror = () => {
+			console.error(`Failed to load songs.js from: ${script.src}`);
+			reject(new Error(`Failed to load songs.js from: ${script.src}`));
+		};
+		document.head.appendChild(script);
+	});
+
 	toggleVisibility();
     const savedCountryCode = localStorage.getItem('selectedCountryCode');
     let finalCountryCode;

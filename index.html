@@ -910,7 +910,7 @@ let globalDiscountPercent = null;
 
 async function getGamePrice(countryCode) {
     const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-    const proxyUrl = `https://api.cors.lol/?url=${encodeURIComponent(url)}`;
+    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
     let attempts = 0;
     const maxAttempts = 1;
     const timeoutDuration = 2222;
@@ -957,7 +957,6 @@ async function getGamePrice(countryCode) {
         }
     }
 }
-
 
 function getPriceDataFallback(countryCode) {
 	const priceInfo = priceData.find(item => item.region === countryCode);
@@ -2201,12 +2200,9 @@ window.addEventListener('load', async function() {
     document.getElementById('countryFlag').setAttribute('data-country-code', finalCountryCode);
     console.log(`Country flag set for code: ${finalCountryCode}`);
 
-    await Promise.all([
-        updatePrice(finalCountryCode),
-        setBackground()
-    ]);
-
-    console.log("Background set and price updated");
+    await setBackground()
+	console.log("Background set")
+	updatePrice(finalCountryCode)
 
     if (globalDiscountPercent && globalDiscountPercent !== 0) {
         showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);

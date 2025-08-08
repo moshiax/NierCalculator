@@ -1601,7 +1601,6 @@ updateVisualizerButtonText();
 
 const getCurrencySymbol = (currencyCode) => ({ "USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "RUB": "₽", "UAH": "₴", "BRL": "R$", "CAD": "C$", "AUD": "A$", "CHF": "Fr", "CNY": "¥", "KRW": "₩", "INR": "₹", "MXN": "Mex$", "PLN": "zł", "ZAR": "R", "TRY": "₺", "AED": "د.إ", "THB": "฿", "TWD": "NT$", "SAR": "ر.س", "QAR": "ر.ق", "KWD": "د.ك", "KZT": "₸", "MYR": "RM", "IDR": "Rp", "ILS": "₪", "COP": "$", "CRC": "₡", "PEN": "S/", "PHP": "₱", "VND": "₫", "CLP": "$", "GEL": "₾", "HRK": "kn", "HUF": "Ft", "LKR": "Rs", "MDL": "L", "NOK": "kr", "RON": "lei", "SEK": "kr", "UGX": "USh", "MNT": "₮", "TZS": "TSh", "NAD": "$", "ZWL": "$", "BAM": "KM", "GHS": "₵", "BND": "$", "SBD": "$", "MOP": "MOP$", "PGK": "K" })[currencyCode] || currencyCode;
 let priceData; 
-let salenotifications = 0;
 let lastPhrase = '';
 
 const amountInput = document.getElementById('amount');
@@ -1668,10 +1667,9 @@ async function updatePrice(countryCode) {
 
         updatePriceDisplay();
 
-        if (globalDiscountPercent && globalDiscountPercent !== 0 && salenotifications >= 1) {
+        if (globalDiscountPercent && globalDiscountPercent !== 0) {
             showNotification(`NieR:Automata is on sale in ${countryCode}. Discount is ${globalDiscountPercent}%`);
         }
-        salenotifications++;
 
     } catch (error) {
         console.error('Error:', error);
@@ -2203,12 +2201,6 @@ window.addEventListener('load', async function() {
     await setBackground()
 	console.log("Background set")
 	updatePrice(finalCountryCode)
-
-    if (globalDiscountPercent && globalDiscountPercent !== 0) {
-        showNotification(`NieR:Automata is on sale in ${finalCountryCode}. Discount percent is ${globalDiscountPercent}%`);
-    } else {
-        console.log("No discount available in your region.");
-    }
 });
 
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>

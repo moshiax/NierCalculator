@@ -1386,17 +1386,23 @@ VisualizerConfigLinear = { // This is an example, to apply - modify VisualizerCo
     dynamic: {
         rendererType: 'linear',                        // Visualization type: 'linear' or 'circle'
         visualizerColor: 'rgba(240, 235, 220, 0.95)',
-        barWidthMultiplier: 2.5,                       // Multiplier for bar width in linear mode
-        barLengthDivider: 2,                           // Divides bar length
-		gap: undefined  // Gap between bars in linear mode; undefined means autogap (let gap) from updateOrientation()
+        barWidthMultiplier: 2.0,                       // Multiplier for bar width in linear mode
+        barLengthDivider: 0.65,                        // Divides bar height
+        gap: undefined,                                        // Gap between bars in linear mode; undefined means autogap (let gap) from updateOrientation()
+        canvas: {
+            // CanvasRenderingContext2D properties applied dynamically if set
+            shadowBlur: 20,
+            shadowColor: 'rgba(240, 235, 220, 0.65)',
+            globalAlpha: 1, // Canvas opacity
+        }
     },
-    static: { // Supports css, needs to be updated manually by  updateCanvasFromConfig();
+    static: { // Supports css, needs to be updated manually by updateCanvasFromConfig();
         fftSize: 512,                                  // FFT size, controls spectrum detail
         canvas: {
             width: '100%',                             // CSS width of canvas element (can be %, px, etc.)
-            height: '14%',                             // CSS height of canvas element
-            renderWidth: 300,                          // Rendering canvas width
-            renderHeight: 150,                         // Rendering canvas height
+            height: '20%',                             // CSS height of canvas element
+            renderWidth: 750,                          // Rendering canvas width
+            renderHeight: 600,                         // Rendering canvas height
             position: 'fixed',
             bottom: '0',
             left: '0',
@@ -1413,7 +1419,13 @@ VisualizerConfigCircle = {
         lineWidth: 2,                                  // Line thickness in circle mode
         radiusRatio: 0.25,                             // Circle radius ratio relative to canvas size in circle mode
         barLengthDivider: 2,
-        rotationSpeed: 0
+        rotationSpeed: 0,
+        canvas: {
+			// CanvasRenderingContext2D properties applied dynamically if set
+            shadowBlur: 20,
+            shadowColor: 'rgba(240, 235, 220, 1)',
+            globalAlpha: 1 // Canvas opacity
+        }
     },
     static: {
         fftSize: 512,
@@ -1510,6 +1522,13 @@ function drawVisualizer() {
 
     analyser.getByteFrequencyData(dataArray);
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const d = VisualizerConfig.dynamic.canvas || {};
+    for (const prop in d) {
+        if (d[prop] !== undefined && prop in canvasCtx) {
+            canvasCtx[prop] = d[prop];
+        }
+    }
 
     if (VisualizerConfig.dynamic.rendererType === 'linear') {
         const barWidth = (canvas.width / bufferLength) * VisualizerConfig.dynamic.barWidthMultiplier;
@@ -1856,12 +1875,13 @@ let orientation;
 function updateOrientation() {
     orientation = innerWidth / innerHeight > 1 ? 'landscape' : 'portrait';
 
-    if (orientation === 'portrait' && (gap === 2 || gap === undefined)) {
+    if (orientation === 'portrait' && (gap === 4 || gap === undefined)) {
+        gap = 10;
+    } else if (orientation === 'landscape' && (gap === 10 || gap === undefined)) {
         gap = 4;
-    } else if (orientation === 'landscape' && (gap === 4 || gap === undefined)) {
-        gap = 2;
     }
-	updateCanvasFromConfig(cfg = VisualizerConfig) 
+
+	updateCanvasFromConfig(cfg = VisualizerConfig);
 }
 
 function onResize() {

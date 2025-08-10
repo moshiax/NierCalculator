@@ -1873,13 +1873,9 @@ function updateBackgroundBasedOnOrientation() {
 let orientation;
 
 function updateOrientation() {
-	orientation = innerWidth / innerHeight > 1 ? 'landscape' : 'portrait';
-
-	if (orientation === 'portrait' && (gap === 4 || gap === undefined)) {
-		gap = 10;
-	} else if (orientation === 'landscape' && (gap === 10 || gap === undefined)) {
-		gap = 4;
-	}
+    orientation = innerWidth / innerHeight > 1 ? 'landscape' : 'portrait';
+    if (orientation === 'portrait' && gap !== 10) gap = 10;
+    if (orientation === 'landscape' && gap !== 4) gap = 4;
 
 	updateCanvasFromConfig(cfg = VisualizerConfig);
 }

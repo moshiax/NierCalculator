@@ -890,20 +890,18 @@ function extractDominantColor(canvas) {
 
 const steamAppId = '524220';
 
-async function getIpAndLocation() {
-	return fetch('https://freeipapi.com/api/json/')
-		.then(response => response.json())
-		.then(data => {
-			if (data && data.countryCode) {
-				return { country_code: data.countryCode };
-			}
-			return { country_code: 'US' };
-		})
-		.catch(error => {
-			console.log("Failed to fetch location:", error);
-			showNotification('Region Detection blocked by Adblocker. Region set to USA.');
-			return { country_code: 'US' };
-		});
+async function getCountry(
+	endpoint = 'https://ipapi.co/json/',
+	field = 'country_code'
+) {
+	try {
+		const data = await fetch(endpoint).then(r => r.json());
+		return data?.[field] || 'US';
+	} catch (e) {
+		console.log('Failed to fetch location:', e);
+		showNotification('Region Detection error. Region set to USA.');
+		return 'US';
+	}
 }
 
 let globalDiscountPercent = null;
@@ -2204,8 +2202,7 @@ window.addEventListener('load', async function() {
 		finalCountryCode = savedCountryCode;
 		console.log(`Loaded country code from localStorage: ${finalCountryCode}`);
 	} else {
-		const locationData = await getIpAndLocation();
-		finalCountryCode = locationData.country_code;
+		finalCountryCode = await getCountry();
 		localStorage.setItem('selectedCountryCode', finalCountryCode);
 		console.log(`Determined country code by IP: ${finalCountryCode}`);
 	}

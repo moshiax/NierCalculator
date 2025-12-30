@@ -2160,7 +2160,6 @@ async function setBackground() {
 	await hideLoadingOverlay();
 	if (event) {
 		const message = typeof event.message === 'function' ? event.message(now) : event.message;
-		toggleVisibility();
 		showNotification(message);
 	}
 }

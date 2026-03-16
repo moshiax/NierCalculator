@@ -1,8 +1,8 @@
-import aiohttp
-import asyncio
+import urllib.request
 import json
 import socket
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 steam_app_id = '524220'
 regions = ['US', 'UA', 'RU', 'PL', 'KZ', 'KR', 'BR', 'MX', 'IN', 'UY', 'KW', 'ZA', 'CR', 'CO', 'NO', 'CL', 'VN', 'TH', 'IL', 'SG', 'PE', 'EU', 'CH', 'JP', 'MY', 'PH', 'HK', 'GB', 'CA', 'TR']
@@ -19,10 +19,10 @@ def get_currency_symbol(currency_code):
     }
     return symbols.get(currency_code, currency_code)
 
-async def fetch_region_price(session, region):
+def fetch_region_price(region):
     url = f"https://store.steampowered.com/api/appdetails?appids={steam_app_id}&cc={region.lower()}&l=english&v=1"
-    async with session.get(url) as response:
-        data = await response.json()
+    with urllib.request.urlopen(url) as response:
+        data = json.loads(response.read().decode())
         if data[str(steam_app_id)]['success'] and 'price_overview' in data[str(steam_app_id)]['data']:
             price_overview = data[str(steam_app_id)]['data']['price_overview']
             price = price_overview['final'] / 100
@@ -33,10 +33,9 @@ async def fetch_region_price(session, region):
             return {'region': region, 'price': price, 'currency_code': currency_code, 'currency_symbol': currency_symbol}
         return None
 
-async def fetch_all_prices():
-    async with aiohttp.ClientSession() as session:
-        tasks = [fetch_region_price(session, region) for region in regions]
-        results = await asyncio.gather(*tasks)
+def fetch_all_prices():
+    with ThreadPoolExecutor() as executor:
+        results = list(executor.map(fetch_region_price, regions))
         return [result for result in results if result]
 
 def connect(timeout=666):
@@ -47,9 +46,9 @@ def connect(timeout=666):
         except OSError:
             time.sleep(5)
             
-async def main():
+def main():
     connect()
-    price_data = await fetch_all_prices()
+    price_data = fetch_all_prices()
     with open('price_standalone.json', 'w') as file:
         file.write('[\n')
         for i, item in enumerate(price_data):
@@ -61,4 +60,4 @@ async def main():
         file.write('\n]')
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

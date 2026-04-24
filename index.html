@@ -918,7 +918,7 @@ let globalDiscountPercent = null;
 
 async function getGamePrice(countryCode) {
 	const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=${countryCode}&l=english&v=1`;
-	const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+	const proxyUrl = `https://cors.olegbeznogy.workers.dev/?${encodeURIComponent(url)}`;
 	let attempts = 0;
 	const maxAttempts = 1;
 	const timeoutDuration = 2222;
@@ -944,13 +944,23 @@ async function getGamePrice(countryCode) {
 			const contents = await response.text();
 			const data = JSON.parse(contents);
 
-			if (data[steamAppId]?.data?.price_overview) {
-				const discountPercent = data[steamAppId].data.price_overview.discount_percent;
+			let appData = null;
+			for (const value of Object.values(data)) {
+				if (!value || typeof value !== 'object' || !value.success) continue;
+				const innerData = value.data || {};
+				if (innerData.steam_appid === Number(steamAppId)) {
+					appData = innerData;
+					break;
+				}
+			}
+
+			if (appData?.price_overview) {
+				const discountPercent = appData.price_overview.discount_percent;
 				globalDiscountPercent = discountPercent && discountPercent !== 0 ? discountPercent : null;
 				console.log(`Price fetched dynamically in ${duration}ms, discount: ${globalDiscountPercent || "no discount"}`);
 			}
 
-			return data;
+			return appData;
 
 		} catch (error) {
 			attempts++;
@@ -969,10 +979,11 @@ async function getGamePrice(countryCode) {
 function getPriceDataFallback(countryCode) {
 	const priceInfo = priceData.find(item => item.region === countryCode);
 	return {
-		[steamAppId]: {
-			success: !!priceInfo,
-			data: priceInfo ? { price_overview: { final: priceInfo.price * 100, currency: priceInfo.currency_code } } : null,
-		},
+		steam_appid: Number(steamAppId),
+		price_overview: {
+			final: priceInfo.price * 100,
+			currency: priceInfo.currency_code
+		}
 	};
 }
 
@@ -1664,7 +1675,7 @@ async function updatePrice(countryCode) {
 		const currencySymbol = document.getElementById('currencySymbol');
 		const countryFlag = document.getElementById('countryFlag');
 
-		const overview = priceData[steamAppId]?.data?.price_overview;
+		const overview = priceData?.price_overview;
 		if (!overview) {
 			throw new Error('Price information not available');
 		}

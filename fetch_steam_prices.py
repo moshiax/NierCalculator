@@ -21,17 +21,29 @@ def get_currency_symbol(currency_code):
 
 def fetch_region_price(region):
     url = f"https://store.steampowered.com/api/appdetails?appids={steam_app_id}&cc={region.lower()}&l=english&v=1"
-    with urllib.request.urlopen(url) as response:
-        data = json.loads(response.read().decode())
-        if data[str(steam_app_id)]['success'] and 'price_overview' in data[str(steam_app_id)]['data']:
-            price_overview = data[str(steam_app_id)]['data']['price_overview']
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            data = json.loads(response.read().decode())
+        app_data = None
+        for value in data.values():
+            if not isinstance(value, dict) or not value.get('success'): continue
+            inner_data = value.get('data', {})
+            if inner_data.get('steam_appid') == int(steam_app_id):
+                app_data = inner_data
+                break
+        if not app_data:
+            print(f"[{region}] not found"); return None
+        if 'price_overview' in app_data:
+            price_overview = app_data['price_overview']
             price = price_overview['final'] / 100
             currency_code = price_overview['currency']
             if region == 'EU':
                 currency_code = 'EUR'
             currency_symbol = get_currency_symbol(currency_code)
             return {'region': region, 'price': price, 'currency_code': currency_code, 'currency_symbol': currency_symbol}
-        return None
+        print(f"[{region}] No price"); return None
+    except Exception as e:
+        print(f"[{region}] ERROR: {e}"); return None
 
 def fetch_all_prices():
     with ThreadPoolExecutor() as executor:

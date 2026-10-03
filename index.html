@@ -1695,7 +1695,6 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 		trackAudio.remove();
 		audio = null;
 		currentTrackInfo.currentTrackAudioSrc = '';
-		currentTrackInfo.currentTrackKeywords = '';
 		if (canvas) {
 			canvas.remove();
 			canvas = null;
@@ -1813,7 +1812,6 @@ function stopMusic() {
 	isPlaying = false;
 	updatePlayIcon();
 	currentTrackInfo.currentTrackAudioSrc = '';
-	currentTrackInfo.currentTrackKeywords = '';
 	updateTrackMenuState();
 }
 

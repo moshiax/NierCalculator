@@ -44,16 +44,13 @@ html {
 }
 
 body {
-  background-color: #d1cdb7;
+  background-color: transparent;
+  isolation: isolate;
   font-family: "Courier New", monospace;
   color: #fff;
   text-shadow: 1px 1px 2px #000;
   font-size: 1.5rem;
-  background-size: cover;
-  background-repeat: no-repeat;
-  transition: background-image 1s ease-in-out;
   overflow: hidden;
-  background-position: top;
   user-select: none; 
 }
 
@@ -63,20 +60,42 @@ body {
   }
 }
 
-body::before {
+body::before,
+body::after {
 	content: '';
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
+	background-position: top;
+	background-repeat: no-repeat;
+	background-size: cover;
+	pointer-events: none;
+}
+
+body::before {
+	z-index: -2;
+	background-image: var(--background-current, none);
+	background-color: #d1cdb7;
+}
+
+body::after {
 	z-index: -1;
+	background-image: var(--background-next, none);
 	opacity: 0;
 	transition: opacity 1s ease-in-out;
 }
 
-body.fade-in::before {
+body.background-transitioning::after {
 	opacity: 1;
+}
+
+@media (max-width: 768px) {
+	body::before,
+	body::after {
+		background-position: center;
+	}
 }
 
 ::-moz-selection {
@@ -322,6 +341,9 @@ label {
 
 #trackMenu h2 {
   position: sticky;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
   z-index: 1;
   top: -2rem;
   width: auto;
@@ -343,6 +365,32 @@ label {
   color: #4d493e;
   font-size: 1.6rem;
   line-height: 1;
+}
+
+#trackMenu .track-menu-actions {
+  display: flex;
+  gap: .35rem;
+  margin-left: auto;
+}
+
+#trackMenu .track-menu-option {
+  padding: .25rem .4rem;
+  border: 1px solid #4d493e;
+  background: transparent;
+  color: #4d493e;
+  cursor: var(--cursor-button);
+  font: inherit;
+  font-size: .65rem;
+  letter-spacing: .04rem;
+  text-transform: uppercase;
+}
+
+#trackMenu .track-menu-option.is-active,
+#trackMenu .track-menu-option:hover,
+#trackMenu .track-menu-option:focus-visible {
+  background: #4d493e;
+  color: #c8c2aa;
+  outline: none;
 }
 
 #trackMenuList {
@@ -984,7 +1032,14 @@ label {
 </div>
 
 <aside id="trackMenu">
-	<h2 id="trackMenuTitle">Music <span class="close track-menu-close" role="button" tabindex="0">&times;</span></h2>
+	<h2 id="trackMenuTitle">
+		<span>Music</span>
+		<span class="track-menu-actions">
+			<button type="button" class="track-menu-option" id="trackMenuLoopButton">Loop: off</button>
+			<button type="button" class="track-menu-option" id="trackMenuAutoplayButton">Auto: off</button>
+			<span class="close track-menu-close" role="button" tabindex="0">&times;</span>
+		</span>
+	</h2>
 	<div id="trackMenuList"></div>
 </aside>
 
@@ -1203,6 +1258,8 @@ const closeButton = modal.querySelector('.close');
 const trackMenu = document.getElementById('trackMenu');
 const trackMenuList = document.getElementById('trackMenuList');
 const trackMenuCloseButton = document.querySelector('.track-menu-close');
+const trackMenuLoopButton = document.getElementById('trackMenuLoopButton');
+const trackMenuAutoplayButton = document.getElementById('trackMenuAutoplayButton');
 
 settingsButton.addEventListener('click', () => modal.classList.add('show'));
 
@@ -1225,6 +1282,9 @@ trackMenuCloseButton.addEventListener('keydown', (event) => {
 		closeTrackMenu();
 	}
 });
+
+trackMenuLoopButton.addEventListener('click', toggleLoop);
+trackMenuAutoplayButton.addEventListener('click', toggleAutoplay);
 
 function toggleTrackMenu() {
 	const isOpen = trackMenu.classList.toggle('show');
@@ -1257,7 +1317,7 @@ function populateTrackMenu() {
 			button.append(titleElement, artistElement);
 			button.addEventListener('click', async () => {
 				closeTrackMenu();
-				await playMusic(trackName);
+				await playMusic(trackName, autoPlay);
 			});
 			const control = document.createElement('button');
 			control.type = 'button';
@@ -1265,7 +1325,7 @@ function populateTrackMenu() {
 			control.dataset.trackName = trackName;
 			control.addEventListener('click', async (event) => {
 				event.stopPropagation();
-				const currentAudio = document.getElementById('current-audio');
+				const currentAudio = audio;
 				if (currentTrackInfo.currentTrackKeywords === trackName && currentAudio) {
 					if (currentAudio.paused) {
 						fadeInAudio(currentAudio);
@@ -1277,22 +1337,37 @@ function populateTrackMenu() {
 					updatePlayIcon();
 					updateTrackMenuState();
 				} else {
-					await playMusic(trackName);
+					await playMusic(trackName, autoPlay);
 				}
 			});
 			const progress = document.createElement('div');
 			progress.className = 'track-menu-progress';
 			const seekTrack = (event) => {
+				event.preventDefault();
 				event.stopPropagation();
-				const currentAudio = document.getElementById('current-audio');
+				const currentAudio = audio;
 				if (currentTrackInfo.currentTrackKeywords !== trackName || !currentAudio || !Number.isFinite(currentAudio.duration)) return;
 				const bounds = progress.getBoundingClientRect();
-				const position = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+				if (bounds.width <= 0) return;
+				const pointer = event.changedTouches?.[0] || event.touches?.[0] || event;
+				const position = Math.max(0, Math.min(1, (pointer.clientX - bounds.left) / bounds.width));
 				currentAudio.currentTime = currentAudio.duration * position;
 				updateTrackMenuState();
 			};
-			progress.addEventListener('pointerdown', (event) => event.stopPropagation());
-			progress.addEventListener('click', seekTrack);
+			let lastPointerSeek = 0;
+			progress.addEventListener('pointerdown', (event) => {
+				if (event.button !== 0) return;
+				lastPointerSeek = performance.now();
+				seekTrack(event);
+			});
+			progress.addEventListener('click', (event) => {
+				if (performance.now() - lastPointerSeek < 500) {
+					event.preventDefault();
+					event.stopPropagation();
+					return;
+				}
+				seekTrack(event);
+			});
 			const progressFill = document.createElement('div');
 			progressFill.className = 'track-menu-progress-fill';
 			progress.appendChild(progressFill);
@@ -1302,7 +1377,7 @@ function populateTrackMenu() {
 }
 
 function updateTrackMenuState() {
-	const currentAudio = document.getElementById('current-audio');
+	const currentAudio = audio;
 	const trackName = currentTrackInfo.currentTrackKeywords;
 	const isCurrentTrack = Boolean(currentAudio && trackName);
 	const isAudioPlaying = isCurrentTrack && !currentAudio.paused && !currentAudio.ended;
@@ -1327,7 +1402,9 @@ function updateTrackMenuState() {
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------!>
 let loop = false;
+let autoPlay = false;
 let isPlaying = false; 
+let playRequestId = 0;
 let playedTracks = [];
 let playIndex = 0;
 let currentHistoryIndex = -1;
@@ -1348,6 +1425,27 @@ console.log(audioVolume !== 0.5
 
 let audio = null;
 let hideTimeout;
+
+function updateTrackMenuOptions() {
+	trackMenuLoopButton.classList.toggle('is-active', loop);
+	trackMenuLoopButton.textContent = `Loop: ${loop ? 'on' : 'off'}`;
+	trackMenuAutoplayButton.classList.toggle('is-active', autoPlay);
+	trackMenuAutoplayButton.textContent = `Auto: ${autoPlay ? 'on' : 'off'}`;
+}
+
+function toggleLoop() {
+	loop = !loop;
+	updateTrackMenuOptions();
+	showNotification(`Current song now will ${loop ? '' : 'not '}be looped infinitely`);
+}
+
+function toggleAutoplay() {
+	autoPlay = !autoPlay;
+	updateTrackMenuOptions();
+	showNotification(`Autoplay ${autoPlay ? 'enabled' : 'disabled'}`);
+}
+
+updateTrackMenuOptions();
 
 document.getElementById('volume-slider').value = audioVolume;
 
@@ -1495,6 +1593,8 @@ function showVolumeBar(volume) {
 }
 
 async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
+	const requestId = ++playRequestId;
+
 	if (!skipHistory) {
 		if (currentHistoryIndex < playedTracks.length - 1) {
 			playedTracks = playedTracks.slice(0, currentHistoryIndex + 1);
@@ -1522,19 +1622,25 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 
 	const audioSrc = weburl + phrases[trackName].audio.src + format;
 
-	if (isPlaying) {
-		await fadeOutAudio(document.getElementById('current-audio'));
-		stopMusic();
+	const activeAudio = audio;
+	if (activeAudio) {
+		if (!activeAudio.paused) {
+			await fadeOutAudio(activeAudio);
+		}
+		if (requestId !== playRequestId) return;
+		if (audio === activeAudio) stopMusic();
 	}
+	if (requestId !== playRequestId) return;
 
-	audio = new Audio(audioSrc);
-	audio.crossOrigin = 'anonymous';
-	audio.id = 'current-audio';
-	audio.volume = audioVolume;
-	audio.addEventListener('timeupdate', updateTrackMenuState);
-	audio.addEventListener('durationchange', updateTrackMenuState);
-	audio.addEventListener('play', updateTrackMenuState);
-	audio.addEventListener('pause', updateTrackMenuState);
+	const trackAudio = new Audio(audioSrc);
+	trackAudio.crossOrigin = 'anonymous';
+	trackAudio.id = 'current-audio';
+	trackAudio.volume = audioVolume;
+	trackAudio.addEventListener('timeupdate', updateTrackMenuState);
+	trackAudio.addEventListener('durationchange', updateTrackMenuState);
+	trackAudio.addEventListener('play', updateTrackMenuState);
+	trackAudio.addEventListener('pause', updateTrackMenuState);
+	audio = trackAudio;
 	const getBackgroundSrc = (bgObj) => Object.keys(bgObj)[0];
 
 	const backgroundSrc =
@@ -1554,7 +1660,7 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 		createVisualizer();
 	}
 
-	const source = audioContext.createMediaElementSource(audio);
+	const source = audioContext.createMediaElementSource(trackAudio);
 	source.connect(analyser);
 	analyser.connect(audioContext.destination);
 
@@ -1582,11 +1688,18 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 		img.src = artworkSrc;
 	}
 
-	audio.onended = () => {
+	trackAudio.onended = () => {
+		if (audio !== trackAudio) return;
+
 		isPlaying = false;
+		trackAudio.remove();
+		audio = null;
 		currentTrackInfo.currentTrackAudioSrc = '';
 		currentTrackInfo.currentTrackKeywords = '';
-		if (canvas) document.body.removeChild(canvas);
+		if (canvas) {
+			canvas.remove();
+			canvas = null;
+		}
 		if (audioContext) {
 			audioContext.close();
 			audioContext = null;
@@ -1595,8 +1708,8 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 		updateTrackMenuState();
 
 		if (loop) {
-			playMusic(trackName, isRandomPlay);
-		} else if (isRandomPlay) {
+			playMusic(trackName, autoPlay);
+		} else if (autoPlay) {
 			playRandomMusic();
 		} else {
 			toggleVisibility();
@@ -1616,8 +1729,8 @@ async function playMusic(trackName, isRandomPlay = false, skipHistory = false) {
 
 	const isMobile = window.matchMedia('(pointer: coarse)').matches;
 
-	document.body.appendChild(audio);
-	fadeInAudio(audio);
+	document.body.appendChild(trackAudio);
+	fadeInAudio(trackAudio);
 	updatePlayIcon();
 
 	currentTrackInfo = {
@@ -1667,25 +1780,28 @@ function isFlacSupported() {
 }
 
 function playRandomMusic() {
+	autoPlay = true;
+	updateTrackMenuOptions();
 	const trackNames = Object.keys(phrases);
 	const randomTrack = trackNames[Math.floor(Math.random() * trackNames.length)];
 	playMusic(randomTrack, true); 
 }
 
 function stopMusic() {
-	const currentAudio = document.getElementById('current-audio');
+	const currentAudio = audio;
 	if (currentAudio) {
 		currentAudio.pause();
 		currentAudio.currentTime = 0; 
 		currentAudio.remove();
 	}
+	audio = null;
 
 	if (audioContext) {
 		audioContext.close();
 		audioContext = null;
 	}
 	if (canvas) {
-		document.body.removeChild(canvas);
+		canvas.remove();
 		canvas = null;
 	}
 
@@ -1715,10 +1831,10 @@ function updatePlayIcon() {
 }
 
 document.getElementById('play-button').addEventListener('click', async () => {
-	const audio = document.getElementById('current-audio');
+	const currentAudio = audio;
 
 	if (isPlaying) {
-		await fadeOutAudio(audio);
+		await fadeOutAudio(currentAudio);
 		stopMusic();
 		toggleVisibility();
 	} else {
@@ -1992,7 +2108,7 @@ amountInput.addEventListener('input', () => {
 		if (phrases[phraseKey] && phraseKey !== lastPhrase) {
 		  lastPhrase = phraseKey;
 		  console.log(`Playing music for phrase: ${phraseKey}`);
-		  playMusic(phraseKey);
+		  playMusic(phraseKey, autoPlay);
 		  return;
 		}
 	  }
@@ -2148,64 +2264,74 @@ function containsAllWords(inputText, phraseKey) {
 	return words.every(word => inputText.includes(word));
 }
 
-async function changeBackground(imageUrl) {
-	if ((imageUrl.match(/!/g) || []).length > 4) {
-		return;
-	}
+let backgroundChangeRequest = 0;
+let backgroundTransition = Promise.resolve();
+
+function changeBackground(backgroundPath) {
+	if ((backgroundPath.match(/!/g) || []).length > 4) return Promise.resolve();
+
 	const body = document.body;
-	imageUrl = weburl + imageUrl;
+	if (body.dataset.backgroundPath === backgroundPath) return Promise.resolve();
 
-	const currentBackground = body.style.backgroundImage.replace(/url\((['"])?(.*?)\1\)/gi, '$2');
+	const requestId = ++backgroundChangeRequest;
+	const imageUrl = weburl + backgroundPath;
+	const preparedBackground = loadImage(imageUrl).then(async (img) => {
+		if (img.decode) await img.decode().catch(() => {});
 
-	if (currentBackground === imageUrl) return;
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		canvas.width = img.width;
+		canvas.height = 10;
+		ctx.drawImage(img, 0, img.height - 10, img.width, 10, 0, 0, img.width, 10);
 
-	body.classList.add('fade-in');
-
-	try {
-		await loadImage(imageUrl);
-
-		const img = new Image();
-		img.crossOrigin = 'anonymous'
-		img.src = imageUrl;
-
-		img.onload = async () => {
-			const canvas = document.createElement('canvas');
-			const ctx = canvas.getContext('2d');
-			canvas.width = img.width;
-			canvas.height = 10;
-			ctx.drawImage(img, 0, img.height - 10, img.width, 10, 0, 0, img.width, 10);
-
-			const dominantColor = await extractDominantColor(canvas);
-
-			body.style.backgroundColor = `rgb(${dominantColor.join(',')})`;
-			setTimeout(() => {
-				body.style.backgroundImage = `url(${imageUrl})`;
-			}, 200);
-
-			setTimeout(() => body.classList.remove('fade-in'), 1000);
+		return {
+			imageUrl,
+			backgroundPath,
+			dominantColor: await extractDominantColor(canvas)
 		};
-	} catch (error) {
-		console.error('Error:', error);
-	}
+	});
+
+	const transition = backgroundTransition.then(async () => {
+		const nextBackground = await preparedBackground;
+		if (requestId !== backgroundChangeRequest) return;
+
+		const backgroundUrl = `url("${nextBackground.imageUrl}")`;
+		if (!body.dataset.backgroundPath) {
+			body.style.setProperty('--background-current', backgroundUrl);
+			body.style.backgroundColor = `rgb(${nextBackground.dominantColor.join(',')})`;
+			body.dataset.backgroundPath = nextBackground.backgroundPath;
+			return;
+		}
+
+		body.style.setProperty('--background-next', backgroundUrl);
+		await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+		body.classList.add('background-transitioning');
+		await new Promise(resolve => setTimeout(resolve, 1000));
+
+		body.style.setProperty('--background-current', backgroundUrl);
+		body.style.backgroundColor = `rgb(${nextBackground.dominantColor.join(',')})`;
+		body.dataset.backgroundPath = nextBackground.backgroundPath;
+		body.classList.remove('background-transitioning');
+		body.style.removeProperty('--background-next');
+	});
+
+	backgroundTransition = transition.catch(error => console.error('Error:', error));
+	return backgroundTransition;
 }
 
 function loadImage(imageUrl) {
 	return new Promise((resolve, reject) => {
 		const img = new Image();
-		img.src = imageUrl;
-		img.onload = resolve;
+		img.crossOrigin = 'anonymous';
+		img.onload = () => resolve(img);
 		img.onerror = reject;
+		img.src = imageUrl;
 	});
 }
 
 function updateBackgroundBasedOnOrientation() {
 	if (typeof currentTrackInfo.currentTrackKeywords === "undefined") return;
-	const body = document.body;
-	const rawBackground = body.style.backgroundImage;
-	const currentBackground = rawBackground
-		.replace(/url\((['"])?(.*?)\1\)/gi, '$2')
-		.replace(/^.*?backgrounds\//, 'backgrounds/')
-		.replace(/^.*?bonus\//, 'bonus/');
+	const currentBackground = document.body.dataset.backgroundPath || '';
 
 	const track = phrases[currentTrackInfo.currentTrackKeywords];
 	const bg = Object.keys(track.background || {})[0] || '';
@@ -2332,7 +2458,7 @@ function handleKeyAction(key) {
 	const actions = {
 		'[H]': toggleVisibility,
 		'[P]': async () => {
-			const currentAudio = document.getElementById('current-audio');
+			const currentAudio = audio;
 			if (currentAudio) {
 				if (currentAudio.paused) {
 					fadeInAudio(currentAudio);
@@ -2352,10 +2478,7 @@ function handleKeyAction(key) {
 		},
 		'[M]': toggleTrackMenu,
 		'[Q]': toggleAudioFormat,
-		'[L]': () => {
-			loop = !loop;
-			showNotification(`Current song now will ${loop ? '' : 'not '}be looped infinitely`);
-		},
+		'[L]': toggleLoop,
 		'[B]': async () => {
 			if (currentHistoryIndex > 0) {
 				currentHistoryIndex--;

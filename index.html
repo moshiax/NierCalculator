@@ -1287,7 +1287,7 @@ trackMenuLoopButton.addEventListener('click', toggleLoop);
 trackMenuAutoplayButton.addEventListener('click', toggleAutoplay);
 
 function toggleTrackMenu() {
-	const isOpen = trackMenu.classList.toggle('show');
+	trackMenu.classList.toggle('show');
 }
 
 function populateTrackMenu() {
@@ -1384,12 +1384,10 @@ function updateTrackMenuState() {
 
 	trackMenuList.querySelectorAll('.track-menu-item').forEach((item) => {
 		const button = item.querySelector('.track-menu-button');
-		const control = item.querySelector('.track-menu-control');
 		const isCurrent = isCurrentTrack && button.dataset.trackName === trackName;
 		item.classList.toggle('is-current', isCurrent);
 		item.classList.toggle('is-playing', isCurrent && isAudioPlaying);
 		button.classList.toggle('is-playing', isCurrent);
-		const controlAction = isCurrent ? (isAudioPlaying ? 'Pause' : 'Resume') : 'Play';
 		const duration = currentAudio?.duration;
 		const percent = isCurrent && Number.isFinite(duration) && duration > 0
 			? Math.min(100, (currentAudio.currentTime / duration) * 100)
